@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* 鎏金闪动 (Gilded Shimmer) Animations for Major Philosophers */
+.gilded-shimmer-border {
+  overflow: hidden;
+  animation: gilded-pulse 5s ease-in-out infinite;
+}
+
+.gilded-shimmer-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -200%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 235, 120, 0) 30%,
+    rgba(255, 223, 0, 0.22) 50%,
+    rgba(255, 235, 120, 0) 70%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: gilded-sweep 6s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+@keyframes gilded-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 5px rgba(212, 175, 55, 0.15), inset 0 0 1px rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.55);
+  }
+  50% {
+    box-shadow: 0 3px 12px rgba(212, 175, 55, 0.42), inset 0 0 4px rgba(255, 223, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.9);
+  }
+}
+
+@keyframes gilded-sweep {
+  0% {
+    left: -200%;
+  }
+  25%, 100% {
+    left: 200%;
+  }
+}
+
+/* 扁平古典史学罗盘图例背景 (Flat Classical Astrolabe Compass Backgrounds - Decoupled from 3D Spin/Motion) */
+@keyframes compass-gaze-glow {
+  0%, 100% {
+    opacity: 0.3;
+    border-color: rgba(212, 175, 55, 0.35);
+  }
+  50% {
+    opacity: 0.6;
+    border-color: rgba(212, 175, 55, 0.6);
+  }
+}
+
+.compass-bg-ring-outer {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border: 1px dashed rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+  animation: compass-gaze-glow 6s ease-in-out infinite;
+}
+
+.compass-bg-ring-inner {
+  position: absolute;
+  width: 105px;
+  height: 105px;
+  border: 1px dotted rgba(212, 175, 55, 0.25);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 4;
+}
+
+
