@@ -36,6 +36,22 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Automatic custom domain redirection (redirect public/shared preview urls to knowphilosophers.site)
+  app.use((req, res, next) => {
+    const host = req.headers.host || "";
+    if (
+      host &&
+      !host.includes("knowphilosophers.site") &&
+      !host.includes("localhost") &&
+      !host.includes("127.0.0.1") &&
+      !host.includes("ais-dev-") && // Keep the developer preview working
+      !req.path.startsWith("/api/")
+    ) {
+      return res.redirect(301, `https://www.knowphilosophers.site${req.originalUrl}`);
+    }
+    next();
+  });
+
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
