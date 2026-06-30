@@ -221,7 +221,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                     .filter(p => p.id !== customP2Id)
                     .map(p => (
                       <option key={p.id} value={p.id}>
-                        {isEn ? p.nameEng : p.name} ({p.nameEng}) - {isEn ? (schoolTranslations[p.school] || p.school) : p.school}
+                        {isEn ? p.nameEng : `${p.name} (${p.nameEng})`} - {isEn ? (schoolTranslations[p.school] || p.school) : p.school}
                       </option>
                     ))}
                 </select>
@@ -244,7 +244,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                     .filter(p => p.id !== customP1Id)
                     .map(p => (
                       <option key={p.id} value={p.id}>
-                        {isEn ? p.nameEng : p.name} ({p.nameEng}) - {isEn ? (schoolTranslations[p.school] || p.school) : p.school}
+                        {isEn ? p.nameEng : `${p.name} (${p.nameEng})`} - {isEn ? (schoolTranslations[p.school] || p.school) : p.school}
                       </option>
                     ))}
                 </select>

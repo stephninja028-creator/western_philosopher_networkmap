@@ -445,6 +445,148 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
     }
   });
 
+  // 3. Multilateral Sages "⚔️ 众神合议庭" AI Plurilateral Custom Debate Arena (Up to 5 Sages)
+  app.post("/api/debate-multilateral", async (req, res) => {
+    const { philosophers, topic } = req.body;
+
+    if (!philosophers || !Array.isArray(philosophers) || philosophers.length < 2 || !topic) {
+      return res.status(400).json({ error: "Missing required debate parameters or insufficient sages" });
+    }
+
+    try {
+      const key = process.env.GEMINI_API_KEY;
+      if (!key) {
+        // Fallback generator for a clean trial experience if key is missing
+        const fallbackRounds = [
+          {
+            speakerName: "雅典露天学园大会主持",
+            speakerId: "moderator",
+            stance: "moderator",
+            stanceLabel: "大会中立主持",
+            utterance: `[试用体验模式] 雅典大理石会议厅大门已缓缓开启！针对宏大思辨命题：【${topic}】，特邀以下各位圣哲登台激扬交锋：`
+          }
+        ];
+
+        // Let each selected philosopher speak once
+        philosophers.forEach((p: any, idx: number) => {
+          const mockStances = ["pro", "contra", "neutral"];
+          const mockStanceLabels = ["支持派：追求自我释放", "反对派：警惕奴役陷阱", "中立派：客观辩证审视"];
+          const chosenIndex = idx % 3;
+          fallbackRounds.push({
+            speakerName: p.name || p.nameEng,
+            speakerId: p.id,
+            stance: mockStances[chosenIndex],
+            stanceLabel: mockStanceLabels[chosenIndex],
+            utterance: `老铁们，我代表【${p.school}】来唠两句！大家别把哲学想得那么玄乎，说白了，针对“${topic}”这个命题，我的理念很简单。我觉得我们不能被表象蒙蔽了双眼。这就像：“${p.quote || '走自己的路'}”所说的那样。大家别整那些虚头巴脑的，回归本真，才是硬道理！`
+          });
+        });
+
+        fallbackRounds.push({
+          speakerName: "雅典露天学园大会主持",
+          speakerId: "moderator",
+          stance: "moderator",
+          stanceLabel: "大会中立主持",
+          utterance: "各位圣贤的智慧交相辉映，人类理性犹如繁星。大家站边各有道理，最重要的是独立思考！请在 Settings > Secrets 配置 GEMINI_API_KEY 以点亮永恒火把，开启真正的多维度智能化大碰撞！"
+        });
+
+        return res.json({
+          success: true,
+          rounds: fallbackRounds
+        });
+      }
+
+      const ai = getGeminiClient();
+
+      const sagesIntro = philosophers.map((p: any, i: number) => {
+        return `贤哲 ${i + 1}: 【${p.name} (${p.nameEng})】\n- 思想流派: ${p.school}\n- 核心宗旨: ${p.details || p.worldviewSummary}\n- 经典格言: ${p.quote || ''}`;
+      }).join('\n\n');
+
+      const systemInstruction = `你现在是雅典露天学园、最高理性裁判大厅的【首席合议法官 (moderator)】。
+你将主持一场由多位（2到5位）伟大哲学家参与、具有极其震撼学术密度、深度思想碰撞的【众神多边合议论辩】！
+
+辩论命题目标：“${topic}”
+
+合议庭入席席位：
+${sagesIntro}
+
+【核心任务与要求】：
+1. 让哲学家们就该话题进行【明确的站边/立场分类】！
+   - 每个人必须选择以下三种立场之一：'pro' (支持/赞同派)、'contra' (反对/驳斥派) 或 'neutral' (中立/辩证/超越派)。
+   - 并在 "stanceLabel" 中写下一个非常通俗、一针见血的 2-6 字立场小标题（例如：“支持：解放内心欲望”、“反对：警惕科技奴役”、“中立：辩证看待双刃剑”）。
+
+2. 强烈要求：【极度说人话，不要满纸文绉绉，拒绝生硬黑话】！
+   - 每一个哲学家的发言必须使用【第一人称】，口吻要非常【接地气、直白、通俗易懂、口语化、生动风趣】。
+   - 必须结合【现代社会的生活细节和现象】来进行比喻和反驳。
+     - 例如：叔本华可以用“天天刷手机/短视频就像喝盐水，越刷越渴，空虚得要命”来比喻欲望的痛苦；
+     - 尼采可以用“打工和割韭菜”来咆哮，鼓励人们要做掌控自己命运的“超人”，不要当唯唯诺诺的奴隶；
+     - 苏格拉底可以用最直白的大白话在街头“疯狂抬杠、连环提问”把对方绕进去；
+     - 康德可以用极其有条理、大白话的逻辑框架把人说得清清楚楚；
+     - 萨特可以用“你今天晚饭吃外卖还是堂食，都是你自己的绝对自由选择，但也得自己买单”来解释存在先于本质。
+   - 发言要【一针见血、充满火药味和学术幽默感】，像活生生的人在面对面拍桌子聊天，而不是在念干燥的教科书。
+
+请生成一个极其连贯、包含 exactly 7-10 个回合（根据席位数量分配）的激烈多边辩论卷轴：
+- 回合 1 (Moderator 登场)：首席法官用大白话引出命题，调动全场气氛，严肃宣布大门开启，引出首位发言人。
+- 回合 2 至 K (圣哲立论与站边)：哲学家们轮流登台，亮出鲜明的“支持/反对/中立”立场，用最直白的大白话论证自己，并狠狠吐槽或调侃前人观点的荒谬处。
+- 回合 K+1 至 M (自由学术驳击)：哲学家们短兵相接，拍桌子互怼。字字玑珠，句句充满形而上学的底蕴和现代大白话的温度。
+- 最后一回合 (Moderator 判词)：首席法官登台，用极富智慧但依然亲切白话的语言进行深刻总结，阐明各家智慧如何帮我们这些现代打工人看清世界。
+
+请严苛遵循以下 JSON 格式输出，确保 speakerId 完美匹配其 philosopherId，主持人为 'moderator'。`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: `针对辩题“${topic}”，请组织这场多边群星大辩论会。输出符合 schema 的完整 JSON 数据。`,
+        config: {
+          systemInstruction,
+          temperature: 0.95,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              rounds: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    speakerName: { type: Type.STRING },
+                    speakerId: { type: Type.STRING, description: "对应哲学家对象的 id，如果是主持人请填写 'moderator'" },
+                    stance: { type: Type.STRING, description: "立场，只能是 'pro'、'contra'、'neutral' 或 'moderator'" },
+                    stanceLabel: { type: Type.STRING, description: "简明扼要的、大白话的立场标签（如：‘支持：追求欲望’，‘反对：精神空虚’等，2-6个字）" },
+                    utterance: { type: Type.STRING, description: "极度说人话、口语化、使用现代通俗比喻、充满哲理火药味的生动发言" }
+                  },
+                  required: ["speakerName", "speakerId", "stance", "stanceLabel", "utterance"]
+                }
+              }
+            },
+            required: ["rounds"]
+          }
+        }
+      });
+
+      const responseText = response.text;
+      if (!responseText) {
+        throw new Error("No text returned by Gemini");
+      }
+
+      const parsed = JSON.parse(responseText.trim());
+      res.json({
+        success: true,
+        rounds: parsed.rounds
+      });
+    } catch (err: any) {
+      console.error("Gemini Multilateral Debate Arena Error:", err);
+      res.json({
+        success: false,
+        rounds: [
+          {
+            speakerName: "雅典首席法官",
+            speakerId: "moderator",
+            utterance: `由于合议庭发生神能扰动，大辩论暂时休庭，原因：${err.message || err}。请重新挑选圣哲或调整题目召唤。`
+          }
+        ]
+      });
+    }
+  });
+
   // Vite middleware setup for Development vs Production
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

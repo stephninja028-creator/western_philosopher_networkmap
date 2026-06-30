@@ -5,10 +5,11 @@ import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
+import { MultilateralSymposium } from './components/MultilateralSymposium';
 
 // Background MP3 Music Tracker for Ambient Study
 let bgAudio: HTMLAudioElement | null = null;
@@ -106,17 +107,26 @@ const stopSynthFallback = () => {
 
 const startStudyMusic = () => {
   try {
+    // If bgAudio already exists but its source is not the new Debussy track, stop and recreate it
+    if (bgAudio && !bgAudio.src.includes('debussy.mp3')) {
+      try {
+        bgAudio.pause();
+      } catch (e) {}
+      bgAudio = null;
+    }
+
     if (!bgAudio) {
-      bgAudio = new Audio('/assets/background.mp3');
+      // Use a cache-busting version query (?v=2) to guarantee the browser pulls the fresh audio file immediately
+      bgAudio = new Audio('/assets/debussy.mp3?v=2');
       bgAudio.loop = true;
-      bgAudio.volume = 0.35; // Soft ambient volume
+      bgAudio.volume = 0.28; // Soft classical volume
       bgAudio.addEventListener('error', () => {
-        console.warn("Local background.mp3 is missing or not supported on this platform. Activating Greek procedural ambient synthesizer fallback.");
+        console.warn("Background audio stream load failed. Activating Greek procedural ambient synthesizer fallback.");
         startSynthFallback();
       });
     }
     bgAudio.play().catch(err => {
-      console.warn("Background MP3 play stalled (interaction missing or file absent). Activating responsive procedural synthesizer fallback.");
+      console.warn("Background music play stalled (interaction missing). Activating responsive procedural synthesizer fallback.");
       startSynthFallback();
     });
   } catch (err) {
@@ -191,6 +201,7 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
 }
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState<'chronology' | 'debate'>('chronology');
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<Philosopher | null>(() => {
     // Default to Socrates in Epoch 1
@@ -1027,8 +1038,46 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
+      {/* Hellenic Navigation Tabs */}
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-8 z-20">
+        <div className="flex border-b-2 border-[#D4AF37]/35 pb-0 justify-center sm:justify-start gap-4">
+          <button
+            onClick={() => {
+              setActiveTab('chronology');
+              setDetailedPhilosopher(null);
+            }}
+            className={`px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer ${
+              activeTab === 'chronology'
+                ? 'bg-[#0B2545] border-[#D4AF37]/50 text-[#FAF8F5]'
+                : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]'
+            }`}
+          >
+            <Scroll className="w-4 h-4 text-[#D4AF37]" />
+            <span>{language === 'zh' ? '📜 思想沿革史卷' : '📜 Chronicle Roll'}</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              setActiveTab('debate');
+              setDetailedPhilosopher(null);
+            }}
+            className={`px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer relative ${
+              activeTab === 'debate'
+                ? 'bg-[#0B2545] border-[#D4AF37]/50 text-[#FAF8F5]'
+                : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]'
+            }`}
+          >
+            <Swords className="w-4 h-4 text-[#C2593F]" />
+            <span>{language === 'zh' ? '⚔️ 众神多边辩论' : '⚔️ Multilateral Debate'}</span>
+            <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded-full font-sans font-extrabold animate-pulse shadow-3xs">
+              NEW
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'chronology' ? (
+        <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
 
         {/* MAIN LAYOUT: Continuous Scrollway (Left) and Sticky Details Stele (Right) */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative mt-4">
@@ -1170,9 +1219,11 @@ export default function App() {
                     <h2 className="font-serif font-extrabold text-xl text-gray-900 tracking-wide mt-2 text-center border-b border-double border-[#D4AF37]/40 pb-1.5">
                       {language === 'en' ? (selectedPhilosopher.nameEng || selectedPhilosopher.name) : selectedPhilosopher.name}
                     </h2>
-                    <p className="text-[9.5px] text-gray-400 uppercase tracking-widest text-center mt-1 block font-serif font-light">
-                      {language === 'en' ? selectedPhilosopher.name : selectedPhilosopher.nameEng}
-                    </p>
+                    {language !== 'en' && (
+                      <p className="text-[9.5px] text-gray-400 uppercase tracking-widest text-center mt-1 block font-serif font-light">
+                        {selectedPhilosopher.nameEng}
+                      </p>
+                    )}
                   </div>
 
                   {/* Core concepts lists */}
@@ -1341,9 +1392,11 @@ export default function App() {
                   <h2 className="font-serif font-extrabold text-xl text-gray-900 tracking-wide mt-2 text-center border-b border-double border-[#D4AF37]/40 pb-1.5">
                     {language === 'en' ? (selectedPhilosopher.nameEng || selectedPhilosopher.name) : selectedPhilosopher.name}
                   </h2>
-                  <p className="text-[9.5px] text-gray-400 uppercase tracking-widest text-center mt-1 block font-serif font-light">
-                    {language === 'en' ? selectedPhilosopher.name : selectedPhilosopher.nameEng}
-                  </p>
+                  {language !== 'en' && (
+                    <p className="text-[9.5px] text-gray-400 uppercase tracking-widest text-center mt-1 block font-serif font-light">
+                      {selectedPhilosopher.nameEng}
+                    </p>
+                  )}
                 </div>
 
                 {/* Core concepts lists */}
@@ -1543,6 +1596,22 @@ export default function App() {
         </section>
 
       </main>
+      ) : (
+        <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
+          <MultilateralSymposium
+            language={language}
+            debateRemaining={debateRemaining}
+            unlimitedActivated={unlimitedActivated}
+            onDeductDebate={handleDeductDebate}
+            onTriggerPayment={() => setPaymentModalOpen(true)}
+            onSelectPhilosopher={(p) => {
+              setDetailedPhilosopher(p);
+              setActiveTab('chronology');
+            }}
+            setView={(v) => setActiveTab(v)}
+          />
+        </main>
+      )}
 
       {/* Decorative Greek Meander Wave Footer Accent */}
       <footer className="mt-20 border-t border-[#0B2545]/20 pt-10 text-center text-xs text-[#0B2545]/85 relative bg-[#FAF8F5] pb-16">
@@ -1559,7 +1628,7 @@ export default function App() {
       <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-white/95 backdrop-blur-sm border border-[#D4AF37]/35 shadow-[0_8px_32px_rgba(11,37,69,0.12)] px-5 py-3 rounded-full flex items-center justify-between gap-8 max-w-[92vw] select-none text-slate-700 font-sans transition-all">
         {/* Leftmost version identifier */}
         <div className="font-mono text-xs font-bold tracking-wider text-slate-400 pl-1 uppercase border-r border-[#D4AF37]/25 pr-4">
-          v1.01
+          v1.0.2
         </div>
 
         {/* Action jump links */}

@@ -165,7 +165,7 @@ export const PhilosopherCard: React.FC<PhilosopherCardProps> = ({
   // Handle bilingualism for fields:
   const displaySchool = isEn ? (schoolTranslations[school] || school) : school;
   const displayMainName = isEn ? (nameEng || name) : name;
-  const displaySubName = isEn ? name : nameEng;
+  const displaySubName = isEn ? '' : nameEng;
 
   const displayStars = pedigree.stars;
   const displayPedigreeLabel = isEn ? (
