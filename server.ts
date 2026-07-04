@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 import fs from "fs";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -55,6 +56,134 @@ async function startServer() {
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // User Feedback collection with persistent JSON storage
+  const FEEDBACK_PATH = path.join(process.cwd(), "feedback.json");
+
+  function getFeedbackList(): any[] {
+    try {
+      if (fs.existsSync(FEEDBACK_PATH)) {
+        const data = fs.readFileSync(FEEDBACK_PATH, "utf8");
+        return JSON.parse(data) || [];
+      }
+    } catch (err) {
+      console.error("Error reading feedback list:", err);
+    }
+    return [];
+  }
+
+  function saveFeedback(item: any) {
+    try {
+      const list = getFeedbackList();
+      list.push({
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        ...item
+      });
+      fs.writeFileSync(FEEDBACK_PATH, JSON.stringify(list, null, 2), "utf8");
+    } catch (err) {
+      console.error("Error writing feedback:", err);
+    }
+  }
+
+  async function sendFeedbackEmail(feedback: { name: string; email: string; type: string; content: string }) {
+    const host = process.env.SMTP_HOST;
+    const portStr = process.env.SMTP_PORT;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    const receiver = process.env.FEEDBACK_RECEIVER_EMAIL || "stephninja028@gmail.com";
+
+    if (!host || !user || !pass) {
+      console.warn("[Feedback Mailer] SMTP config (SMTP_HOST, SMTP_USER, SMTP_PASS) is incomplete. Skipping email forwarding.");
+      return { success: false, reason: "SMTP credentials not configured in secrets" };
+    }
+
+    const port = portStr ? parseInt(portStr, 10) : 465;
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: {
+          user,
+          pass
+        },
+        timeout: 8000 // 8 seconds timeout to avoid hanging the background process
+      } as any);
+
+      const mailOptions = {
+        from: `"${feedback.name}" <${user}>`,
+        replyTo: feedback.email || undefined,
+        to: receiver,
+        subject: `【中国哲学学术系统】收到新反馈 - ${feedback.type}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc;">
+            <h2 style="color: #0f172a; margin-top: 0; border-bottom: 2px solid #0284c7; padding-bottom: 8px; font-size: 20px;">收到新的用户反馈</h2>
+            
+            <div style="margin: 15px 0; font-size: 14px; line-height: 1.5; color: #334155;">
+              <p style="margin: 5px 0;"><strong>反馈类型：</strong> <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 13px;">${feedback.type}</span></p>
+              <p style="margin: 5px 0;"><strong>反馈人：</strong> ${feedback.name}</p>
+              <p style="margin: 5px 0;"><strong>联系邮箱：</strong> ${feedback.email || '<span style="color: #94a3b8; font-style: italic;">未提供</span>'}</p>
+              <p style="margin: 5px 0;"><strong>提交时间：</strong> ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}</p>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #ffffff; border-left: 4px solid #0284c7; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <h4 style="margin: 0 0 10px 0; color: #1e293b; font-size: 15px;">反馈内容：</h4>
+              <p style="margin: 0; color: #334155; line-height: 1.6; white-space: pre-wrap; font-size: 14px;">${feedback.content}</p>
+            </div>
+            
+            <div style="margin-top: 25px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+              中国哲学学术系统自动化邮件服务
+            </div>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[Feedback Mailer] Successfully forwarded feedback to ${receiver}`);
+      return { success: true };
+    } catch (error: any) {
+      console.error("[Feedback Mailer] Error sending email:", error);
+      return { success: false, error: error?.message || error };
+    }
+  }
+
+  app.post("/api/feedback", (req, res) => {
+    const { name, email, type, content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ success: false, message: "反馈内容不能为空" });
+    }
+
+    const feedbackItem = { 
+      name: name?.trim() || "匿名学人", 
+      email: email?.trim() || "", 
+      type: type || "Suggestion", 
+      content: content.trim() 
+    };
+
+    // 1. Save to local feedback.json
+    saveFeedback(feedbackItem);
+
+    // 2. Forward to author email asynchronously (non-blocking)
+    sendFeedbackEmail(feedbackItem).then((result) => {
+      if (result.success) {
+        console.log(`[Feedback System] Email forwarded to author successfully.`);
+      } else {
+        console.log(`[Feedback System] Email forwarding skipped or failed:`, result.error || result.reason);
+      }
+    });
+
+    res.json({ 
+      success: true, 
+      message: "感谢您的反馈！反馈已成功记录，并正在发送邮件通知作者。" 
+    });
+  });
+
+  app.get("/api/feedback", (req, res) => {
+    const list = getFeedbackList();
+    res.json({ success: true, feedback: list });
   });
 
   // Full-stack Gemini-powered translation endpoint

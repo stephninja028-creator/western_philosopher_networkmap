@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { philosophyData } from './data/philosophyData';
 import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
@@ -287,6 +287,62 @@ export default function App() {
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
   const [language, setLanguage] = useState<'zh' | 'en'>('zh');
   const [copiedEmail, setCopiedEmail] = useState<boolean>(false);
+  const [copiedWeChat, setCopiedWeChat] = useState<boolean>(false);
+
+  // User feedback modal states and handlers
+  const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [feedbackName, setFeedbackName] = useState<string>('');
+  const [feedbackEmail, setFeedbackEmail] = useState<string>('');
+  const [feedbackType, setFeedbackType] = useState<string>('Suggestion');
+  const [feedbackContent, setFeedbackContent] = useState<string>('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState<boolean>(false);
+  const [feedbackSuccessMessage, setFeedbackSuccessMessage] = useState<string>('');
+  const [feedbackErrorMessage, setFeedbackErrorMessage] = useState<string>('');
+
+  const handleFeedbackSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!feedbackContent.trim()) {
+      setFeedbackErrorMessage(language === 'zh' ? '反馈内容不能为空' : 'Feedback content cannot be empty');
+      return;
+    }
+    setFeedbackSubmitting(true);
+    setFeedbackErrorMessage('');
+    setFeedbackSuccessMessage('');
+
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: feedbackName,
+          email: feedbackEmail,
+          type: feedbackType,
+          content: feedbackContent
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setFeedbackSuccessMessage(language === 'zh' ? '感谢反馈！作者已收到您的宝贵意见！' : 'Feedback submitted! Thank you for helping us optimize!');
+        setFeedbackContent('');
+        setFeedbackName('');
+        setFeedbackEmail('');
+        setTimeout(() => {
+          setShowFeedbackModal(false);
+          setFeedbackSuccessMessage('');
+        }, 2500);
+      } else {
+        setFeedbackErrorMessage(data.message || (language === 'zh' ? '提交失败，请稍后重试' : 'Submission failed. Please try again.'));
+      }
+    } catch (err) {
+      console.error("Feedback submit error:", err);
+      setFeedbackErrorMessage(language === 'zh' ? '连接服务器失败，请检查网络' : 'Network error. Please try again.');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
 
   // Dynamic Gemini translation resolver states
   const [translatedPhilosopherValues, setTranslatedPhilosopherValues] = useState<Record<string, any>>({});
@@ -1653,6 +1709,19 @@ export default function App() {
             <Mail className="w-3.5 h-3.5 text-sky-600 transition-transform group-hover:scale-110" />
             contact
           </button>
+          
+          <button 
+            type="button"
+            onClick={() => {
+              setFeedbackErrorMessage('');
+              setFeedbackSuccessMessage('');
+              setShowFeedbackModal(true);
+            }}
+            className="hover:text-[#0D5C75] cursor-pointer transition-colors tracking-wide flex items-center gap-1 font-semibold group text-amber-700"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-amber-600 transition-transform group-hover:scale-110" />
+            {language === 'zh' ? '反馈' : 'feedback'}
+          </button>
         </div>
 
         {/* Right side interactive icons */}
@@ -1772,6 +1841,119 @@ export default function App() {
         language={language}
         onSuccess={handlePaymentSuccess}
       />
+
+      {/* ALWAYS ACTIVE FLOATING FEEDBACK SEAL ON HOMEPAGE */}
+      <div className="fixed right-4 md:right-6 bottom-24 z-40 flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setFeedbackErrorMessage('');
+            setFeedbackSuccessMessage('');
+            setShowFeedbackModal(true);
+          }}
+          className="flex items-center gap-2 px-4 py-3 bg-[#C2593F] hover:bg-[#A8452D] text-[#FAF8F5] font-serif font-extrabold text-xs tracking-wider border-2 border-[#D4AF37] rounded-full shadow-[0_4px_16px_rgba(194,89,63,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer uppercase"
+        >
+          <MessageSquare className="w-4 h-4 text-[#D4AF37] animate-pulse" />
+          <span>{language === 'zh' ? '✍️ 反馈作者' : '✍️ Feedback'}</span>
+        </button>
+      </div>
+
+      {/* ATHENIAN ACADEMIC FEEDBACK MODAL */}
+      {showFeedbackModal && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0B2545]/60 backdrop-blur-xs transition-opacity duration-300 animate-fadeIn"
+          onClick={() => setShowFeedbackModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-md bg-[#FAF8F5] border-3 double border-[#D4AF37] rounded-xl shadow-2xl p-6 flex flex-col gap-5 text-slate-800 font-serif"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#D4AF37]/35 pb-2">
+              <div className="flex items-center gap-1.5 text-[#0B2545] font-bold">
+                <span>✍️</span>
+                <h3>{language === 'zh' ? '联系作者反馈 / Contact Author' : 'Contact Author Feedback'}</h3>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setShowFeedbackModal(false)}
+                className="text-gray-400 hover:text-slate-700 font-sans font-bold w-6 h-6 rounded-full hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 font-sans text-xs">
+              <p className="font-serif italic text-slate-650 leading-relaxed text-justify">
+                {language === 'zh' 
+                  ? '为了更直接、高效地沟通，欢迎您通过以下方式直接联系作者提交反馈（如改进建议、学术修正或系统漏洞等），每一份反馈作者都会悉心研读！'
+                  : 'To communicate more directly and efficiently, you are welcome to contact the author directly through the following channels to submit your feedback (such as feature suggestions, scholastic corrections, or system bugs).'}
+              </p>
+
+              {/* WECHAT */}
+              <div className="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-2">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">💬 微信联系 / WeChat</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-[14px] font-bold text-[#0D5C75] select-all font-semibold">
+                    Courageandpeace
+                  </span>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('Courageandpeace');
+                      setCopiedWeChat(true);
+                      setTimeout(() => setCopiedWeChat(false), 2000);
+                    }}
+                    className="px-3 py-1 text-[11px] bg-[#0B2545] text-[#FDFBF7] rounded border border-[#D4AF37]/50 hover:bg-[#0D5C75] transition-all font-serif font-bold scale-98 active:scale-95 cursor-pointer flex items-center gap-1"
+                  >
+                    {copiedWeChat ? <Check className="w-3.5 h-3.5 text-green-300" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedWeChat ? '已复制' : '复制微信'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* EMAIL */}
+              <div className="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-2">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">✉️ 电子邮箱 / Email Address</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-[14px] font-bold text-[#0D5C75] select-all font-semibold">
+                    Stephninja028@gmail.com
+                  </span>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('Stephninja028@gmail.com');
+                      setCopiedEmail(true);
+                      setTimeout(() => setCopiedEmail(false), 2000);
+                    }}
+                    className="px-3 py-1 text-[11px] bg-[#0B2545] text-[#FDFBF7] rounded border border-[#D4AF37]/50 hover:bg-[#0D5C75] transition-all font-serif font-bold scale-98 active:scale-95 cursor-pointer flex items-center gap-1"
+                  >
+                    {copiedEmail ? <Check className="w-3.5 h-3.5 text-green-300" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedEmail ? '已复制' : '复制邮箱'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-450 italic text-justify leading-relaxed">
+                * {language === 'zh'
+                    ? '您的每一次反馈都是对我们最大的支持，我们将持续优化学术系统。'
+                    : 'Each of your feedbacks is our greatest support, we will continue to optimize the academic system.'}
+              </div>
+
+              <div className="flex justify-center border-t border-slate-150 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="w-full py-2 bg-[#0B2545] hover:bg-[#0D5C75] text-[#FAF8F5] rounded border border-[#D4AF37]/50 shadow transition-all hover:scale-102 cursor-pointer text-xs font-serif font-semibold"
+                >
+                  {language === 'zh' ? '关 闭' : 'Close'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
