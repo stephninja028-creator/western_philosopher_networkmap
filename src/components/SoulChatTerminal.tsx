@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Sparkles, MessageSquare, AlertCircle, RefreshCw, Key } from 'lucide-react';
+import { schoolTranslations } from '../data/translationsEng';
 
 interface Philosopher {
   id: string;
@@ -31,7 +32,7 @@ interface SoulChatTerminalProps {
   freeRemaining: number;
 }
 
-const SUGGESTED_PROMPTS: Record<string, string[]> = {
+const SUGGESTED_PROMPTS_ZH: Record<string, string[]> = {
   socrates: [
     "为什么说‘未经审视的生活是不值得过的’？",
     "能否用你的‘产婆术’帮我探讨一下什么是真正的正义？",
@@ -79,6 +80,54 @@ const SUGGESTED_PROMPTS: Record<string, string[]> = {
   ]
 };
 
+const SUGGESTED_PROMPTS_EN: Record<string, string[]> = {
+  socrates: [
+    "Why is 'the unexamined life not worth living'?",
+    "Could you use your 'midwifery method' to help me explore what true justice is?",
+    "When the Athenian court sentenced you to death, what was your true inner state?"
+  ],
+  plato: [
+    "What does your 'Cave Allegory' suggest for modern digital realities like the metaverse and AI?",
+    "Can the 'Philosopher King' in the Republic ever be perfectly realized in the real world?",
+    "Please explain how the world of Forms maps to our sensible material world."
+  ],
+  aristotle: [
+    "What is your greatest disagreement with Plato? What does 'I love my teacher, but I love truth more' mean?",
+    "Can your 'Golden Mean' help resolve the anxiety and mental fatigue of modern people?",
+    "Could you explain your 'Four Causes' (material, formal, efficient, and final) in simple terms?"
+  ],
+  descartes: [
+    "If 'Cogito, ergo sum' comes from doubting everything, how should I doubt the reality in front of me?",
+    "Since mind and body are distinct dualities, how do they interact and affect each other?",
+    "In the era of AI awakening, do you think silicon-based life could possess 'mind and will'?"
+  ],
+  locke: [
+    "Why do you assert that our minds at birth are just a blank slate ('tabula rasa') with no markings?",
+    "What is the foundational significance of your 'Social Contract' and natural rights to modern civilization?",
+    "What is the essential difference between primary qualities (shape, mass) and secondary qualities (color, temperature)?"
+  ],
+  schopenhauer: [
+    "Why do you say 'life is like a pendulum, swinging painfully between pain and boredom'?",
+    "How can ordinary people free themselves from the torment of the Will to live through 'art and aesthetics'?",
+    "How do you view Nietzsche's sharp criticism of your negation of the Will to live?"
+  ],
+  nietzche: [
+    "What were you warning the world when you proclaimed 'God is dead'? How should we re-evaluate all values?",
+    "What is the spirit of the 'Übermensch' (Overman)? How can I transcend nihilism and become my own master?",
+    "Interpret the deep meaning of the 'Will to Power' and 'Eternal Recurrence' for me."
+  ],
+  hegel: [
+    "Can you explain your 'Absolute Spirit' and Dialectics in plain terms?",
+    "What does 'What is rational is real; and what is real is rational' signify?",
+    "In the Master-Slave dialectic, how does the slave overcome the master to achieve independent consciousness through 'labor'?"
+  ],
+  marx: [
+    "In this age dominated by AI and highly automated algorithms, how has the 'theory of surplus value' evolved?",
+    "Why did you say 'Philosophers have only interpreted the world in various ways; the point is to change it'?",
+    "How does your historical materialism view the endless expansion of capital and the alienation of human labor?"
+  ]
+};
+
 const DEFAULT_GREETINGS: Record<string, { zh: string; en: string }> = {
   socrates: {
     zh: "你好，远方的思想者。‘我知道我一无所知’，你今日来到雅典集市，是想与我探讨关于正义、美德，还是关于真理的本质？不妨坐下，让我们层层剥茧、真诚对谈。",
@@ -114,8 +163,9 @@ export const SoulChatTerminal: React.FC<SoulChatTerminalProps> = ({
   const greetingText = (() => {
     const custom = DEFAULT_GREETINGS[philosopher.id];
     if (custom) return isEn ? custom.en : custom.zh;
+    const displaySchool = isEn ? (schoolTranslations[philosopher.school] || philosopher.school) : philosopher.school;
     return isEn
-      ? `Greetings. I am ${philosopher.nameEng} of the ${philosopher.school} school. ${philosopher.quote ? `"${philosopher.quote}".` : ''} Let us ponder eternity.`
+      ? `Greetings. I am ${philosopher.nameEng} of the ${displaySchool} school. ${philosopher.quote ? `"${philosopher.quote}".` : ''} Let us ponder eternity.`
       : `你好，我是隶属【${philosopher.school}】的 ${philosopher.name}。学无止境，悟道无极。你愿与这不朽的意志切磋何种精神奥秘？`;
   })();
 
@@ -127,9 +177,10 @@ export const SoulChatTerminal: React.FC<SoulChatTerminalProps> = ({
   const [apiError, setApiError] = useState('');
 
   // Sages suggested prompts for this specific philosopher
-  const samplePrompts = SUGGESTED_PROMPTS[philosopher.id] || 
+  const displaySchoolForPrompts = isEn ? (schoolTranslations[philosopher.school] || philosopher.school) : philosopher.school;
+  const samplePrompts = (isEn ? SUGGESTED_PROMPTS_EN[philosopher.id] : SUGGESTED_PROMPTS_ZH[philosopher.id]) || 
     (isEn 
-      ? [`Explain key concepts of ${philosopher.school}`, "How to find truth amidst modern chaos?", "What is your main philosophical quote about?"] 
+      ? [`Explain key concepts of ${displaySchoolForPrompts}`, "How to find truth amidst modern chaos?", "What is your main philosophical quote about?"] 
       : [`如何理解【${philosopher.concepts?.[0] || '你学说的主张'}】的核心？`, "在当下算法物质世界中中，我们该如何安置心灵？", "你对后辈有什么启发和忠告？"]);
 
   // Scroll to bottom

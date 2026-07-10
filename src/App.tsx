@@ -146,6 +146,60 @@ const stopStudyMusic = () => {
   stopSynthFallback();
 };
 
+const isLocalFallbackComplete = (id: string): boolean => {
+  const fb: any = philosopherFallbackTranslations[id];
+  if (!fb) return false;
+  return !!(fb.details && fb.worldviewSummary && fb.lifeAndTimes);
+};
+
+function getCleanEnglishFallback(p: Philosopher): {
+  details: string;
+  worldviewSummary: string;
+  lifeAndTimes: string;
+  quote: string;
+  concepts: string[];
+  comparisons: any[];
+} {
+  const id = p.id;
+  const fallbackObj = (philosopherFallbackTranslations[id] || {}) as any;
+  const schoolEn = schoolTranslations[p.school] || p.school;
+  const eraEn = translateEraDisp(p.eraDisp);
+  const conceptsEn = p.concepts.map(c => conceptTranslations[c] || c);
+
+  const details = fallbackObj.details || 
+    `${p.nameEng} was an influential philosopher of the ${schoolEn} school active during the ${eraEn}. ${p.details ? "They made significant contributions to classical Western philosophy." : ""}`;
+
+  const worldviewSummary = fallbackObj.worldviewSummary || 
+    `${p.nameEng}'s philosophical worldview centers on their core doctrine and tenets. Belonging to the ${schoolEn} school, they formulated a distinct system of thought that sought to address the fundamental nature of reality, knowledge, and existence, leaving a lasting legacy on the development of subsequent intellectual lineages.`;
+
+  const lifeAndTimes = fallbackObj.lifeAndTimes || 
+    `Born and active in the ${eraEn} era, ${p.nameEng} developed their doctrines amidst the shifting cultural and political landscapes of their time. As a key representative of the ${schoolEn} school, their life and teachings responded directly to the intellectual challenges of their contemporaries, shaping the academic pathways of Western thought.`;
+
+  const quote = fallbackObj.quote || p.quote || "";
+  const concepts = fallbackObj.concepts || conceptsEn;
+
+  const comparisons = p.comparisons?.map((comp, idx) => {
+    const fbComp = fallbackObj.comparisons?.[idx];
+    const withNameEn = comp.withName;
+    return {
+      withName: withNameEn,
+      coreDifference: fbComp?.coreDifference || 
+        `While ${p.nameEng} formulated their system within the framework of the ${schoolEn} school, ${withNameEn} offered a contrasting methodology, leading to a profound debate on the fundamental tenets of their respective doctrines.`,
+      reflectionPrompt: fbComp?.reflectionPrompt || 
+        `When evaluating the arguments of both ${p.nameEng} and ${withNameEn}, which conceptual framework provides a more coherent explanation of reality and human experience?`
+    };
+  }) || [];
+
+  return {
+    details,
+    worldviewSummary,
+    lifeAndTimes,
+    quote,
+    concepts,
+    comparisons
+  };
+}
+
 function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[] {
   if (language === 'en') {
     const worksMapEng: Record<string, string[]> = {
@@ -363,8 +417,8 @@ export default function App() {
 
     if (translatedPhilosopherValues[targetId]) return;
 
-    // Fetch from pre-defined local translations first to avoid unnecessary roundtrips
-    if (philosopherFallbackTranslations[targetId]) {
+    // Fetch from pre-defined local translations first ONLY if complete to avoid missing fields
+    if (philosopherFallbackTranslations[targetId] && isLocalFallbackComplete(targetId)) {
       setTranslatedPhilosopherValues(prev => ({
         ...prev,
         [targetId]: philosopherFallbackTranslations[targetId]
@@ -410,17 +464,14 @@ export default function App() {
       } catch (err) {
         console.warn("Failed to fetch dynamic translation, using local fallback...", err);
         if (active) {
-          const fallback = philosopherFallbackTranslations[targetId] || {
-            details: selectedPhilosopher?.details || detailedPhilosopher?.details || "",
-            concepts: selectedPhilosopher?.concepts || detailedPhilosopher?.concepts || [],
-            worldviewSummary: selectedPhilosopher?.worldviewSummary || detailedPhilosopher?.worldviewSummary || "",
-            lifeAndTimes: selectedPhilosopher?.lifeAndTimes || detailedPhilosopher?.lifeAndTimes || "",
-            quote: selectedPhilosopher?.quote || detailedPhilosopher?.quote || ""
-          };
-          setTranslatedPhilosopherValues(prev => ({
-            ...prev,
-            [targetId]: fallback
-          }));
+          const ph = detailedPhilosopher || selectedPhilosopher;
+          if (ph) {
+            const fallback = getCleanEnglishFallback(ph);
+            setTranslatedPhilosopherValues(prev => ({
+              ...prev,
+              [targetId]: fallback
+            }));
+          }
         }
       } finally {
         if (active) setIsTranslating(false);
@@ -578,26 +629,27 @@ export default function App() {
     const worksList = getPhilosopherWorks(detailedPhilosopher.id, language);
     const isEn = language === 'en';
     const activeTranslation = translatedPhilosopherValues[detailedPhilosopher.id] || {};
+    const fallbackTranslation = isEn ? getCleanEnglishFallback(detailedPhilosopher) : null;
 
     const displayDetails = isEn 
-      ? (activeTranslation.details || (isTranslating ? "Translating details via Gemini..." : (philosopherFallbackTranslations[detailedPhilosopher.id]?.details || detailedPhilosopher.details))) 
+      ? (activeTranslation.details || (isTranslating ? "Translating details via Gemini..." : (fallbackTranslation?.details || detailedPhilosopher.details))) 
       : detailedPhilosopher.details;
 
     const rawConcepts = isEn 
-      ? (activeTranslation.concepts || (philosopherFallbackTranslations[detailedPhilosopher.id]?.concepts || detailedPhilosopher.concepts)) 
+      ? (activeTranslation.concepts || (fallbackTranslation?.concepts || detailedPhilosopher.concepts)) 
       : detailedPhilosopher.concepts;
     const displayConcepts = rawConcepts.map(c => isEn ? (conceptTranslations[c] || c) : c);
 
     const displayWorldviewSummary = isEn 
-      ? (activeTranslation.worldviewSummary || (isTranslating ? "Translating academic worldview..." : (philosopherFallbackTranslations[detailedPhilosopher.id]?.worldviewSummary || detailedPhilosopher.worldviewSummary))) 
+      ? (activeTranslation.worldviewSummary || (isTranslating ? "Translating academic worldview..." : (fallbackTranslation?.worldviewSummary || detailedPhilosopher.worldviewSummary))) 
       : detailedPhilosopher.worldviewSummary;
 
     const displayLifeAndTimes = isEn 
-      ? (activeTranslation.lifeAndTimes || (isTranslating ? "Translating chronicle timeline..." : (philosopherFallbackTranslations[detailedPhilosopher.id]?.lifeAndTimes || detailedPhilosopher.lifeAndTimes))) 
+      ? (activeTranslation.lifeAndTimes || (isTranslating ? "Translating chronicle timeline..." : (fallbackTranslation?.lifeAndTimes || detailedPhilosopher.lifeAndTimes))) 
       : detailedPhilosopher.lifeAndTimes;
 
     const displayQuote = isEn 
-      ? (activeTranslation.quote || (philosopherFallbackTranslations[detailedPhilosopher.id]?.quote || detailedPhilosopher.quote)) 
+      ? (activeTranslation.quote || (fallbackTranslation?.quote || detailedPhilosopher.quote)) 
       : detailedPhilosopher.quote;
 
     const displaySchool = isEn ? (schoolTranslations[detailedPhilosopher.school] || detailedPhilosopher.school) : detailedPhilosopher.school;
@@ -614,7 +666,8 @@ export default function App() {
       ped.level === 5 ? 'A major sovereign master of Western philosophical lineage system establishing broad paradigms.' :
       ped.level === 4 ? 'A pioneering leader who defined new academic subjects and led key generational schools.' :
       ped.level === 3 ? 'A critical node in the development of classical arguments.' :
-      'A valued voice shaping distinct historical inquiries.'
+      ped.level === 2 ? 'An outstanding scholar who refined, annotated, and preserved the core framework of their school.' :
+      'A peripheral seeker whose lineage diverges from the mainstream or navigates the margins of the system.'
     ) : ped.desc;
 
     return (
@@ -683,7 +736,7 @@ export default function App() {
                       {isEn ? (detailedPhilosopher.nameEng || detailedPhilosopher.name) : detailedPhilosopher.name}
                     </h1>
                     <p className="mt-1 text-[10.5px] font-serif font-bold tracking-widest text-[#C2593F] uppercase">
-                      {isEn ? detailedPhilosopher.name : detailedPhilosopher.nameEng}
+                      {isEn ? 'Classical Sage' : detailedPhilosopher.nameEng}
                     </p>
                   </div>
                 </div>
@@ -942,7 +995,7 @@ export default function App() {
                               <div className="text-justify leading-relaxed">
                                 <span className="font-extrabold text-amber-800">{isEn ? 'Core Difference: ' : '思想异同解析：'}</span>
                                 <span>
-                                  {isEn ? (activeTranslation.comparisons?.[idx]?.coreDifference || (philosopherFallbackTranslations[detailedPhilosopher.id]?.comparisons?.[idx]?.coreDifference || comp.coreDifference)) : comp.coreDifference}
+                                  {isEn ? (activeTranslation.comparisons?.[idx]?.coreDifference || (fallbackTranslation?.comparisons?.[idx]?.coreDifference || comp.coreDifference)) : comp.coreDifference}
                                 </span>
                               </div>
                               <div className="bg-white p-3.5 rounded-lg border-l-2 border-[#D4AF37]/60 italic shadow-3xs mt-1">
@@ -950,7 +1003,7 @@ export default function App() {
                                   💡 {isEn ? 'Reflection & Inquiry Prompt:' : '启发反思论题：'}
                                 </span>
                                 <span>
-                                  {isEn ? (activeTranslation.comparisons?.[idx]?.reflectionPrompt || (philosopherFallbackTranslations[detailedPhilosopher.id]?.comparisons?.[idx]?.reflectionPrompt || comp.reflectionPrompt)) : comp.reflectionPrompt}
+                                  {isEn ? (activeTranslation.comparisons?.[idx]?.reflectionPrompt || (fallbackTranslation?.comparisons?.[idx]?.reflectionPrompt || comp.reflectionPrompt)) : comp.reflectionPrompt}
                                 </span>
                               </div>
                             </div>
@@ -1006,15 +1059,28 @@ export default function App() {
 
               {/* SOUL DIALOGUE CHAT TERMINAL (¥9.9 paid feature) */}
               <section className="bg-white rounded-xl shadow-xs border border-amber-250 p-1.5 md:p-3 mt-6">
-                <SoulChatTerminal
-                  philosopher={detailedPhilosopher}
-                  language={language}
-                  dialogueRemaining={dialogueRemaining}
-                  unlimitedActivated={unlimitedActivated}
-                  onDeductDialogue={handleDeductDialogue}
-                  onTriggerPayment={() => setPaymentModalOpen(true)}
-                  freeRemaining={dialogueFreeRemaining}
-                />
+                {(() => {
+                  const translatedPhilosopher = {
+                    ...detailedPhilosopher,
+                    details: displayDetails || detailedPhilosopher.details,
+                    quote: displayQuote || detailedPhilosopher.quote,
+                    school: displaySchool || detailedPhilosopher.school,
+                    eraDisp: displayEra || detailedPhilosopher.eraDisp,
+                    worldviewSummary: displayWorldviewSummary || detailedPhilosopher.worldviewSummary,
+                    lifeAndTimes: displayLifeAndTimes || detailedPhilosopher.lifeAndTimes,
+                  };
+                  return (
+                    <SoulChatTerminal
+                      philosopher={translatedPhilosopher}
+                      language={language}
+                      dialogueRemaining={dialogueRemaining}
+                      unlimitedActivated={unlimitedActivated}
+                      onDeductDialogue={handleDeductDialogue}
+                      onTriggerPayment={() => setPaymentModalOpen(true)}
+                      freeRemaining={dialogueFreeRemaining}
+                    />
+                  );
+                })()}
               </section>
 
               {/* Button to leave detailed view */}
@@ -1676,7 +1742,7 @@ export default function App() {
           —— L O G O S  ·  A C A D E M Y ——
         </p>
         <p className="font-sans text-[10px] text-slate-500 mt-1.5 pb-4">
-          西方哲学思想库交互史迹脉络图谱 © 2026. Designed with Athens Alabaster Marble & Mediterranean Aegean Blue Palette
+          {language === 'zh' ? '西方哲学思想库交互史迹脉络图谱' : 'Western Philosophy Chronicle Roll'} © 2026. Designed with Athens Alabaster Marble & Mediterranean Aegean Blue Palette
         </p>
       </footer>
 
@@ -1727,17 +1793,36 @@ export default function App() {
         {/* Right side interactive icons */}
         <div className="flex items-center gap-3.5 border-l border-[#D4AF37]/25 pl-4">
           {/* Language translation switch */}
-          <button
-            type="button"
-            onClick={() => setLanguage(l => l === 'zh' ? 'en' : 'zh')}
-            className={`cursor-pointer p-1.5 rounded-full hover:bg-slate-100 transition-all text-slate-600 relative group`}
-            title={language === 'zh' ? "Switch to English Glossaries" : "切换至中文学术注释"}
+          <div 
+            className="flex items-center bg-[#FAF8F5] border border-[#D4AF37]/65 rounded-full p-0.5 shadow-3xs relative group"
+            title={language === 'zh' ? "切换为英文学术注释 / Switch to English" : "切换为中文学术注释 / Switch to Chinese"}
           >
-            <Languages className={`w-4 h-4 transition-transform group-hover:scale-110 ${language === 'en' ? 'text-[#0D5C75]' : ''}`} />
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none mb-1 text-center whitespace-nowrap">
-              {language === 'zh' ? "English" : "中文"}
+            <button
+              type="button"
+              onClick={() => setLanguage('zh')}
+              className={`cursor-pointer px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                language === 'zh' 
+                  ? 'bg-[#0B2545] text-[#FAF8F5] shadow-2xs' 
+                  : 'text-slate-400 hover:text-[#0B2545]'
+              }`}
+            >
+              中
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('en')}
+              className={`cursor-pointer px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                language === 'en' 
+                  ? 'bg-[#0B2545] text-[#FAF8F5] shadow-2xs' 
+                  : 'text-slate-400 hover:text-[#0B2545]'
+              }`}
+            >
+              EN
+            </button>
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 bg-[#0B2545] text-[#FAF8F5] text-[9px] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none mb-2 text-center whitespace-nowrap shadow-md font-sans border border-[#D4AF37]/30">
+              {language === 'zh' ? "中英文切换 / Language Select" : "中英文切换 / Language Select"}
             </span>
-          </button>
+          </div>
 
           {/* Music player toggle */}
           <button
@@ -1773,7 +1858,7 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-[#D4AF37]/35 pb-2">
               <div className="flex items-center gap-1.5 text-[#0B2545] font-bold">
                 <span>🏛️</span>
-                <h3>学人联络渠道 / Academic Contact</h3>
+                <h3>{language === 'zh' ? '学人联络渠道' : 'Academic Contact'}</h3>
               </div>
               <button 
                 type="button" 
@@ -1792,7 +1877,9 @@ export default function App() {
               </p>
 
               <div className="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-2">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">✉️ 学术咨询邮箱 / Inquiry Email</span>
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">
+                  {language === 'zh' ? '✉️ 学术咨询邮箱' : '✉️ Inquiry Email'}
+                </span>
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-[13px] font-bold text-[#0D5C75] select-all font-semibold">
                     stephninja028@gmail.com
@@ -1808,7 +1895,7 @@ export default function App() {
                     className="px-3 py-1 text-[11px] bg-[#0B2545] text-[#FDFBF7] rounded border border-[#D4AF37]/50 hover:bg-[#0D5C75] transition-all font-serif font-bold scale-98 active:scale-95 cursor-pointer flex items-center gap-1"
                   >
                     {copiedEmail ? <Check className="w-3.5 h-3.5 text-green-300" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedEmail ? '已复制' : '复制'}</span>
+                    <span>{copiedEmail ? (language === 'zh' ? '已复制' : 'Copied') : (language === 'zh' ? '复制' : 'Copy')}</span>
                   </button>
                 </div>
               </div>
@@ -1827,7 +1914,7 @@ export default function App() {
                 onClick={() => setShowContactModal(false)}
                 className="px-6 py-2 bg-[#0B2545] hover:bg-[#0D5C75] text-[#FAF8F5] rounded border border-[#D4AF37]/50 shadow transition-all hover:scale-102 cursor-pointer text-xs font-serif font-semibold"
               >
-                关 闭 神 龛 (Close)
+                {language === 'zh' ? '关 闭 神 龛' : 'Close Altar'}
               </button>
             </div>
           </div>
@@ -1871,7 +1958,7 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-[#D4AF37]/35 pb-2">
               <div className="flex items-center gap-1.5 text-[#0B2545] font-bold">
                 <span>✍️</span>
-                <h3>{language === 'zh' ? '联系作者反馈 / Contact Author' : 'Contact Author Feedback'}</h3>
+                <h3>{language === 'zh' ? '联系作者反馈' : 'Contact Author Feedback'}</h3>
               </div>
               <button 
                 type="button" 
@@ -1891,7 +1978,9 @@ export default function App() {
 
               {/* WECHAT */}
               <div className="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-2">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">💬 微信联系 / WeChat</span>
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">
+                  {language === 'zh' ? '💬 微信联系' : '💬 WeChat'}
+                </span>
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-[14px] font-bold text-[#0D5C75] select-all font-semibold">
                     Courageandpeace
@@ -1907,14 +1996,16 @@ export default function App() {
                     className="px-3 py-1 text-[11px] bg-[#0B2545] text-[#FDFBF7] rounded border border-[#D4AF37]/50 hover:bg-[#0D5C75] transition-all font-serif font-bold scale-98 active:scale-95 cursor-pointer flex items-center gap-1"
                   >
                     {copiedWeChat ? <Check className="w-3.5 h-3.5 text-green-300" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedWeChat ? '已复制' : '复制微信'}</span>
+                    <span>{copiedWeChat ? (language === 'zh' ? '已复制' : 'Copied') : (language === 'zh' ? '复制微信' : 'Copy WeChat')}</span>
                   </button>
                 </div>
               </div>
 
               {/* EMAIL */}
               <div className="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-2">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">✉️ 电子邮箱 / Email Address</span>
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold font-sans">
+                  {language === 'zh' ? '✉️ 电子邮箱' : '✉️ Email Address'}
+                </span>
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-[14px] font-bold text-[#0D5C75] select-all font-semibold">
                     Stephninja028@gmail.com
@@ -1930,7 +2021,7 @@ export default function App() {
                     className="px-3 py-1 text-[11px] bg-[#0B2545] text-[#FDFBF7] rounded border border-[#D4AF37]/50 hover:bg-[#0D5C75] transition-all font-serif font-bold scale-98 active:scale-95 cursor-pointer flex items-center gap-1"
                   >
                     {copiedEmail ? <Check className="w-3.5 h-3.5 text-green-300" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedEmail ? '已复制' : '复制邮箱'}</span>
+                    <span>{copiedEmail ? (language === 'zh' ? '已复制' : 'Copied') : (language === 'zh' ? '复制邮箱' : 'Copy Email')}</span>
                   </button>
                 </div>
               </div>

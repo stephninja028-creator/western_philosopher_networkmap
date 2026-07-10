@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Epoch, Philosopher } from '../types';
 import { philosophyData } from '../data/philosophyData';
-import { schoolTranslations, conceptTranslations, philosopherFallbackTranslations } from '../data/translationsEng';
+import { schoolTranslations, conceptTranslations, philosopherFallbackTranslations, translateEraDisp } from '../data/translationsEng';
 import { Swords, Landmark, Scroll, MessageSquare, ShieldCheck, Key, RefreshCw, HelpCircle, Search, Check, Trash2, ArrowLeft, Users } from 'lucide-react';
 
 interface MultilateralSymposiumProps {
@@ -117,7 +117,12 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
   };
 
   // Presets
-  const suggestedTopics = [
+  const suggestedTopics = isEn ? [
+    "Will Artificial Intelligence (AI) ever develop a true soul, suffering, and redemption in the future?",
+    "Does a highly automated society liberate humanity, or does it bring new forms of labor enslavement?",
+    "Are desires, materialism, and wealth stepping stones to freedom, or the ultimate source of nihilism and suffering?",
+    "Living in an age devoid of spiritual faith and saturated with information fast food, how can we reconstruct authentic self-worth?"
+  ] : [
     "人工智能（AI）在未来是否有可能产生真正的灵魂、痛苦和救赎感？",
     "科技高度发达的自动化社会，究竟是在解放人类还是在带来新的劳动奴化？",
     "欲望、物质和金钱是通向自由的阶梯，还是一切虚无主义与虚妄痛苦的罪魁？",
@@ -136,12 +141,26 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
     setDebateError('');
     setDebateRounds([]);
 
+    // Translate philosophers if in English mode to prevent Chinese prompts leak
+    const mappedPhilosophers = selectedPhilosophers.map(p => {
+      if (!isEn) return p;
+      const trans = philosopherFallbackTranslations[p.id];
+      return {
+        ...p,
+        name: p.nameEng || p.name,
+        school: schoolTranslations[p.school] || p.school,
+        details: trans?.details || p.details,
+        worldviewSummary: trans?.worldviewSummary || p.worldviewSummary,
+        quote: trans?.quote || p.quote,
+      };
+    });
+
     try {
       const response = await fetch('/api/debate-multilateral', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          philosophers: selectedPhilosophers,
+          philosophers: mappedPhilosophers,
           topic: debateTopic.trim()
         })
       });
@@ -305,7 +324,7 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                     {/* Top line */}
                     <div className="flex justify-between items-start w-full">
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-mono font-bold text-amber-800">{p.eraDisp}</span>
+                        <span className="text-[9px] font-mono font-bold text-amber-800">{isEn ? translateEraDisp(p.eraDisp) : p.eraDisp}</span>
                         <h4 className="font-extrabold text-xs text-[#0B2545] group-hover:text-[#0D5C75] leading-snug mt-0.5">
                           {isEn ? p.nameEng : p.name}
                         </h4>
@@ -326,7 +345,7 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                         {isEn ? (schoolTranslations[p.school] || p.school) : p.school}
                       </span>
                       {p.isMajor && (
-                        <span className="text-[8.5px] bg-[#D4AF37]/20 text-[#0B2545] px-1 rounded-sm font-sans font-bold">巨擘</span>
+                        <span className="text-[8.5px] bg-[#D4AF37]/20 text-[#0B2545] px-1 rounded-sm font-sans font-bold">{isEn ? 'Titan' : '巨擘'}</span>
                       )}
                     </div>
                   </button>
@@ -608,21 +627,21 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                       stanceTag = (
                         <span className="bg-green-100 text-green-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-green-300 shadow-3xs flex items-center gap-0.5">
                           <span>🟢</span>
-                          <span>支持派: {stanceLabel}</span>
+                          <span>{isEn ? 'Pro' : '支持派'}: {stanceLabel}</span>
                         </span>
                       );
                     } else if (stance === 'contra') {
                       stanceTag = (
                         <span className="bg-red-100 text-red-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-red-300 shadow-3xs flex items-center gap-0.5">
                           <span>🔴</span>
-                          <span>反对派: {stanceLabel}</span>
+                          <span>{isEn ? 'Contra' : '反对派'}: {stanceLabel}</span>
                         </span>
                       );
                     } else {
                       stanceTag = (
                         <span className="bg-amber-100 text-amber-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-amber-300 shadow-3xs flex items-center gap-0.5">
                           <span>🟡</span>
-                          <span>中立派: {stanceLabel}</span>
+                          <span>{isEn ? 'Neutral' : '中立派'}: {stanceLabel}</span>
                         </span>
                       );
                     }
@@ -630,7 +649,7 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                     stanceTag = (
                       <span className="bg-blue-100 text-blue-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-blue-200 shadow-3xs flex items-center gap-0.5">
                         <span>⚖️</span>
-                        <span>合议法官中立判词</span>
+                        <span>{isEn ? 'Moderator Verdict' : '合议法官中立判词'}</span>
                       </span>
                     );
                   }

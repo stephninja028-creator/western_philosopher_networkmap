@@ -65,10 +65,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || '卡密验证不合规');
+        throw new Error(data.message || (isEn ? 'Invalid activation code' : '卡密验证不合规'));
       }
 
-      setSuccessMsg(data.message || '兑换成功！');
+      setSuccessMsg(data.message || (isEn ? 'Redeemed successfully!' : '兑换成功！'));
       setCode('');
       // Refresh list to show updated used status
       fetchCodes();

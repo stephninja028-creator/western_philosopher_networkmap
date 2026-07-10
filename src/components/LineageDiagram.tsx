@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Epoch, Philosopher, getPhilosopherPedigree } from '../types';
 import { PhilosopherCard } from './PhilosopherCard';
+import { epochTranslations } from '../data/translationsEng';
 
 interface LineageDiagramProps {
   allEpochs: Epoch[];
@@ -158,8 +159,11 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
   // 4. Position timeline axis labels dynamically down the single unified canvas
   const timelineLabels = useMemo(() => {
     const list: { yPercent: number; label: string; blockTitle?: string }[] = [];
+    const isEn = language === 'en';
     allEpochs.forEach((epoch, epochIndex) => {
-      const { timeGrid, title } = epoch;
+      const trans = isEn ? epochTranslations[epoch.id] : null;
+      const timeGrid = trans ? trans.timeGrid : epoch.timeGrid;
+      const title = trans ? trans.title : epoch.title;
       
       // Also add the block title indicator at the start of each epoch zone
       list.push({
@@ -179,7 +183,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
       });
     });
     return list;
-  }, [allEpochs, totalEpochs]);
+  }, [allEpochs, totalEpochs, language]);
 
   return (
     <div 

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Epoch, Philosopher } from '../types';
 import { symposiumDebates, DebateTopic } from '../data/symposiumData';
-import { schoolTranslations, symposiumTranslations, philosopherFallbackTranslations, conceptTranslations } from '../data/translationsEng';
+import { schoolTranslations, symposiumTranslations, philosopherFallbackTranslations, conceptTranslations, translateEraDisp } from '../data/translationsEng';
 import { Swords, Landmark, Scroll, MessageSquare, ShieldCheck, Key, RefreshCw, HelpCircle } from 'lucide-react';
 
 interface SymposiumPanelProps {
@@ -128,7 +128,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
       school: schoolTranslations[p.school] || p.school,
       concepts: rawConcepts.map(c => isEn ? (conceptTranslations[c] || c) : c),
       details: dynamic?.details || fallback?.details || p.details,
-      eraDisp: p.eraDisp,
+      eraDisp: translateEraDisp(p.eraDisp),
     };
   };
 
@@ -357,7 +357,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                   >
                     <Swords className="w-3.5 h-3.5" />
                     {isEn ? 'AI Debate Arena ⚔️' : '⚔️ AI 思想格斗场'}
-                    <span className="bg-[#D4AF37] text-white text-[8px] px-1 py-0.2 rounded-sm font-sans shrink-0">付费</span>
+                    <span className="bg-[#D4AF37] text-white text-[8px] px-1 py-0.2 rounded-sm font-sans shrink-0">{isEn ? 'PREMIUM' : '付费'}</span>
                   </button>
                 </div>
 
@@ -369,7 +369,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                         : (isEn ? `Debates: ${debateRemaining}` : `剩余辩论度: ${debateRemaining} 次`)}
                     </span>
                     {!unlimitedActivated && debateRemaining === 0 && (
-                      <span className="bg-red-650 text-white text-[8px] px-1 rounded-xs animate-pulse font-sans font-bold">已锁</span>
+                      <span className="bg-red-650 text-white text-[8px] px-1 rounded-xs animate-pulse font-sans font-bold">{isEn ? 'LOCKED' : '已锁'}</span>
                     )}
                     <button
                       onClick={onTriggerPayment}
@@ -535,27 +535,21 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                     <div className="flex flex-col h-full justify-between gap-4">
                       {/* Interactive Debate Console Inputs */}
                       {debateRounds.length === 0 && !debateLoading && (
-                        <div className="flex flex-col gap-3">
-                          <div className="border-b border-gray-100 pb-2">
-                            <span className="text-[10px] tracking-widest uppercase font-bold text-amber-800 block font-mono">
-                              {isEn ? 'DEBATE CHALLENGE STAGE' : '⚔️ 自定义思想对抗命题'}
-                            </span>
-                            <p className="text-[10.5px] text-gray-400 leading-relaxed font-sans mt-0.5">
-                              {isEn 
-                                ? 'Let custom AI models pit their minds against each other. Enter any philosophical collision topic below.'
-                                : '让古希腊/古典群星在您拟订的题目上展开交锋。在下方自设辩题开启格斗大戏！'}
-                            </p>
-                          </div>
-
+                        <>
                           {/* Quick Preset Topics */}
                           <div className="space-y-1.5 text-[11px]">
                             <span className="text-gray-400 font-sans block">{isEn ? '💡 Suggested Grand Clashes:' : '💡 推荐顶级交锋立场备选：'}</span>
-                            {[
+                            {(isEn ? [
+                              "Is it possible for Artificial Intelligence (AI) to possess a real soul, suffering, and redemption in the future?",
+                              "Is a highly automated society liberating humanity or bringing about new forms of labor enslavement?",
+                              "Are desire and money ladders to freedom, or are they the main culprits of all nihilism and suffering?",
+                              "Living in a faithless, hyper-materialistic internet fast-food era, how can humans reconstruct authentic value and faith?"
+                            ] : [
                               "人工智能（AI）在未来是否有可能产生真正的灵魂、痛苦和救赎感？",
                               "科技高度发达的资本主义自动化社会，究竟是在自我解放还是在带来新的劳动奴化？",
                               "欲望和金钱是通向自由的阶梯，还是一切虚无主义与虚妄痛苦的罪魁之首？",
                               "生活在无信仰、过度物质化的网络快餐时代，人类如何重塑信仰与本真价值？"
-                            ].map((topic, i) => (
+                            ]).map((topic, i) => (
                               <button
                                 key={i}
                                 onClick={() => setDebateTopic(topic)}
@@ -574,17 +568,19 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                             {debateRemaining === 0 && !unlimitedActivated ? (
                               <div className="bg-red-50 text-slate-800 border-2 border-dashed border-[#C2593F]/40 p-4 rounded-xl text-center">
                                 <p className="font-bold text-xs text-[#C2593F] mb-1.5 flex items-center justify-center gap-1">
-                                  <span>💸 免费试用格斗额度已臻上限</span>
+                                  <span>{isEn ? '💸 Global Trial Limit Reached' : '💸 免费试用格斗额度已臻上限'}</span>
                                 </p>
                                 <p className="text-[10px] text-gray-500 leading-relaxed mb-3">
-                                  古圣对决耗费双倍深度算力。赞助充值 ¥9.9 的专属格斗券，即可解锁 5 次完全自定义神仙论战！
+                                  {isEn 
+                                    ? 'Clashes consume double computational power. Secure a ¥9.9 custom pass to unlock 5 custom battles!'
+                                    : '古圣对决耗费双倍深度算力。赞助充值 ¥9.9 的专属格斗券，即可解锁 5 次完全自定义神仙论战！'}
                                 </p>
                                 <button
                                   onClick={onTriggerPayment}
                                   className="mx-auto bg-[#C2593F] hover:bg-rose-900 text-white font-sans font-bold text-xs py-2 px-5 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all"
                                 >
                                   <Key className="w-4 h-4" />
-                                  <span>激活格斗卡密 / 充值赞助</span>
+                                  <span>{isEn ? 'Redeem Code / Top Up' : '激活格斗卡密 / 充值赞助'}</span>
                                 </button>
                               </div>
                             ) : (
@@ -593,7 +589,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                                   type="text"
                                   value={debateTopic}
                                   onChange={(e) => setDebateTopic(e.target.value)}
-                                  placeholder="e.g., 科技是虚假解放吗？"
+                                  placeholder={isEn ? "e.g., Is technology a false liberation?" : "e.g., 科技是虚假解放吗？"}
                                   className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#C2593F] focus:border-[#C2593F] focus:outline-none"
                                 />
                                 <button
@@ -608,7 +604,11 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                                       const res = await fetch('/api/debate-arena', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ p1, p2, topic: debateTopic.trim() })
+                                        body: JSON.stringify({
+                                          p1: isEn ? { ...p1, ...p1Trans } : p1,
+                                          p2: isEn ? { ...p2, ...p2Trans } : p2,
+                                          topic: debateTopic.trim()
+                                        })
                                       });
                                       if (!res.ok) throw new Error("Server response error");
                                       const data = await res.json();
@@ -633,7 +633,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                               </div>
                             )}
                           </div>
-                        </div>
+                        </>
                       )}
 
                       {/* Loading block with cool columns animation */}
@@ -662,7 +662,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                             }}
                             className="text-right text-[10px] underline font-sans text-rose-800 font-semibold cursor-pointer"
                           >
-                            返回重新拟题
+                            {isEn ? 'Return to Topic Input' : '返回重新拟题'}
                           </button>
                         </div>
                       )}
@@ -711,7 +711,7 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                                     </span>
                                     {!isModerator && (
                                       <span className="text-[9px] text-[#D4AF37] font-semibold">
-                                        {isP1 ? `[${p1.school}]` : `[${p2.school}]`}
+                                        {isP1 ? `[${p1Trans?.school || p1.school}]` : `[${p2Trans?.school || p2.school}]`}
                                       </span>
                                     )}
                                   </div>

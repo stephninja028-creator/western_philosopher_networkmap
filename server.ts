@@ -5,6 +5,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 import fs from "fs";
 import nodemailer from "nodemailer";
+import { schoolTranslations } from "./src/data/translationsEng";
 
 dotenv.config();
 
@@ -478,13 +479,31 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       return res.status(400).json({ error: "Missing required debate parameters" });
     }
 
+    const isEn = !/[\u4e00-\u9fa5]/.test(topic);
+
     try {
       const key = process.env.GEMINI_API_KEY;
       if (!key) {
         return res.json({
           success: false,
           isFallback: true,
-          rounds: [
+          rounds: isEn ? [
+            {
+              speakerName: "Lord of Theseus (Moderator)",
+              speakerId: "moderator",
+              utterance: "Since the eternal torch of the digital temple has not yet been lit (missing GEMINI_API_KEY), the debate arena is returning to preset scrolls:"
+            },
+            {
+              speakerName: p1.nameEng || p1.name,
+              speakerId: p1.id,
+              utterance: `Regarding the topic "${topic}", as the representative of ${schoolTranslations[p1.school] || p1.school}, I state: ${p1.detailsEng || p1.details}! All elements orbit around my ultimate principle. As for my opponent, it is pure dogmatic bias.`
+            },
+            {
+              speakerName: p2.nameEng || p2.name,
+              speakerId: p2.id,
+              utterance: `Utter fallacy! Your obsolete principle collapses before historical evolution. As the representative of ${schoolTranslations[p2.school] || p2.school}, I state: ${p2.detailsEng || p2.details}! Only through the objective movement of reason and struggle can true wisdom be unveiled.`
+            }
+          ] : [
             {
               speakerName: "雅典提修斯之主 (主持人)",
               speakerId: "moderator",
@@ -508,7 +527,27 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
 
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
-        contents: `你现在是雅典露天学园的大会主持法官。
+        contents: isEn ? `You are now the Chief Moderator Judge of the open Athenian Palestra Academy.
+We are conducting an intense, high-density, high-tension academic intellectual duel (Debate Duel)!
+
+Debate Topic: "${topic}"
+
+Duelist 1: 【${p1.nameEng || p1.name}】
+- Philosophical School: ${schoolTranslations[p1.school] || p1.school}
+- Core Doctrine: ${p1.details}
+
+Duelist 2: 【${p2.nameEng || p2.name}】
+- Philosophical School: ${schoolTranslations[p2.school] || p2.school}
+- Core Doctrine: ${p2.details}
+
+Please generate an intellectually satisfying, highly dramatic debate script containing EXACTLY 5 rounds of speeches in fluent, academic, and sharp English.
+- Round 1: ${p1.nameEng || p1.name} states their starting thesis (haughty, elegant, true to their core school principles).
+- Round 2: ${p2.nameEng || p2.name} steps up, directly deconstructs ${p1.nameEng || p1.name}'s biases, and declares their own robust worldview.
+- Round 3: ${p1.nameEng || p1.name} launches a powerful, sharp academic counter-rebuttal (using classical aphorisms, defending their metaphysics).
+- Round 4: ${p2.nameEng || p2.name} delivers their final decisive summary defense using historical trends, dialectical logic, or profound human experience to lock in their arguments.
+- Round 5: "Secretariat of the Classical Academy (Moderator)" takes the stand, delivering a beautiful synthesis, highlighting the eternal value of both thinkers and the spiral evolution of human reason.
+
+Ensure that all outputs are in strict, fluid English and conform EXACTLY to the requested JSON response schema.` : `你现在是雅典露天学园的大会主持法官。
 我们要进行一场高密度、高对立、充满学术火花和思想张力的【思想格斗对抗赛】！
 
 辩题目标：“${topic}”
@@ -528,7 +567,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
 - 回合 4：${p2.name} 进行压哨立功的最终答辩，以深刻的世界历史潮流、逻辑或者生存经验锁定胜局。
 - 回合 5：“雅典学派秘书处 (主持人)”登场，进行一段精中肯綮、带有高超学术升华和调停的判词，阐明两者的相辅相成与人类理性的无极演化。
 
-请按照极其严苛的 JSON 格式输出，内容语言与用户提问语言（默认为中文）对齐，确保能顺利解析成带发言人ID的对象数组。`,
+请按照极其严苛的 JSON 格式输出，内容语言与用户提问语言对齐（当前提问topic为中文，请用流利生动的中文输出），确保能顺利解析成带发言人ID的对象数组。若topic是英文，则用英文。`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -541,7 +580,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
                   properties: {
                     speakerName: { type: Type.STRING },
                     speakerId: { type: Type.STRING, description: "p1 的 id 或者是 p2 的 id，抑或 moderator 表达主持人" },
-                    utterance: { type: Type.STRING, description: "该发言人在本回合的精湛辩词，极度切合其性格" }
+                    utterance: { type: Type.STRING, description: "该发言人在本回合 of the debate of the sages" }
                   },
                   required: ["speakerName", "speakerId", "utterance"]
                 }
@@ -565,9 +604,9 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
         success: false,
         rounds: [
           {
-            speakerName: "雅典大审判官",
+            speakerName: isEn ? "Great Arbiter of Athens" : "雅典大审判官",
             speakerId: "moderator",
-            utterance: `辩论遭遇时空裂缝纠纷：${err.message || err}。请重新调整辩题及召唤能量。`
+            utterance: isEn ? `Debate encountered a temporal rift: ${err.message || err}. Please re-summon.` : `辩论遭遇时空裂缝纠纷：${err.message || err}。请重新调整辩题及召唤能量。`
           }
         ]
       });
@@ -582,42 +621,68 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       return res.status(400).json({ error: "Missing required debate parameters or insufficient sages" });
     }
 
+    const isEn = !/[\u4e00-\u9fa5]/.test(topic);
+
     try {
       const key = process.env.GEMINI_API_KEY;
       if (!key) {
         // Fallback generator for a clean trial experience if key is missing
-        const fallbackRounds = [
-          {
+        const fallbackRounds = [];
+        if (isEn) {
+          fallbackRounds.push({
+            speakerName: "Moderator of Athens",
+            speakerId: "moderator",
+            stance: "moderator",
+            stanceLabel: "Moderator",
+            utterance: `[Trial Mode] The gates of the great Athenian council chamber are open! On the profound inquiry: "${topic}", we invite the sages to share their perspectives:`
+          });
+          philosophers.forEach((p: any, idx: number) => {
+            const mockStances = ["pro", "contra", "neutral"];
+            const mockStanceLabels = ["Pro: Release desire", "Contra: Avoid mental slavery", "Neutral: Dialectical examination"];
+            const chosenIndex = idx % 3;
+            fallbackRounds.push({
+              speakerName: p.nameEng || p.name,
+              speakerId: p.id,
+              stance: mockStances[chosenIndex],
+              stanceLabel: mockStanceLabels[chosenIndex],
+              utterance: `Welcome friends! On behalf of ${schoolTranslations[p.school] || p.school}, let me say this: regarding "${topic}", my approach is direct. We must not be blinded by illusions. As my famous quote states: "${p.quote || 'Seek absolute truth.'}" Let us look at the essence, not the shadows!`
+            });
+          });
+          fallbackRounds.push({
+            speakerName: "Moderator of Athens",
+            speakerId: "moderator",
+            stance: "moderator",
+            stanceLabel: "Moderator",
+            utterance: "The wisdom of all thinkers shines together, elevating human intelligence. Every stance holds profound truths. Configure GEMINI_API_KEY in Settings > Secrets to light the eternal fire and enable full multi-dimensional AI dialogues!"
+          });
+        } else {
+          fallbackRounds.push({
             speakerName: "雅典露天学园大会主持",
             speakerId: "moderator",
             stance: "moderator",
             stanceLabel: "大会中立主持",
             utterance: `[试用体验模式] 雅典大理石会议厅大门已缓缓开启！针对宏大思辨命题：【${topic}】，特邀以下各位圣哲登台激扬交锋：`
-          }
-        ];
-
-        // Let each selected philosopher speak once
-        philosophers.forEach((p: any, idx: number) => {
-          const mockStances = ["pro", "contra", "neutral"];
-          const mockStanceLabels = ["支持派：追求自我释放", "反对派：警惕奴役陷阱", "中立派：客观辩证审视"];
-          const chosenIndex = idx % 3;
-          fallbackRounds.push({
-            speakerName: p.name || p.nameEng,
-            speakerId: p.id,
-            stance: mockStances[chosenIndex],
-            stanceLabel: mockStanceLabels[chosenIndex],
-            utterance: `老铁们，我代表【${p.school}】来唠两句！大家别把哲学想得那么玄乎，说白了，针对“${topic}”这个命题，我的理念很简单。我觉得我们不能被表象蒙蔽了双眼。这就像：“${p.quote || '走自己的路'}”所说的那样。大家别整那些虚头巴脑的，回归本真，才是硬道理！`
           });
-        });
-
-        fallbackRounds.push({
-          speakerName: "雅典露天学园大会主持",
-          speakerId: "moderator",
-          stance: "moderator",
-          stanceLabel: "大会中立主持",
-          utterance: "各位圣贤的智慧交相辉映，人类理性犹如繁星。大家站边各有道理，最重要的是独立思考！请在 Settings > Secrets 配置 GEMINI_API_KEY 以点亮永恒火把，开启真正的多维度智能化大碰撞！"
-        });
-
+          philosophers.forEach((p: any, idx: number) => {
+            const mockStances = ["pro", "contra", "neutral"];
+            const mockStanceLabels = ["支持派：追求自我释放", "反对派：警惕奴役陷阱", "中立派：客观辩证审视"];
+            const chosenIndex = idx % 3;
+            fallbackRounds.push({
+              speakerName: p.name || p.nameEng,
+              speakerId: p.id,
+              stance: mockStances[chosenIndex],
+              stanceLabel: mockStanceLabels[chosenIndex],
+              utterance: `老铁们，我代表【${p.school}】来唠两句！大家别把哲学想得那么玄乎，说白了，针对“${topic}”这个命题，我的理念很简单。我觉得我们不能被表象蒙蔽了双眼。这就像：“${p.quote || '走自己的路'}”所说的那样。大家别整那些虚头巴脑的，回归本真，才是硬道理！`
+            });
+          });
+          fallbackRounds.push({
+            speakerName: "雅典露天学园大会主持",
+            speakerId: "moderator",
+            stance: "moderator",
+            stanceLabel: "大会中立主持",
+            utterance: "各位圣贤的智慧交相辉映，人类理性犹如繁星。大家站边各有道理，最重要的是独立思考！请在 Settings > Secrets 配置 GEMINI_API_KEY 以点亮永恒火把，开启真正的多维度智能化大碰撞！"
+          });
+        }
         return res.json({
           success: true,
           rounds: fallbackRounds
@@ -627,10 +692,42 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       const ai = getGeminiClient();
 
       const sagesIntro = philosophers.map((p: any, i: number) => {
-        return `贤哲 ${i + 1}: 【${p.name} (${p.nameEng})】\n- 思想流派: ${p.school}\n- 核心宗旨: ${p.details || p.worldviewSummary}\n- 经典格言: ${p.quote || ''}`;
+        const schoolDisp = schoolTranslations[p.school] || p.school;
+        const nameDisp = p.nameEng || p.name;
+        return isEn ? `Sage ${i + 1}: 【${nameDisp}】\n- School: ${schoolDisp}\n- Core Doctrine: ${p.detailsEng || p.details}\n- Famous Aphorism: ${p.quote || ''}`
+                    : `贤哲 ${i + 1}: 【${p.name} (${p.nameEng})】\n- 思想流派: ${p.school}\n- 核心宗旨: ${p.details || p.worldviewSummary}\n- 经典格言: ${p.quote || ''}`;
       }).join('\n\n');
 
-      const systemInstruction = `你现在是雅典露天学园、最高理性裁判大厅的【首席合议法官 (moderator)】。
+      const systemInstruction = isEn ? `You are now the Chief Moderator Judge of the supreme Athenian Council of Sages (moderator).
+You will host a multilateral philosophical debate scroll featuring 2 to 5 great philosophers on a specific topic.
+
+Debate Topic: "${topic}"
+
+Sages in Attendance:
+${sagesIntro}
+
+【Core Objectives & Requirements】:
+1. Sages must select one of three absolute positions: 'pro' (agree/support), 'contra' (disagree/rebut), or 'neutral' (dialectical/transcendent/analytical).
+   - Provide a concise, sharp 2-6 words position label in English in "stanceLabel" (e.g., "Pro: Elevating Desires", "Contra: Avoid Cybernetic Chains", "Neutral: Dialectical Harmony").
+
+2. Language Style: Highly communicative, vivid, easy to understand, avoiding dry jargon.
+   - Speak in the first person ("I").
+   - Use direct, colloquial, sharp, and engaging English.
+   - Relate their philosophy directly to modern life phenomena as analogies. For example:
+     - Schopenhauer can compare social media addiction/short videos to drinking salt water (the more you swipe, the emptier you feel).
+     - Nietzsche can roar against passive wage slavery, urging people to become "Übermensch" (Overmen) of their own lives.
+     - Socrates can ask sharp street questions to expose contradictions.
+     - Kant can lay out clear, logical, down-to-earth frameworks.
+     - Sartre can talk about choosing what to eat for dinner as an absolute freedom.
+   - The dialogue must be engaging, sharp, witty, and academic yet totally accessible.
+
+Generate EXACTLY 7-10 rounds (distributed among the attendees) of debate:
+- Round 1 (Moderator opens): Introduce the topic, set a high-spirited academic mood, and introduce the first speaker.
+- Rounds 2 to K (Sages present stances): Sages present their 'pro/contra/neutral' stance using colloquial analogies, critiquing previous speakers.
+- Rounds K+1 to M (Free rebuttals): Sages engage in sharp, direct back-and-forth academic exchanges.
+- Final Round (Moderator verdict): Provide an elegant synthesis showing how these timeless wisdoms help modern people navigate life.
+
+Conform strictly to the JSON schema in fluent English.` : `你现在是雅典露天学园、最高理性裁判大厅的【首席合议法官 (moderator)】。
 你将主持一场由多位（2到5位）伟大哲学家参与、具有极其震撼学术密度、深度思想碰撞的【众神多边合议论辩】！
 
 辩论命题目标：“${topic}”
@@ -656,14 +753,15 @@ ${sagesIntro}
 请生成一个极其连贯、包含 exactly 7-10 个回合（根据席位数量分配）的激烈多边辩论卷轴：
 - 回合 1 (Moderator 登场)：首席法官用大白话引出命题，调动全场气氛，严肃宣布大门开启，引出首位发言人。
 - 回合 2 至 K (圣哲立论与站边)：哲学家们轮流登台，亮出鲜明的“支持/反对/中立”立场，用最直白的大白话论证自己，并狠狠吐槽或调侃前人观点的荒谬处。
-- 回合 K+1 至 M (自由学术驳击)：哲学家们短兵相接，拍桌子互怼。字字玑珠，句句充满形而上学的底蕴和现代大白话的温度。
+- 回合 K+1 至 M (自由学术驳击)：哲学家们短兵相接，拍桌子互怼。字字玑珠，句句充满形而上学的底蕴 and 现代大白话的温度。
 - 最后一回合 (Moderator 判词)：首席法官登台，用极富智慧但依然亲切白话的语言进行深刻总结，阐明各家智慧如何帮我们这些现代打工人看清世界。
 
 请严苛遵循以下 JSON 格式输出，确保 speakerId 完美匹配其 philosopherId，主持人为 'moderator'。`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
-        contents: `针对辩题“${topic}”，请组织这场多边群星大辩论会。输出符合 schema 的完整 JSON 数据。`,
+        contents: isEn ? `Please organize this multilateral debate on the topic "${topic}" based on the Sages of Athens. Output the complete JSON conforming to the schema.`
+                       : `针对辩题“${topic}”，请组织这场多边群星大辩论会。输出符合 schema 的完整 JSON 数据。`,
         config: {
           systemInstruction,
           temperature: 0.95,
@@ -677,10 +775,10 @@ ${sagesIntro}
                   type: Type.OBJECT,
                   properties: {
                     speakerName: { type: Type.STRING },
-                    speakerId: { type: Type.STRING, description: "对应哲学家对象的 id，如果是主持人请填写 'moderator'" },
-                    stance: { type: Type.STRING, description: "立场，只能是 'pro'、'contra'、'neutral' 或 'moderator'" },
-                    stanceLabel: { type: Type.STRING, description: "简明扼要的、大白话的立场标签（如：‘支持：追求欲望’，‘反对：精神空虚’等，2-6个字）" },
-                    utterance: { type: Type.STRING, description: "极度说人话、口语化、使用现代通俗比喻、充满哲理火药味的生动发言" }
+                    speakerId: { type: Type.STRING, description: isEn ? "Philosopher's ID, or 'moderator' for the host" : "对应哲学家对象的 id，如果是主持人请填写 'moderator'" },
+                    stance: { type: Type.STRING, description: "Stance: 'pro', 'contra', 'neutral', or 'moderator'" },
+                    stanceLabel: { type: Type.STRING, description: isEn ? "Short stance label (2-6 words)" : "简明扼要的、大白话的立场标签（如：‘支持：追求欲望’，‘反对：精神空虚’等，2-6个字）" },
+                    utterance: { type: Type.STRING, description: isEn ? "Engaging spoken words" : "极度说人话、口语化、使用现代通俗比喻、充满哲理火药味的生动发言" }
                   },
                   required: ["speakerName", "speakerId", "stance", "stanceLabel", "utterance"]
                 }
@@ -690,7 +788,6 @@ ${sagesIntro}
           }
         }
       });
-
       const responseText = response.text;
       if (!responseText) {
         throw new Error("No text returned by Gemini");
@@ -707,9 +804,9 @@ ${sagesIntro}
         success: false,
         rounds: [
           {
-            speakerName: "雅典首席法官",
+            speakerName: isEn ? "Chief Judge of Athens" : "雅典首席法官",
             speakerId: "moderator",
-            utterance: `由于合议庭发生神能扰动，大辩论暂时休庭，原因：${err.message || err}。请重新挑选圣哲或调整题目召唤。`
+            utterance: isEn ? `Due to spatial ripples, the grand assembly is temporarily adjourned: ${err.message || err}.` : `由于合议庭发生神能扰动，大辩论暂时休庭，原因：${err.message || err}。请重新挑选圣哲或调整题目召唤。`
           }
         ]
       });
