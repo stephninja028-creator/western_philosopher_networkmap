@@ -813,6 +813,171 @@ ${sagesIntro}
     }
   });
 
+  // --- BLOG SEO ROUTES ---
+  // Blog content directory (try cwd first, fallback to dist/content for production builds)
+  function getBlogDir(): string {
+    const cwd = process.cwd();
+    const primary = path.join(cwd, "content", "blog");
+    if (fs.existsSync(primary)) return primary;
+    const fallback = path.join(cwd, "dist", "content", "blog");
+    if (fs.existsSync(fallback)) return fallback;
+    return primary; // return primary even if not found, let file reads handle errors
+  }
+
+  function renderBlogPage(meta: {
+    title: string;
+    description: string;
+    canonical: string;
+    ogImage?: string;
+    lang?: string;
+  }, bodyHtml: string): string {
+    const lang = meta.lang || "zh-CN";
+    const desc = meta.description.length > 160 ? meta.description.slice(0, 157) + "..." : meta.description;
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${meta.title} | 西方哲学发展脉络</title>
+  <meta name="description" content="${desc}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${meta.canonical}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="${meta.title}" />
+  <meta property="og:description" content="${desc}" />
+  <meta property="og:url" content="${meta.canonical}" />
+  <meta property="og:site_name" content="西方哲学发展脉络" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${meta.title}" />
+  <meta name="twitter:description" content="${desc}" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f2; color: #2c2b27; line-height: 1.8; }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    .header { text-align: center; padding: 60px 0 40px; border-bottom: 1px solid #d4cfc4; margin-bottom: 40px; }
+    .header h1 { font-size: 28px; font-weight: 700; color: #1a1814; margin-bottom: 12px; }
+    .header .date { font-size: 13px; color: #8c877a; }
+    .section { margin-bottom: 36px; }
+    .section h2 { font-size: 20px; font-weight: 600; color: #3d372b; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #e8dcc8; }
+    .section p { white-space: pre-line; font-size: 16px; color: #4a4538; }
+    .callout { background: #f0ebe0; border-left: 4px solid #c4a87c; padding: 20px 24px; margin: 40px 0; border-radius: 4px; }
+    .callout h2 { border: none; margin-bottom: 8px; }
+    .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #d4cfc4; text-align: center; font-size: 13px; color: #8c877a; }
+    .footer a { color: #5c5340; text-decoration: underline; }
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px 60px; }
+      .header h1 { font-size: 22px; }
+      .section h2 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  ${bodyHtml}
+</body>
+</html>`;
+  }
+
+  function loadPostFromDisk(slug: string): any {
+    try {
+      const filePath = path.join(getBlogDir(), `${slug}.json`);
+      if (!fs.existsSync(filePath)) return null;
+      return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function loadPostIndex(): { title: string; slug: string; date: string; }[] {
+    try {
+      const idxPath = path.join(getBlogDir(), "posts.json");
+      if (!fs.existsSync(idxPath)) return [];
+      return JSON.parse(fs.readFileSync(idxPath, "utf8"));
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Blog index route
+  app.get("/blog", (req, res) => {
+    const posts = loadPostIndex();
+    const items = posts.map((p: any) =>
+      `<li style="margin-bottom:16px">
+        <a href="/blog/${p.slug}" style="font-size:18px;color:#3d372b;text-decoration:none;font-weight:600;">${p.title}</a>
+        <span style="display:block;font-size:13px;color:#8c877a;margin-top:2px;">${p.date}</span>
+      </li>`
+    ).join("");
+
+    const html = renderBlogPage({
+      title: "博客 — 西方哲学发展脉络",
+      description: "探索西方哲学史、哲学家思想与哲学学习方法。涵盖从古希腊到后现代的哲学讨论，中英双语内容。Western philosophy blog covering ancient Greece to post-modernity.",
+      canonical: "https://www.knowphilosophers.site/blog",
+    }, `
+    <div class="container">
+      <div class="header">
+        <h1>哲学博客</h1>
+        <p class="date">Philosophy Blog — 西方哲学发展脉络</p>
+      </div>
+      <ul style="list-style:none;padding:0">${items}</ul>
+      ${posts.length === 0 ? '<p style="text-align:center;color:#8c877a;">文章即将上线，敬请期待。</p>' : ''}
+      <div class="footer">
+        <a href="/">← 返回西方哲学网络图谱</a>
+      </div>
+    </div>`);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Individual blog post route
+  app.get("/blog/:slug", (req, res) => {
+    const { slug } = req.params;
+    if (slug.includes(".")) return res.status(404).send("Not found");
+
+    const post = loadPostFromDisk(slug);
+    if (!post) return res.status(404).send("Post not found");
+
+    const sectionsHtml = (post.sections || []).map((s: any) => {
+      if (s.type === "callout") {
+        return `<div class="callout">
+          <h2>${s.heading}</h2>
+          <p>${s.body.replace(/\n/g, "<br/>")}</p>
+          ${s.bodyEn ? `<p style="margin-top:12px;font-style:italic;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+        </div>`;
+      }
+      if (s.type === "intro") {
+        return `<div class="section" style="margin-top:0">
+          <h2>${s.heading}</h2>
+          <p>${s.body.replace(/\n/g, "<br/>")}</p>
+          ${s.bodyEn ? `<p style="margin-top:8px;font-size:14px;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+        </div>`;
+      }
+      return `<div class="section">
+        <h2>${s.heading}</h2>
+        <p>${s.body.replace(/\n/g, "<br/>")}</p>
+        ${s.bodyEn ? `<p style="margin-top:8px;font-size:14px;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+      </div>`;
+    }).join("");
+
+    const postDesc = (post.sections || []).find((s: any) => s.type === "intro")?.body?.slice(0, 150) || "";
+
+    const html = renderBlogPage({
+      title: post.title,
+      description: postDesc,
+      canonical: `https://www.knowphilosophers.site/blog/${slug}`,
+    }, `
+    <div class="container">
+      <div class="header">
+        <h1>${post.title}</h1>
+        <p class="date">${post.date} — ${post.author}</p>
+      </div>
+      ${sectionsHtml}
+      <div class="footer">
+        <a href="/">← 探索西方哲学网络图谱</a> | <a href="/blog">所有文章</a>
+      </div>
+    </div>`);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
   // Vite middleware setup for Development vs Production
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
