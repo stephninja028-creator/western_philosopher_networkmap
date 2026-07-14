@@ -5,35 +5,10 @@
   "slug": "why-western-philosophy-matters",
   "author": "knowphilosophers.site",
   "sections": [
-    {
-      "type": "intro",
-      "heading": "从 ChatGPT 到苏格拉底：为什么技术越发达，哲学越重要",
-      "body": "当 ChatGPT 能在 3 秒内写出一篇哲学论文，当 AI 辩论机器人口若悬河地讨论存在主义——我们不禁要问：在这个人工智能时代，人类还需要了解西方哲学吗？\n\n答案是：比以往任何时候都需要。因为 AI 擅长的是「生成答案」，而哲学训练的是「提出正确的问题」的能力。这正是苏格拉底两千年前就在做的事情——用追问揭示真知的边界。",
-      "bodyEn": "When ChatGPT can write a philosophy essay in 3 seconds, and AI debate bots eloquently discuss existentialism — we have to ask: in the age of artificial intelligence, do humans still need to understand Western philosophy? The answer: more than ever. Because AI excels at 'generating answers,' while philosophy trains the ability to 'ask the right questions.' This is exactly what Socrates was doing two millennia ago — using relentless questioning to reveal the boundaries of knowledge."
-    },
-    {
-      "type": "body",
-      "heading": "西方哲学是一门「提问的艺术」",
-      "body": "从古希腊的苏格拉底、柏拉图和亚里士多德，到近代的康德、黑格尔、尼采，西方哲学两千多年的历史本质上是一系列伟大提问的接力。每一个时代的哲学家都在重新定义「什么是真实」「什么是善」「人应该如何生活」。\n\n理解这条脉络，意味着理解人类思想的底层操作系统。而理解你的操作系统，是你在 AI 时代保持独立思考的关键。",
-      "bodyEn": "From Socrates, Plato, and Aristotle in ancient Greece, to Kant, Hegel, and Nietzsche in modernity, the two-thousand-year history of Western philosophy is essentially a relay of great questions. Every era's philosophers redefined 'what is real,' 'what is good,' and 'how should one live.' Understanding this lineage means understanding the underlying operating system of human thought. And understanding your operating system is key to maintaining independent thinking in the AI age."
-    },
-    {
-      "type": "body",
-      "heading": "看到哲学的全貌：从孤立的名字到交织的网络",
-      "body": "大多数人学习哲学的方式是一个个孤立的名字——苏格拉底、笛卡尔、康德——但哲学思想从来不是孤岛。亚里士多德是柏拉图的学生，黑格尔继承并批判了康德，萨特在尼采「上帝已死」的宣言上建立了存在主义。\n\n西方哲学发展脉络正是为此而生的工具——一个交互式的网络图谱，用可视化的方式呈现哲学家之间的师承、对立与影响关系。你可以一目了然地看到思想如何流动、学派如何演变、观念如何在历史长河中交锋与交融。",
-      "bodyEn": "Most people learn philosophy as isolated names — Socrates, Descartes, Kant — but philosophical ideas were never isolated islands. Aristotle was Plato's student, Hegel inherited and critiqued Kant, Sartre built existentialism upon Nietzsche's declaration that 'God is dead.' The Western Philosophy Network Map is precisely a tool for seeing this — an interactive network visualization that maps teacher-student lineages, intellectual oppositions, and influence relationships between philosophers. See at a glance how ideas flow, how schools evolve, and how concepts clash and merge across history."
-    },
-    {
-      "type": "body",
-      "heading": "不只是阅读——与哲人对话，看思想交锋",
-      "body": "我们的平台不只是让你「读」哲学，更让你「体验」哲学：\n\n• 灵魂对话：与任何一位哲人进行 AI 驱动的深度对话。用苏格拉底的诘问法探索真理，聆听尼采诗意的超人宣言，感受叔本华的悲观智慧\n• 思想格斗场：让两位哲学家就任何话题展开辩论。柏拉图 vs 尼采？康德 vs 萨特？看看不同时代、不同学派的思想如何正面交锋\n• 网络图谱：拖拽、缩放、点击，自由探索从古希腊到后现代的哲学关系网络\n\n这不仅仅是一个学习工具——这是哲学思考的健身房。",
-      "bodyEn": "Our platform doesn't just let you 'read' philosophy — it lets you 'experience' it: Soul Chat — engage in AI-powered deep conversations with any philosopher; Debate Arena — pit two philosophers against each other on any topic; Network Map — drag, zoom, click to freely explore the web of philosophical relationships from ancient Greece to post-modernity. This isn't just a learning tool — it's a gymnasium for philosophical thinking."
-    },
-    {
-      "type": "callout",
-      "heading": "开始你的哲学旅程",
-      "body": "西方哲学两千年的智慧，不在于给出确定的答案，而在于教会我们如何在不确定中思考。在 AI 能够模仿任何思想风格的今天，真正的竞争力不再是「知道多少」，而是「如何思考」。\n\n访问 knowphilosophers.site，探索西方哲学发展脉络的完整网络图谱。从苏格拉底的雅典广场，到尼采的深渊之舞，从康德的星空与道德法则，到萨特的存在先于本质——所有伟大思想的交汇点，都在这里等你。",
-      "bodyEn": "The wisdom of two millennia of Western philosophy lies not in providing definitive answers, but in teaching us how to think amid uncertainty. In an era where AI can imitate any intellectual style, the real competitive edge is no longer 'how much you know,' but 'how you think.' Visit knowphilosophers.site and explore the complete network map of Western philosophical lineage."
-    }
+    {"type":"intro","heading":"从 ChatGPT 到苏格拉底：为什么技术越发达，哲学越重要","body":"当 ChatGPT 能在 3 秒内写出一篇哲学论文，当 AI 辩论机器人口若悬河地讨论存在主义——我们不禁要问：在这个人工智能时代，人类还需要了解西方哲学吗？\n\n答案是：比以往任何时候都需要。因为 AI 擅长的是「生成答案」，而哲学训练的是「提出正确的问题」的能力。这正是苏格拉底两千年前就在做的事情——用追问揭示真知的边界。","bodyEn":"When ChatGPT can write a philosophy essay in 3 seconds, and AI debate bots eloquently discuss existentialism — we have to ask: in the age of artificial intelligence, do humans still need to understand Western philosophy? The answer: more than ever. Because AI excels at 'generating answers,' while philosophy trains the ability to 'ask the right questions.' This is exactly what Socrates was doing two millennia ago — using relentless questioning to reveal the boundaries of knowledge."},
+    {"type":"body","heading":"西方哲学是一门「提问的艺术」","body":"从古希腊的苏格拉底、柏拉图和亚里士多德，到近代的康德、黑格尔、尼采，西方哲学两千多年的历史本质上是一系列伟大提问的接力。每一个时代的哲学家都在重新定义「什么是真实」「什么是善」「人应该如何生活」。\n\n理解这条脉络，意味着理解人类思想的底层操作系统。而理解你的操作系统，是你在 AI 时代保持独立思考的关键。","bodyEn":"From Socrates, Plato, and Aristotle in ancient Greece, to Kant, Hegel, and Nietzsche in modernity, the two-thousand-year history of Western philosophy is essentially a relay of great questions. Every era's philosophers redefined 'what is real,' 'what is good,' and 'how should one live.' Understanding this lineage means understanding the underlying operating system of human thought. And understanding your operating system is key to maintaining independent thinking in the AI age."},
+    {"type":"body","heading":"看到哲学的全貌：从孤立的名字到交织的网络","body":"大多数人学习哲学的方式是一个个孤立的名字——苏格拉底、笛卡尔、康德——但哲学思想从来不是孤岛。亚里士多德是柏拉图的学生，黑格尔继承并批判了康德，萨特在尼采「上帝已死」的宣言上建立了存在主义。\n\n西方哲学发展脉络正是为此而生的工具——一个交互式的网络图谱，用可视化的方式呈现哲学家之间的师承、对立与影响关系。你可以一目了然地看到思想如何流动、学派如何演变、观念如何在历史长河中交锋与交融。","bodyEn":"Most people learn philosophy as isolated names — Socrates, Descartes, Kant — but philosophical ideas were never isolated islands. Aristotle was Plato's student, Hegel inherited and critiqued Kant, Sartre built existentialism upon Nietzsche's declaration that 'God is dead.' The Western Philosophy Network Map is precisely a tool for seeing this — an interactive network visualization that maps teacher-student lineages, intellectual oppositions, and influence relationships between philosophers. See at a glance how ideas flow, how schools evolve, and how concepts clash and merge across history."},
+    {"type":"body","heading":"不只是阅读——与哲人对话，看思想交锋","body":"我们的平台不只是让你「读」哲学，更让你「体验」哲学：\n\n• 灵魂对话：与任何一位哲人进行 AI 驱动的深度对话。用苏格拉底的诘问法探索真理，聆听尼采诗意的超人宣言，感受叔本华的悲观智慧\n• 思想格斗场：让两位哲学家就任何话题展开辩论。柏拉图 vs 尼采？康德 vs 萨特？看看不同时代、不同学派的思想如何正面交锋\n• 网络图谱：拖拽、缩放、点击，自由探索从古希腊到后现代的哲学关系网络\n\n这不仅仅是一个学习工具——这是哲学思考的健身房。","bodyEn":"Our platform doesn't just let you 'read' philosophy — it lets you 'experience' it: Soul Chat — engage in AI-powered deep conversations with any philosopher; Debate Arena — pit two philosophers against each other on any topic; Network Map — drag, zoom, click to freely explore the web of philosophical relationships from ancient Greece to post-modernity. This isn't just a learning tool — it's a gymnasium for philosophical thinking."},
+    {"type":"callout","heading":"开始你的哲学旅程","body":"西方哲学两千年的智慧，不在于给出确定的答案，而在于教会我们如何在不确定中思考。在 AI 能够模仿任何思想风格的今天，真正的竞争力不再是「知道多少」，而是「如何思考」。\n\n访问 knowphilosophers.site，探索西方哲学发展脉络的完整网络图谱。从苏格拉底的雅典广场，到尼采的深渊之舞，从康德的星空与道德法则，到萨特的存在先于本质——所有伟大思想的交汇点，都在这里等你。","bodyEn":"The wisdom of two millennia of Western philosophy lies not in providing definitive answers, but in teaching us how to think amid uncertainty. In an era where AI can imitate any intellectual style, the real competitive edge is no longer 'how much you know,' but 'how you think.' Visit knowphilosophers.site and explore the complete network map of Western philosophical lineage."}
   ]
 }
