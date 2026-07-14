@@ -1,5 +1,89 @@
 [
   {
+    "slug": "western-philosophy-timeline",
+    "title": "西方哲学史时间线：从古希腊到当代，如何看懂思想演变",
+    "date": "2026-07-14",
+    "category": "哲学入门",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "how-to-read-kant",
+    "title": "康德哲学怎么入门？先理解他的三个核心问题",
+    "date": "2026-07-14",
+    "category": "哲学家导读",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "marx-vs-nietzsche",
+    "title": "马克思和尼采的区别：他们如何理解自由与人的解放",
+    "date": "2026-07-14",
+    "category": "思想对比",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "what-is-phenomenology",
+    "title": "现象学是什么？从“回到事情本身”开始理解",
+    "date": "2026-07-14",
+    "category": "哲学概念",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "western-philosophy-learning-roadmap",
+    "title": "西方哲学入门：一条从古希腊到现代的学习路线",
+    "date": "2026-07-14",
+    "category": "哲学入门",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "socrates-plato-aristotle-relationship",
+    "title": "苏格拉底、柏拉图、亚里士多德是什么关系？",
+    "date": "2026-07-14",
+    "category": "哲学家关系",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "plato-vs-aristotle",
+    "title": "柏拉图和亚里士多德的区别：理念、现实与好生活",
+    "date": "2026-07-14",
+    "category": "思想对比",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "kant-vs-hegel",
+    "title": "康德和黑格尔的区别：自由、理性与历史",
+    "date": "2026-07-14",
+    "category": "思想对比",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "nietzsche-philosophy-introduction",
+    "title": "尼采哲学入门：他真正想说的不是“躺平”或“强者崇拜”",
+    "date": "2026-07-14",
+    "category": "哲学家导读",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "what-is-existentialism",
+    "title": "存在主义是什么？从“存在先于本质”开始理解萨特",
+    "date": "2026-07-14",
+    "category": "哲学概念",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "rationalism-vs-empiricism",
+    "title": "理性主义和经验主义的区别：知识从哪里来？",
+    "date": "2026-07-14",
+    "category": "哲学概念",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "what-is-dialectics",
+    "title": "辩证法是什么？别再把它理解成“正反合”",
+    "date": "2026-07-14",
+    "category": "哲学概念",
+    "lang": "zh-CN"
+  },
+  {
     "slug": "why-western-philosophy-matters",
     "title": "为什么在 AI 时代更需要了解西方哲学 | Why Western Philosophy Matters in the AI Age",
     "date": "2026-07-13",

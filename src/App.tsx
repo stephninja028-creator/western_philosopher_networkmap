@@ -254,6 +254,15 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
   return worksMap[id] || ['《哲学论文集与手稿精选》', '《核心命题辩证集》'];
 }
 
+type AnalyticsParams = Record<string, string | number | boolean>;
+
+function trackAnalyticsEvent(name: string, params: AnalyticsParams = {}) {
+  const gtag = (window as Window & {
+    gtag?: (command: 'event', eventName: string, eventParams: AnalyticsParams) => void;
+  }).gtag;
+  gtag?.('event', name, params);
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'chronology' | 'debate'>('chronology');
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
@@ -409,6 +418,26 @@ export default function App() {
   useEffect(() => {
     setCopiedQuote(false);
   }, [detailedPhilosopher]);
+
+  useEffect(() => {
+    if (!detailedPhilosopher) return;
+    trackAnalyticsEvent('view_philosopher_dossier', {
+      philosopher_id: detailedPhilosopher.id,
+      philosopher_name: detailedPhilosopher.name,
+      language,
+    });
+  }, [detailedPhilosopher, language]);
+
+  useEffect(() => {
+    trackAnalyticsEvent('view_product_area', { area: activeTab, language });
+  }, [activeTab, language]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      trackAnalyticsEvent('engaged_60_seconds', { language });
+    }, 60_000);
+    return () => window.clearTimeout(timer);
+  }, [language]);
 
   // Dynamic Gemini translation resolver
   useEffect(() => {
@@ -888,6 +917,10 @@ export default function App() {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(isEn ? `${detailedPhilosopher.nameEng} quote: "${displayQuote}"` : `${detailedPhilosopher.name}名言：“${displayQuote}”`);
+                        trackAnalyticsEvent('copy_philosopher_quote', {
+                          philosopher_id: detailedPhilosopher.id,
+                          language,
+                        });
                         setCopiedQuote(true);
                         setTimeout(() => setCopiedQuote(false), 2000);
                       }}
@@ -1163,6 +1196,17 @@ export default function App() {
       {/* Hellenic Navigation Tabs */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-8 z-20">
         <div className="flex border-b-2 border-[#D4AF37]/35 pb-0 justify-center sm:justify-start gap-4">
+          <a
+            href="/blog"
+            onClick={(event) => {
+              event.stopPropagation();
+              trackAnalyticsEvent('open_philosophy_guides', { language });
+            }}
+            className="px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]"
+          >
+            <BookOpen className="w-4 h-4 text-[#D4AF37]" />
+            <span>{language === 'zh' ? '哲学文章' : 'Philosophy Guides'}</span>
+          </a>
           <button
             onClick={() => {
               setActiveTab('chronology');

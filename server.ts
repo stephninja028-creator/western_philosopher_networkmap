@@ -34,7 +34,9 @@ function getGeminiClient(): GoogleGenAI {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  // Render assigns the port at runtime. Keeping 3000 as the local default makes
+  // the production server portable instead of depending on a platform default.
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 
@@ -830,6 +832,7 @@ ${sagesIntro}
     canonical: string;
     ogImage?: string;
     lang?: string;
+    jsonLd?: Record<string, unknown>;
   }, bodyHtml: string): string {
     const lang = meta.lang || "zh-CN";
     const desc = meta.description.length > 160 ? meta.description.slice(0, 157) + "..." : meta.description;
@@ -850,6 +853,7 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${meta.title}" />
   <meta name="twitter:description" content="${desc}" />
+  ${meta.jsonLd ? `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>` : ""}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f2; color: #2c2b27; line-height: 1.8; }
@@ -897,13 +901,36 @@ ${sagesIntro}
     }
   }
 
+  // Serve crawl-critical files from Express rather than relying on a static
+  // hosting fallback. This prevents an SPA catch-all from returning index.html
+  // for robots.txt or sitemap.xml after a deployment configuration change.
+  app.get("/robots.txt", (_req, res) => {
+    res.type("text/plain").send(`User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: https://www.knowphilosophers.site/sitemap.xml\n`);
+  });
+
+  app.get("/sitemap.xml", (_req, res) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const urls: Array<{ loc: string; priority: string; changefreq: string; lastmod?: string }> = [
+      { loc: "https://www.knowphilosophers.site/", priority: "1.0", changefreq: "weekly" },
+      { loc: "https://www.knowphilosophers.site/blog", priority: "0.8", changefreq: "weekly" },
+      ...loadPostIndex().map(post => ({
+        loc: `https://www.knowphilosophers.site/blog/${post.slug}`,
+        priority: "0.7",
+        changefreq: "monthly",
+        lastmod: post.date,
+      })),
+    ];
+    const entries = urls.map(url => `  <url>\n    <loc>${url.loc}</loc>\n    <lastmod>${url.lastmod || today}</lastmod>\n    <changefreq>${url.changefreq}</changefreq>\n    <priority>${url.priority}</priority>\n  </url>`).join("\n");
+    res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>`);
+  });
+
   // Blog index route
   app.get("/blog", (req, res) => {
     const posts = loadPostIndex();
     const items = posts.map((p: any) =>
-      `<li style="margin-bottom:16px">
+      `<li style="margin-bottom:20px">
         <a href="/blog/${p.slug}" style="font-size:18px;color:#3d372b;text-decoration:none;font-weight:600;">${p.title}</a>
-        <span style="display:block;font-size:13px;color:#8c877a;margin-top:2px;">${p.date}</span>
+        <span style="display:block;font-size:13px;color:#8c877a;margin-top:2px;">${p.date}${p.category ? ` · ${p.category}` : ""}</span>
       </li>`
     ).join("");
 
@@ -958,11 +985,34 @@ ${sagesIntro}
     }).join("");
 
     const postDesc = (post.sections || []).find((s: any) => s.type === "intro")?.body?.slice(0, 150) || "";
+    const relatedPosts = loadPostIndex()
+      .filter(related => related.slug !== slug)
+      .slice(0, 3);
+    const relatedHtml = relatedPosts.length ? `
+      <aside class="callout" aria-label="相关文章">
+        <h2>继续探索</h2>
+        <ul style="padding-left:18px;">
+          ${relatedPosts.map(related => `<li><a href="/blog/${related.slug}">${related.title}</a></li>`).join("")}
+        </ul>
+      </aside>` : "";
+
+    const articleJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      datePublished: post.date,
+      dateModified: post.date,
+      inLanguage: "zh-CN",
+      author: { "@type": "Organization", name: post.author || "knowphilosophers.site" },
+      publisher: { "@type": "Organization", name: "西方哲学发展脉络" },
+      mainEntityOfPage: `https://www.knowphilosophers.site/blog/${slug}`,
+    };
 
     const html = renderBlogPage({
       title: post.title,
       description: postDesc,
       canonical: `https://www.knowphilosophers.site/blog/${slug}`,
+      jsonLd: articleJsonLd,
     }, `
     <div class="container">
       <div class="header">
@@ -970,6 +1020,7 @@ ${sagesIntro}
         <p class="date">${post.date} — ${post.author}</p>
       </div>
       ${sectionsHtml}
+      ${relatedHtml}
       <div class="footer">
         <a href="/">← 探索西方哲学网络图谱</a> | <a href="/blog">所有文章</a>
       </div>
