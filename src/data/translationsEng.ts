@@ -84,7 +84,30 @@ export const schoolTranslations: Record<string, string> = {
   '青年黑格尔/极端利己': 'Young Hegelians / Egoist Individualism',
   '非理性主义/悲观意志': 'Irrationalism / Pessimistic Voluntarism',
   '存在主义先驱': 'Existentialist Precursors',
-  '功利主义/实证主义': 'Utilitarianism / Positivism'
+  '功利主义/实证主义': 'Utilitarianism / Positivism',
+  '道家': 'Daoism',
+  '儒家': 'Confucianism',
+  '墨家': 'Mohism',
+  '兵家': 'Militarism',
+  '法家': 'Legalism',
+  '今文经学': 'Han Classical Studies',
+  '唯物批判学派': 'Materialist Criticism',
+  '魏晋玄学': 'Wei-Jin Xuanxue',
+  '唯识宗': 'Yogacara / Mind-Only',
+  '禅宗': 'Chan / Zen',
+  '华严宗': 'Huayan Buddhism',
+  '理学先驱': 'Neo-Confucian Pioneers',
+  '关学': 'Guan School of Qi',
+  '洛学': 'Luo School of Principle',
+  '理学集大成': 'Neo-Confucian Synthesis',
+  '心学': 'School of Heart/Mind',
+  '阳明心学': 'Yangming Heart Studies',
+  '泰州心学': 'Taizhou Heart Studies',
+  '清代理学/唯物实学': 'Qing Shixue / Materialism',
+  '清代理学/民主启蒙': 'Qing Democratic Enlightenment',
+  '新文化运动': 'New Culture Movement',
+  '现代新儒家': 'Modern Neo-Confucianism',
+  '现代新理学': 'Modern New Principle'
 };
 
 export const schoolLabelTranslations: Record<string, string> = {
@@ -97,7 +120,13 @@ export const schoolLabelTranslations: Record<string, string> = {
   '文艺复兴与启蒙运动': 'Renaissance and Enlightenment',
   '德意志古典哲学': 'German Classical Idealism',
   '现代实证与非理性转向': 'Modern Positivism & Irrational Turn',
-  '其他思想领域': 'Other Intellectual Domains'
+  '其他思想领域': 'Other Intellectual Domains',
+  '先秦诸子百家': 'Pre-Qin Hundred Schools',
+  '两汉经学与魏晋玄学': 'Han Classism & Wei-Jin Xuanxue',
+  '隋唐佛学': 'Sui-Tang Buddhism',
+  '宋代理学': 'Song Neo-Confucianism',
+  '明明德与王阳明心学': 'Ming Heart/Mind Studies',
+  '清代实学与近代中国哲学': 'Qing Shixue & Modern Philosophy'
 };
 
 export const epochTranslations: Record<number, { title: string; subtitle: string; description: string; timeGrid: string[] }> = {
@@ -142,6 +171,42 @@ export const epochTranslations: Record<number, { title: string; subtitle: string
     subtitle: '20th Century ~ Present',
     description: 'Entering the 20th century, two world wars shattered the grand narratives of universal progress. Philosophy underwent a massive divergence: Anglo-American "Analytic Philosophy" focused on logical analysis, science, and clarity of language; Continental "Phenomenology and Postmodernism" confronted the absurdity of existence, body observation, and deconstruction of power systems; while American "Pragmatism" championed tangible utility and learning-by-doing.',
     timeGrid: ['1900s-1920s Foundations', '1930s-1950s Existential Choice', '1960s-1980s Post-Modernity', '1990s-Present Neo-Pragmatism']
+  },
+  11: {
+    title: 'Pre-Qin Hundred Schools of Thought',
+    subtitle: '6th Century BC ~ 3rd Century BC',
+    description: 'The axial age of Eastern philosophy. Facing a chaotic era of collapsing rites, philosophers from Daoism, Confucianism, Mohism, Legalism, and Militarism clashed on the ultimate nature of Heaven, human virtue, and governance.',
+    timeGrid: ['6th Cent BC', '5th Cent BC', '4th Cent BC', '3rd Cent BC']
+  },
+  12: {
+    title: 'Han Classical Studies & Wei-Jin Xuanxue',
+    subtitle: '2nd Century BC ~ 5th Century AD',
+    description: 'The institutionalization of imperial Confucianism and the romantic rebellion of Wei-Jin gentry. Dong Zhongshu integrated cosmology to crown Confucianism, while Wang Bi, Ji Kang, and Guo Xiang turned to Daoist "nothingness" (Wu) in times of collapse.',
+    timeGrid: ['2nd Cent BC', '1st Cent BC', '1st Cent AD', '3rd Cent AD', '4th Cent AD']
+  },
+  13: {
+    title: 'Sui & Tang Buddhist Philosophy',
+    subtitle: '6th Century AD ~ 10th Century AD',
+    description: 'The localization of Buddhist philosophy in China. Xuanzang built the intricate towers of Yogacara consciousness, while Huineng revolutionized spiritual practice with Chan (Zen), advocating direct enlightenment and sweeping away trivial rites.',
+    timeGrid: ['6th Cent AD', '7th Cent AD', '8th Cent AD', '9th Cent AD']
+  },
+  14: {
+    title: 'Song Neo-Confucianism',
+    subtitle: '11th Century AD ~ 13th Century AD',
+    description: 'The cosmological reconstruction of Confucianism. Incorporating Buddhist and Daoist metaphysics, thinkers established "Principle" (Li) as the supreme ontology. Zhu Xi led the objective study of things, while Lu Jiuyuan declared the Mind is the Universe.',
+    timeGrid: ['11th Cent', '12th Cent', '13th Cent']
+  },
+  15: {
+    title: 'Ming Heart-Mind Studies',
+    subtitle: '14th Century AD ~ 17th Century AD',
+    description: 'The awakening of moral conscience and absolute unity of knowledge and action. Rejecting political ossification, military-philosopher Wang Yangming declared that "Principle is within the Mind" and advocated the intuitive discovery of true conscience (Liangzhi).',
+    timeGrid: ['14th Cent', '15th Cent', '16th Cent', '17th Cent']
+  },
+  16: {
+    title: 'Qing Shixue & Modern Chinese Philosophy',
+    subtitle: '17th Century AD ~ 20th Century AD',
+    description: 'From critical realism to the collision of East and West. Great Qing scholars rejected abstract speculation for empirical statecraft. In the 20th century, modern scholars like Hu Shi introduced Western pragmatism, while Xiong Shili and Feng Youlan rebuilt Eastern philosophy with modern logic.',
+    timeGrid: ['17th Cent', '18th Cent', '19th Cent', 'Early 20th Cent', 'Late 20th Cent']
   }
 };
 

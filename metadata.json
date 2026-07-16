@@ -1,6 +1,6 @@
 {
-  "name": "西方哲学发展脉络",
-  "description": "基于古希腊色调的交互式中英双语西方哲学网络图谱，新增‘灵魂对话’贤哲终端与‘思想格斗场’古圣擂台辩论，完美呈现各流派思想的相承、相斥与实时对话演绎。An interactive bilingually charged (CN/EN) Western philosophy pedigree network with AI dialogues and debate arenas.",
+  "name": "东西方哲学发展脉络",
+  "description": "基于古希腊色调的交互式中英双语东西方哲学网络图谱，新增‘灵魂对话’贤哲终端与‘思想格斗场’古圣擂台辩论，完美呈现各流派思想的相承、相斥与实时对话演绎。An interactive bilingually charged (CN/EN) East & West philosophy pedigree network with AI dialogues and debate arenas.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

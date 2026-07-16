@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect, FormEvent } from 'react';
+import { useState, useMemo, useEffect, FormEvent, TouchEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { philosophyData } from './data/philosophyData';
+import { easternPhilosophyData } from './data/easternPhilosophyData';
 import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
@@ -223,7 +224,37 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
       hume: ['A Treatise of Human Nature', 'An Enquiry Concerning Human Understanding'],
       leibniz: ['Monadology', 'New Essays on Human Understanding'],
       wittgenstein: ['Tractatus Logico-Philosophicus', 'Philosophical Investigations'],
-      heidegger: ['Being and Time', 'Woodpaths (Off the Beaten Track)']
+      heidegger: ['Being and Time', 'Woodpaths (Off the Beaten Track)'],
+      
+      // Eastern Sages works
+      laozi: ['Tao Te Ching (The Classic of the Way and Virtue)'],
+      confucius: ['The Analects (Lunyu)', 'Spring and Autumn Annals'],
+      mozi: ['Mozi'],
+      mencius: ['Mencius'],
+      zhuangzi: ['Zhuangzi (The Classic of South-Flower)'],
+      xunzi: ['Xunzi'],
+      han_feizi: ['Han Feizi'],
+      sun_tzu: ['The Art of War'],
+      dong_zhongshu: ['Luxuriant Dew of the Spring and Autumn Annals (Chunqiu Fanlu)'],
+      wang_chong: ['Balanced Discourses (Lunheng)'],
+      wang_bi: ['Commentary on Laozi', 'Commentary on Zhouyi'],
+      gu_xiang: ['Commentary on Zhuangzi'],
+      xuanzang: ['Treatise on the Establishment of Consciousness-Only (Cheng Weishi Lun)', 'Great Tang Records on the Western Regions'],
+      huineng: ['The Platform Sutra of the Sixth Patriarch'],
+      fazang: ['Treatise on the Golden Lion (Jin Shizi Zhang)', 'Huayan Treatise'],
+      zhou_dunyi: ['Explanation of the Diagram of the Supreme Ultimate (Taijitusuo)', 'Tongshu'],
+      zhang_zai: ['Correcting Ignorance (Zhengmeng)', 'West Inscription (Ximing)'],
+      cheng_yi: ['Commentary on Zhouyi', 'Yishu of the Two Chengs'],
+      zhu_xi: ['Collected Commentaries on the Four Books (Sishu Zhangju Jizhu)', 'Explanation of the Taijitu'],
+      lu_jiuyuan: ['Complete Works of Master Xiangshan'],
+      wang_yangming: ['Instructions for Practical Living (Chuanxilu)', 'Inquiry on the Great Learning'],
+      li_zhi: ['A Book to Burn (Fenshu)', 'A Book to Keep (Cangshu)'],
+      wang_fuzhi: ['Discourse on Reading the Comprehensive Mirror (Du Tongjian Lun)', 'Discussions on Song Dynasty'],
+      huang_zongxi: ['Waiting for the Dawn (Mingyi Daifanglu)', 'Records of Ming Scholars'],
+      gu_yanwu: ['Record of Daily Knowledge (Rizhilu)', 'Strategic Atlas of the Empire'],
+      hu_shi: ['An Outline of the History of Chinese Philosophy', 'Collection of Trials'],
+      xiong_shili: ['New Treatise on Representation-Only (Xin Weishi Lun)', 'Inquiry on Confucianism'],
+      feng_youlan: ['A History of Chinese Philosophy', 'Six Books of Zhenyuan']
     };
     return worksMapEng[id] || ['Selected Philosophical Essays and Manuscripts', 'Dialectical Collection of Core Doctrines'];
   }
@@ -249,27 +280,93 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
     hume: ['《人性论》(A TREATISE OF HUMAN NATURE)', '《人类理解研究》'],
     leibniz: ['《单子论》(MONADOLOGY)', '《人类理智新论》'],
     wittgenstein: ['《逻辑哲学论》(TRACTATUS LOGICO-PHILOSOPHICUS)', '《哲学研究》'],
-    heidegger: ['《存在与时间》(BEING AND TIME)', '《林中路》']
+    heidegger: ['《存在与时间》(BEING AND TIME)', '《林中路》'],
+    
+    // 东方的哲学家著作
+    laozi: ['《道德经》(TAO TE CHING)', '《老子注》释篇'],
+    confucius: ['《论语》(THE ANALECTS)', '《春秋》(SPRING AND AUTUMN ANNALS)', '《五经》整理'],
+    mozi: ['《墨子》(MOZI)', '《墨经》科学篇'],
+    mencius: ['《孟子》(MENCIUS)', '《仁政与王道》'],
+    zhuangzi: ['《庄子》(ZHUANGZI)', '《内篇·逍遥游》', '《齐物论》'],
+    xunzi: ['《荀子》(XUNZI)', '《劝学》', '《性恶》'],
+    han_feizi: ['《韩非子》(HAN FEIZI)', '《孤愤》', '《五蠹》'],
+    sun_tzu: ['《孙子兵法》(THE ART OF WAR)'],
+    dong_zhongshu: ['《春秋繁露》(CHUNQIU FANLU)', '《天人三策》'],
+    wang_chong: ['《论衡》(LUNHENG)', '《疾虚妄》'],
+    wang_bi: ['《老子注》', '《周易注》', '《论语释疑》'],
+    gu_xiang: ['《庄子注》(COMMENTARY ON ZHUANGZI)'],
+    xuanzang: ['《成唯识论》(CHENG WEISHI LUN)', '《大唐西域记》'],
+    huineng: ['《六祖坛经》(PLATFORM SUTRA)'],
+    fazang: ['《华严金狮子章》', '《华严五教章》'],
+    zhou_dunyi: ['《太极图说》(TAIJITUSUO)', '《通书》'],
+    zhang_zai: ['《正蒙》(ZHENGMENG)', '《西铭》(XIMING)'],
+    cheng_yi: ['《周易程氏传》', '《遗书》(二程合集)'],
+    zhu_xi: ['《四书章句集注》(SISHU ZHANGJU JIZHU)', '《太极图说解》'],
+    lu_jiuyuan: ['《象山先生全集》(COMPLETE WORKS OF MASTER XIANGSHAN)'],
+    wang_yangming: ['《传习录》(CHUANXILU)', '《大学问》(DAXUE WEN)'],
+    li_zhi: ['《焚书》(FENSHU)', '《藏书》(CANGSHU)'],
+    wang_fuzhi: ['《读通鉴论》(DU TONGJIAN LUN)', '《宋论》', '《船山遗书》'],
+    huang_zongxi: ['《明夷待访录》(MINGYI DAIFANLU)', '《明儒学案》'],
+    gu_yanwu: ['《日知录》(RIZHILU)', '《天下郡国利病书》'],
+    hu_shi: ['《中国哲学史大纲》', '《尝试集》', '《实用主义》'],
+    xiong_shili: ['《新唯识论》(XIN WEISHI LUN)', '《原儒》'],
+    feng_youlan: ['《中国哲学史》(A HISTORY OF CHINESE PHILOSOPHY)', '《贞元六书》']
   };
   return worksMap[id] || ['《哲学论文集与手稿精选》', '《核心命题辩证集》'];
 }
 
-type AnalyticsParams = Record<string, string | number | boolean>;
-
-function trackAnalyticsEvent(name: string, params: AnalyticsParams = {}) {
-  const gtag = (window as Window & {
-    gtag?: (command: 'event', eventName: string, eventParams: AnalyticsParams) => void;
-  }).gtag;
-  gtag?.('event', name, params);
-}
-
 export default function App() {
+  const [activeRegion, setActiveRegion] = useState<'west' | 'east'>('west');
   const [activeTab, setActiveTab] = useState<'chronology' | 'debate'>('chronology');
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<Philosopher | null>(() => {
-    // Default to Socrates in Epoch 1
     return philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
   });
+
+  const activePhilosophyData = useMemo(() => {
+    return activeRegion === 'west' ? philosophyData : easternPhilosophyData;
+  }, [activeRegion]);
+
+  // Synchronize selection when switching region
+  useEffect(() => {
+    if (activeRegion === 'west') {
+      const defaultPhilosopher = philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
+      setSelectedPhilosopher(defaultPhilosopher);
+      setActiveEpochId(1);
+    } else {
+      const defaultPhilosopher = easternPhilosophyData[0].philosophers.find(p => p.id === 'confucius') || easternPhilosophyData[0].philosophers[0];
+      setSelectedPhilosopher(defaultPhilosopher);
+      setActiveEpochId(11); // Eastern epoch starting ID
+    }
+  }, [activeRegion]);
+
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    const isSwipeLeft = distance > 70; // Swipe finger left: reveals right pane (East)
+    const isSwipeRight = distance < -70; // Swipe finger right: reveals left pane (West)
+
+    if (isSwipeLeft && activeRegion === 'west') {
+      setActiveRegion('east');
+    } else if (isSwipeRight && activeRegion === 'east') {
+      setActiveRegion('west');
+    }
+
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   const [hoveredPhilosopherId, setHoveredPhilosopherId] = useState<string | null>(null);
   const [selectedLevels, setSelectedLevels] = useState<number[]>([1, 2, 3, 4, 5]);
 
@@ -419,26 +516,6 @@ export default function App() {
     setCopiedQuote(false);
   }, [detailedPhilosopher]);
 
-  useEffect(() => {
-    if (!detailedPhilosopher) return;
-    trackAnalyticsEvent('view_philosopher_dossier', {
-      philosopher_id: detailedPhilosopher.id,
-      philosopher_name: detailedPhilosopher.name,
-      language,
-    });
-  }, [detailedPhilosopher, language]);
-
-  useEffect(() => {
-    trackAnalyticsEvent('view_product_area', { area: activeTab, language });
-  }, [activeTab, language]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      trackAnalyticsEvent('engaged_60_seconds', { language });
-    }, 60_000);
-    return () => window.clearTimeout(timer);
-  }, [language]);
-
   // Dynamic Gemini translation resolver
   useEffect(() => {
     const targetId = detailedPhilosopher?.id || selectedPhilosopher?.id;
@@ -561,11 +638,11 @@ export default function App() {
     if (detailedPhilosopher) return; // ignore scrolling triggers when deep in bio view
 
     const handleScroll = () => {
-      const epochElements = philosophyData.map(epoch => 
+      const epochElements = activePhilosophyData.map(epoch => 
         document.getElementById(`epoch-section-${epoch.id}`)
       );
 
-      let currentActiveId = 1;
+      let currentActiveId = activeRegion === 'west' ? 1 : 11;
       let minDistance = Infinity;
 
       epochElements.forEach((el, index) => {
@@ -575,17 +652,17 @@ export default function App() {
           const distance = Math.abs(rect.top - 140);
           if (distance < minDistance && rect.top <= window.innerHeight * 0.6 && rect.bottom >= 100) {
             minDistance = distance;
-            currentActiveId = philosophyData[index].id;
+            currentActiveId = activePhilosophyData[index].id;
           }
         }
       });
 
       // Special clamps for very top or bottom of scroll depth
       if (window.scrollY < 120) {
-        currentActiveId = 1;
+        currentActiveId = activeRegion === 'west' ? 1 : 11;
       }
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160) {
-        currentActiveId = 6;
+        currentActiveId = activeRegion === 'west' ? 6 : 16;
       }
 
       setActiveEpochId(currentActiveId);
@@ -593,10 +670,13 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [detailedPhilosopher]);
+  }, [detailedPhilosopher, activePhilosophyData, activeRegion]);
 
   const allPhilosophersFlat = useMemo(() => {
-    return philosophyData.flatMap(epoch => epoch.philosophers);
+    return [
+      ...philosophyData.flatMap(epoch => epoch.philosophers),
+      ...easternPhilosophyData.flatMap(epoch => epoch.philosophers)
+    ];
   }, []);
 
   // Find connections globally based on hover/selection
@@ -604,7 +684,7 @@ export default function App() {
     const set = new Set<string>();
     const focusedId = hoveredPhilosopherId || selectedPhilosopher?.id;
     if (focusedId) {
-      philosophyData.forEach(ep => {
+      activePhilosophyData.forEach(ep => {
         ep.connections.forEach(conn => {
           if (conn.from === focusedId) {
             set.add(conn.to);
@@ -616,14 +696,15 @@ export default function App() {
       });
     }
     return set;
-  }, [hoveredPhilosopherId, selectedPhilosopher]);
+  }, [hoveredPhilosopherId, selectedPhilosopher, activePhilosophyData]);
 
   // Find linked philosophers helper for the detailed page
   const biographicalLinks = useMemo(() => {
     if (!detailedPhilosopher) return [];
     
     const linkedIds = new Set<string>();
-    philosophyData.forEach(ep => {
+    const allEpochsMerged = [...philosophyData, ...easternPhilosophyData];
+    allEpochsMerged.forEach(ep => {
       ep.connections.forEach(conn => {
         if (conn.from === detailedPhilosopher.id) {
           linkedIds.add(conn.to);
@@ -636,7 +717,7 @@ export default function App() {
 
     // Solve for matching entities in raw DB
     const list: Philosopher[] = [];
-    philosophyData.forEach(ep => {
+    allEpochsMerged.forEach(ep => {
       ep.philosophers.forEach(p => {
         if (linkedIds.has(p.id) && p.id !== detailedPhilosopher.id) {
           list.push(p);
@@ -917,10 +998,6 @@ export default function App() {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(isEn ? `${detailedPhilosopher.nameEng} quote: "${displayQuote}"` : `${detailedPhilosopher.name}名言：“${displayQuote}”`);
-                        trackAnalyticsEvent('copy_philosopher_quote', {
-                          philosopher_id: detailedPhilosopher.id,
-                          language,
-                        });
                         setCopiedQuote(true);
                         setTimeout(() => setCopiedQuote(false), 2000);
                       }}
@@ -1171,19 +1248,19 @@ export default function App() {
           {/* Classical Temple Pediment */}
           <GreekPediment 
             title="ΦΙΛΟΣΟΦΙΑ" 
-            subtitle={language === 'zh' ? '西方哲学发展脉络交互图谱' : 'Western Philosophy Academic Roll'} 
+            subtitle={language === 'zh' ? '东西方哲学发展脉络交互图谱' : 'East & West Philosophy Academic Roll'} 
             className="mb-3"
           />
 
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-widest text-[#0B2545] drop-shadow-xs font-serif uppercase">
-            {language === 'zh' ? '西方哲学思想沿革史卷' : 'Western Philosophical Chronicle Roll'}
+            {language === 'zh' ? '东西方哲学思想沿革史卷' : 'East & West Philosophical Chronicle Roll'}
           </h1>
           
           <p className="mt-2.5 text-xs md:text-sm text-[#0D5C75] max-w-2xl mx-auto leading-relaxed font-sans font-medium">
             {language === 'zh' ? (
-              <>本图谱真实精确地还原了<b>六大黄金断代时期</b>的哲学主干网络。采用古希腊经典神庙美学设计，<b>通过向下流动模拟历史纪元的演进</b>，在 Alabaster 细砂大理石廊底与 Aegean 爱琴海深蓝间优雅流转。</>
+              <>本图谱真实精确地还原了<b>东西方哲学黄金断代时期</b>的哲学主干网络。采用古雅经典美学设计，<b>通过向下流动模拟历史纪元的演进</b>，优雅地穿梭于<b>西方理性思辨 ⇄ 东方中国智慧</b>。</>
             ) : (
-              <>This scroll accurately reconstructs the academic core network of the <b>six golden historical epochs</b> of Western philosophy. Framed in classical Hellenic temple aesthetics, <b>scrolling down simulates the sequence of history</b>, flowing gracefully between Alabaster marble pillars and Aegean deep blue.</>
+              <>This scroll reconstructs the core network of the <b>golden historical epochs</b> of both Western and Eastern philosophy. Framed in classical aesthetics, <b>scrolling down simulates the sequence of history</b>, flowing gracefully between <b>Western rational dialectics ⇄ Eastern Chinese wisdom</b>.</>
             )}
             <br />
             <span className="text-[#0B2545] bg-[#D4AF37]/20 px-1.5 py-0.5 rounded font-sans text-[10px] font-bold">
@@ -1196,17 +1273,6 @@ export default function App() {
       {/* Hellenic Navigation Tabs */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-8 z-20">
         <div className="flex border-b-2 border-[#D4AF37]/35 pb-0 justify-center sm:justify-start gap-4">
-          <a
-            href="/blog"
-            onClick={(event) => {
-              event.stopPropagation();
-              trackAnalyticsEvent('open_philosophy_guides', { language });
-            }}
-            className="px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]"
-          >
-            <BookOpen className="w-4 h-4 text-[#D4AF37]" />
-            <span>{language === 'zh' ? '哲学文章' : 'Philosophy Guides'}</span>
-          </a>
           <button
             onClick={() => {
               setActiveTab('chronology');
@@ -1251,18 +1317,60 @@ export default function App() {
           {/* LEFT COLUMN: Majestic Continuous Scrollway */}
           <div className="lg:col-span-8 flex flex-col gap-10">
             
-            <div className="flex items-center justify-between border-b border-[#0B2545]/20 pb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#0B2545]/20 pb-4">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-[#0B2545]" />
                 <h3 className="font-serif text-lg font-bold text-[#0B2545] tracking-wider uppercase">
-                  {language === 'zh' ? '传承图谱流层 · 史学罗盘' : 'Scholastic Network Flow • Historiography Compass'}
+                  {activeRegion === 'west' 
+                    ? (language === 'zh' ? '西方哲人图谱流层 · 史学罗盘' : 'Western Scholastic Network Flow')
+                    : (language === 'zh' ? '东方中国贤哲图谱 · 史学罗盘' : 'Eastern Scholastic Network Flow')}
                 </h3>
               </div>
-              <span className="text-[10px] font-mono text-[#0D5C75] font-semibold hidden sm:inline">
+              
+              {/* Premium Dual-Region Switcher (Stone Pillar Aesthetics) */}
+              <div className="flex items-center bg-[#F2EDE2]/60 border border-[#D4AF37]/50 p-1 rounded-full shadow-3xs self-center sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setActiveRegion('west')}
+                  className={`px-4 py-1.5 rounded-full text-xs font-serif font-extrabold tracking-widest uppercase transition-all duration-350 cursor-pointer flex items-center gap-1.5 ${
+                    activeRegion === 'west'
+                      ? 'bg-[#0B2545] text-[#FAF8F5] shadow-xs font-bold'
+                      : 'text-[#0D5C75] hover:text-[#0B2545] font-semibold'
+                  }`}
+                >
+                  <span>🏛️</span>
+                  <span>{language === 'zh' ? '西方哲学' : 'West'}</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setActiveRegion('east')}
+                  className={`px-4 py-1.5 rounded-full text-xs font-serif font-extrabold tracking-widest uppercase transition-all duration-350 cursor-pointer flex items-center gap-1.5 ${
+                    activeRegion === 'east'
+                      ? 'bg-[#C2593F] text-[#FAF8F5] shadow-xs font-bold'
+                      : 'text-[#0D5C75] hover:text-[#C2593F] font-semibold'
+                  }`}
+                >
+                  <span>⛩️</span>
+                  <span>{language === 'zh' ? '东方中国' : 'East'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Gesture indicators showing mobile swipe capabilities */}
+            <div className="flex items-center justify-between text-[10px] font-mono text-[#0D5C75]/85">
+              <span className="font-sans font-medium">
                 {language === 'zh' ? (
-                  <>滑动页面即时光穿梭 · <b>双击</b>卡片开启详细生平</>
+                  <>💡 左右滑动或点击上方选项卡，即可在<b>西方思辨 ⇄ 东方中国智慧</b>间无缝穿梭</>
                 ) : (
-                  <>Scroll pages to travel in time • <b>Double click</b> card to open biography dossier</>
+                  <>💡 Swipe left/right or click tabs above to seamlessly switch between <b>Western & Eastern</b> heritages</>
+                )}
+              </span>
+              <span className="hidden sm:inline font-semibold">
+                {language === 'zh' ? (
+                  <>双击卡片开启生平 · 滑动页面时光穿梭</>
+                ) : (
+                  <>Double click card for biography • Scroll page to travel in time</>
                 )}
               </span>
             </div>
@@ -1341,18 +1449,35 @@ export default function App() {
                 </div>
               </div>
 
-              <LineageDiagram
-                allEpochs={philosophyData}
-                selectedPhilosopher={selectedPhilosopher}
-                hoveredPhilosopherId={hoveredPhilosopherId}
-                highlightedIds={highlightedIds}
-                onSelectPhilosopher={setSelectedPhilosopher}
-                onDoubleClickPhilosopher={handlePhilosopherDoubleClick}
-                onHoverPhilosopher={setHoveredPhilosopherId}
-                selectedLevels={selectedLevels}
-                language={language}
-                translatedPhilosopherValues={translatedPhilosopherValues}
-              />
+              <div 
+                className="overflow-hidden touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeRegion}
+                    initial={{ x: activeRegion === 'west' ? -40 : 40, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: activeRegion === 'west' ? 40 : -40, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                  >
+                    <LineageDiagram
+                      allEpochs={activePhilosophyData}
+                      selectedPhilosopher={selectedPhilosopher}
+                      hoveredPhilosopherId={hoveredPhilosopherId}
+                      highlightedIds={highlightedIds}
+                      onSelectPhilosopher={setSelectedPhilosopher}
+                      onDoubleClickPhilosopher={handlePhilosopherDoubleClick}
+                      onHoverPhilosopher={setHoveredPhilosopherId}
+                      selectedLevels={selectedLevels}
+                      language={language}
+                      translatedPhilosopherValues={translatedPhilosopherValues}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
 
           </div>
@@ -1434,8 +1559,7 @@ export default function App() {
                     
                     {highlightedIds.size > 0 ? (
                       <div className="flex flex-wrap gap-1 max-h-[80px] overflow-y-auto pr-1">
-                        {philosophyData
-                          .flatMap(ep => ep.philosophers)
+                        {allPhilosophersFlat
                           .filter(p => highlightedIds.has(p.id) && p.id !== selectedPhilosopher.id)
                           .map(linked => (
                             <button
@@ -1477,7 +1601,7 @@ export default function App() {
               </span>
               <div className="flex flex-col gap-2 relative animate-fadeIn">
                 <div className="absolute left-[5px] top-1 bottom-1 w-[1px] bg-[#D4AF37]/25" />
-                {philosophyData.map((epoch) => {
+                {activePhilosophyData.map((epoch) => {
                   const isActive = activeEpochId === epoch.id;
                   const isEn = language === 'en';
                   const translatedEpoch = isEn ? epochTranslations[epoch.id] : null;
@@ -1607,8 +1731,7 @@ export default function App() {
                   
                   {highlightedIds.size > 0 ? (
                     <div className="flex flex-wrap gap-1 max-h-[70px] overflow-y-auto pr-1">
-                      {philosophyData
-                        .flatMap(ep => ep.philosophers)
+                      {allPhilosophersFlat
                         .filter(p => highlightedIds.has(p.id) && p.id !== selectedPhilosopher.id)
                         .map(linked => (
                           <button
@@ -1641,13 +1764,13 @@ export default function App() {
           <div className="flex items-center gap-2 mb-4 border-b border-[#0B2545]/25 pb-2">
             <HelpCircle className="w-5 h-5 text-[#0B2545]" />
             <h2 className="font-serif text-lg font-bold text-[#0B2545] tracking-wider uppercase">
-              {language === 'zh' ? '对话广场 · 雅典论辩 (Symposium Arena)' : 'Athena Symposium · Dialectical Area'}
+              {language === 'zh' ? '对话广场 · 思想论辩 (Symposium Arena)' : 'Universal Symposium · Dialectical Area'}
             </h2>
           </div>
 
           <SymposiumPanel
-            epoch={philosophyData.find(e => e.id === activeEpochId) || philosophyData[0]}
-            allEpochs={philosophyData}
+            epoch={activePhilosophyData.find(e => e.id === activeEpochId) || activePhilosophyData[0]}
+            allEpochs={activePhilosophyData}
             onSelectPhilosopher={setSelectedPhilosopher}
             language={language}
             translatedPhilosopherValues={translatedPhilosopherValues}

@@ -92,6 +92,15 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
       { from: 'plato', to: 'derrida', type: 'influence' as const },       // Derrida deconstructing Platonic logocentrism (phonocentrism) in Phaedrus
       { from: 'nietzche', to: 'derrida', type: 'influence' as const },    // Derrida's play of signs influenced by Nietzschean infinite interpretation
       { from: 'kant', to: 'rorty', type: 'influence' as const },         // Rorty's "Philosophy and the Mirror of Nature" dismantling Kantian foundational epistemology
+      
+      // Eastern/Chinese Philosophy - Great Cross-Epoch & School Links
+      { from: 'confucius', to: 'dong_zhongshu', type: 'succession' as const }, // Dong Zhongshu establishing imperial Confucian orthodox statecraft
+      { from: 'mencius', to: 'wang_yangming', type: 'influence' as const },    // Wang Yangming actualizing Mencius's concept of Liangzhi (innate moral mind)
+      { from: 'lu_jiuyuan', to: 'wang_yangming', type: 'succession' as const }, // Wang Yangming summarizing and completing Lu's Mind-is-Universe studies
+      { from: 'zhuangzi', to: 'huineng', type: 'influence' as const },         // Zhuangzi's concept of free mind deeply shape Huineng's localized Zen/Chan Buddhism
+      { from: 'xuanzang', to: 'xiong_shili', type: 'influence' as const },     // Xiong Shili critiquing Xuanzang's Yogacara logic to formulate New Representation-Only
+      { from: 'confucius', to: 'zhu_xi', type: 'succession' as const },        // Zhu Xi compiling and synthesizing classic Analects commentaries
+      { from: 'laozi', to: 'wang_bi', type: 'succession' as const }            // Wang Bi initiating Wei-Jin Xuanxue metaphysics by annotating Laozi
     ];
 
     // Filter duplicates and merge
