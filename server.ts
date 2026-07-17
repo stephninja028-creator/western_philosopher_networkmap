@@ -825,6 +825,14 @@ ${sagesIntro}
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
 
+    // Explicit routes for robots.txt and sitemap.xml (before SPA catch-all)
+    app.get("/robots.txt", (req, res) => {
+      res.sendFile(path.join(distPath, "robots.txt"));
+    });
+    app.get("/sitemap.xml", (req, res) => {
+      res.sendFile(path.join(distPath, "sitemap.xml"));
+    });
+
     // Bot detection: check user-agent for search engine crawlers
     const BOT_REGEX = /bot|spider|crawler|googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot/i;
 
