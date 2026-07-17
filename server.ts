@@ -824,10 +824,89 @@ ${sagesIntro}
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
+
+    // Bot detection: check user-agent for search engine crawlers
+    const BOT_REGEX = /bot|spider|crawler|googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot/i;
+
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      const ua = req.headers["user-agent"] || "";
+      const isBot = BOT_REGEX.test(ua);
+
+      if (isBot) {
+        // For bots: inject SEO meta tags dynamically
+        const indexPath = path.join(distPath, "index.html");
+        let html = fs.readFileSync(indexPath, "utf8");
+
+        // Inject page-specific meta based on path
+        const urlPath = req.path.replace(/^\/+|\/+$/g, "");
+        if (urlPath.startsWith("philosopher/")) {
+          const slug = urlPath.replace("philosopher/", "");
+          const titleMap: Record<string, string> = {
+            "socrates": "苏格拉底 | 西方哲学发展脉络",
+            "plato": "柏拉图 | 西方哲学发展脉络",
+            "aristotle": "亚里士多德 | 西方哲学发展脉络",
+            "kant": "康德 | 西方哲学发展脉络",
+            "nietzsche": "尼采 | 西方哲学发展脉络",
+            "heidegger": "海德格尔 | 西方哲学发展脉络",
+            "descartes": "笛卡尔 | 西方哲学发展脉络",
+            "hegel": "黑格尔 | 西方哲学发展脉络",
+            "marx": "马克思 | 西方哲学发展脉络",
+            "hume": "休谟 | 西方哲学发展脉络",
+            "spinoza": "斯宾诺莎 | 西方哲学发展脉络",
+            "locke": "洛克 | 西方哲学发展脉络",
+            "rousseau": "卢梭 | 西方哲学发展脉络",
+            "wittgenstein": "维特根斯坦 | 西方哲学发展脉络",
+            "sartre": "萨特 | 西方哲学发展脉络",
+            "foucault": "福柯 | 西方哲学发展脉络",
+            "confucius": "孔子 | 西方哲学发展脉络",
+            "laozi": "老子 | 西方哲学发展脉络",
+            "zhuangzi": "庄子 | 西方哲学发展脉络",
+          };
+
+          const descMap: Record<string, string> = {
+            "socrates": "苏格拉底，古希腊雅典学派创始人，西方哲学宗师。以"认识你自己"与产婆术辩证法开启道德哲学转向。",
+            "plato": "柏拉图，雅典学派巨擘，西方哲学奠基人。理念论的创立者，著有《理想国》，深刻塑造了两千年西方思想。",
+            "aristotle": "亚里士多德，古希腊百科全书式哲人。实体论、逻辑学、伦理学与政治学的开创者，经验科学的先驱。",
+            "kant": "康德，德意志古典哲学开创者。三大批判重建了形而上学、认识论与伦理学，以"人为自然立法"实现哲学哥白尼革命。",
+            "nietzsche": "尼采，非理性主义哲学巨人。宣告"上帝已死"，以超人哲学与权力意志重估一切价值。",
+          };
+
+          const title = titleMap[slug];
+          const desc = descMap[slug];
+
+          if (title) {
+            html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
+          }
+          if (desc) {
+            html = html.replace(
+              /<meta name="description" content=".*?" \/>/,
+              `<meta name="description" content="${desc}" />`
+            );
+            html = html.replace(
+              /<meta property="og:title" content=".*?" \/>/,
+              `<meta property="og:title" content="${title || "西方哲学发展脉络"}" />`
+            );
+            html = html.replace(
+              /<meta property="og:description" content=".*?" \/>/,
+              `<meta property="og:description" content="${desc}" />`
+            );
+            html = html.replace(
+              /<meta name="twitter:title" content=".*?" \/>/,
+              `<meta name="twitter:title" content="${title || "西方哲学发展脉络"}" />`
+            );
+            html = html.replace(
+              /<meta name="twitter:description" content=".*?" \/>/,
+              `<meta name="twitter:description" content="${desc}" />`
+            );
+          }
+        }
+
+        res.send(html);
+      } else {
+        res.sendFile(path.join(distPath, "index.html"));
+      }
     });
-    console.log("Production static server route integrated.");
+    console.log("Production static server route with bot SSR integrated.");
   }
 
   app.listen(PORT, "0.0.0.0", () => {

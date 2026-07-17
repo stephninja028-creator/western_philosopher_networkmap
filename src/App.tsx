@@ -181,7 +181,7 @@ function getCleanEnglishFallback(p: Philosopher): {
 
   const comparisons = p.comparisons?.map((comp, idx) => {
     const fbComp = fallbackObj.comparisons?.[idx];
-    const withNameEn = comp.withName;
+    const withNameEn = 'withName' in comp ? comp.withName : comp.withPhilosopher;
     return {
       withName: withNameEn,
       coreDifference: fbComp?.coreDifference || 

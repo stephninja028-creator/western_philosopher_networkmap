@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- 首页 -->
+  <url>
+    <loc>https://www.knowphilosophers.site/</loc>
+    <lastmod>2025-07-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 主要哲学家独立页面（按时代分组） -->
+  <!-- 古希腊罗马 -->
+  <url><loc>https://www.knowphilosophers.site/philosopher/socrates</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/plato</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/aristotle</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/thales</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/heraclitus</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/pythagoras</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/parmenides</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/epicurus</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/marcus_aurelius</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- 中世纪 -->
+  <url><loc>https://www.knowphilosophers.site/philosopher/augustine</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/aquinas</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- 近代哲学 -->
+  <url><loc>https://www.knowphilosophers.site/philosopher/descartes</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/spinoza</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/leibniz</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/locke</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/hume</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/kant</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/hegel</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/voltaire</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/rousseau</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- 19-20世纪 -->
+  <url><loc>https://www.knowphilosophers.site/philosopher/nietzsche</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/marx</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/schopenhauer</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/kierkegaard</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/russell</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/wittgenstein</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/heidegger</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/sartre</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/foucault</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.knowphilosophers.site/philosopher/derrida</loc><lastmod>2025-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>

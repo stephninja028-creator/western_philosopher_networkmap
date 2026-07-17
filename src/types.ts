@@ -19,13 +19,21 @@ export interface Philosopher {
   worldviewSummary?: string;   // 主要哲学思想体系与世界观深度阐述 (Key philosophical system & worldview)
   quote?: string;              // 传世哲学金句 (Core famous quote)
   reflectionQuestion?: string; // 针对其世界观的启发自省问题 (Reflective philosophical question)
-  comparisons?: {             // 与其他哲学家的关联、异同对比与思索 (Comparative relations)
-    withId: string;            // 对照哲学家的ID
-    withName: string;          // 对照哲学家的名字 (如 '柏拉图')
-    relationType: 'opponent' | 'successor' | 'synthesizer' | 'influence'; // 碰撞性质
-    coreDifference: string;    // 核心主张与方法论异同评析
-    reflectionPrompt: string;  // 启发读者权衡二人世界观的思辨点
-  }[];
+  comparisons?: (             // 与其他哲学家的关联、异同对比与思索 (Comparative relations)
+    | {                         // 旧格式（西方哲学）
+        withId: string;            // 对照哲学家的ID
+        withName: string;          // 对照哲学家的名字 (如 '柏拉图')
+        relationType: 'opponent' | 'successor' | 'synthesizer' | 'influence'; // 碰撞性质
+        coreDifference: string;    // 核心主张与方法论异同评析
+        reflectionPrompt: string;  // 启发读者权衡二人世界观的思辨点
+      }
+    | {                         // 新格式（东方哲学）
+        withPhilosopher: string;   // 对照哲学家的ID
+        topic: string;             // 对比主题(8-15字)
+        aspect: string;            // 异或同
+        insight: string;           // 深度洞察(30-60字)
+      }
+  )[];
 }
 
 export interface PedigreeInfo {
