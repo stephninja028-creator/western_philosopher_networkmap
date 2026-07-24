@@ -17,8 +17,8 @@ function pick(s: ZhEn, lang: Language): string {
 
 // ─── Site-level ──────────────────────────────────────────────
 export const SITE = {
-  name:        { zh: '西方哲学发展脉络', en: 'Western Philosophy Network' } as ZhEn,
-  nameShort:   { zh: '西方哲学', en: 'Western Philosophy' } as ZhEn,
+  name:        { zh: '东西方哲学发展脉络', en: 'East-West Philosophy Network' } as ZhEn,
+  nameShort:   { zh: '东西方哲学', en: 'East-West Philosophy' } as ZhEn,
   tagline:     { zh: '交互式哲人网络图谱', en: 'Interactive Philosophy Network Map' } as ZhEn,
   bilingual:   { zh: '中英双语', en: 'Bilingual' } as ZhEn,
 };
@@ -40,30 +40,30 @@ export const COMMON = {
 // ─── Blog ─────────────────────────────────────────────────────
 export const BLOG = {
   title:        { zh: '哲学博客', en: 'Philosophy Blog' } as ZhEn,
-  pageTitle:   { zh: '博客 — 西方哲学发展脉络', en: 'Blog — Western Philosophy Network' } as ZhEn,
-  subtitle:    { zh: 'Philosophy Blog — 西方哲学发展脉络', en: 'Philosophy Blog — Western Philosophy Network' } as ZhEn,
+  pageTitle:   { zh: '博客 — 东西方哲学发展脉络', en: 'Blog — East-West Philosophy Network' } as ZhEn,
+  subtitle:    { zh: 'Philosophy Blog — 东西方哲学发展脉络', en: 'Philosophy Blog — East-West Philosophy Network' } as ZhEn,
   empty:       { zh: '文章即将上线，敬请期待。', en: 'Articles coming soon. Stay tuned.' } as ZhEn,
-  backToMap:   { zh: '← 返回西方哲学网络图谱', en: '← Back to Philosophy Network' } as ZhEn,
-  exploreMap:  { zh: '← 探索西方哲学网络图谱', en: '← Explore Philosophy Network' } as ZhEn,
+  backToMap:   { zh: '← 返回东西方哲学网络图谱', en: '← Back to Philosophy Network' } as ZhEn,
+  exploreMap:  { zh: '← 探索东西方哲学网络图谱', en: '← Explore Philosophy Network' } as ZhEn,
   allArticles: { zh: '所有文章', en: 'All Articles' } as ZhEn,
-  description: { zh: '探索西方哲学史、哲学家思想与哲学学习方法。涵盖从古希腊到后现代的哲学讨论，中英双语内容。', en: 'Explore Western philosophy history, thinker insights, and learning methods. Covering ancient Greece to post-modernity.' } as ZhEn,
+  description: { zh: '探索东西方哲学史、哲学家思想与哲学学习方法。涵盖从古希腊到后现代的西方哲学，以及从先秦诸子到近代的中国哲学，中英双语内容。', en: 'Explore East-West philosophy history, thinker insights, and learning methods. Covering ancient Greek to post-modern Western philosophy and Pre-Qin Hundred Schools to modern Chinese philosophy.' } as ZhEn,
 };
 
 // ─── Philosopher Directory ───────────────────────────────────
 export const PHIL_DIR = {
-  title:       { zh: '西方哲学家名录 — 70+位哲学家详解 | 西方哲学发展脉络', en: 'Western Philosopher Directory — 70+ Thinkers | Western Philosophy Network' } as ZhEn,
-  header:      { zh: '西方哲学家名录', en: 'Western Philosopher Directory' } as ZhEn,
-  description: { zh: '收录从古希腊到现代的70余位西方哲学家，包含苏格拉底、柏拉图、亚里士多德、康德、尼采、海德格尔等。每位哲学家均有详细生平、世界观体系、传世金句与思想对比。', en: 'Featuring 70+ Western philosophers from ancient Greece to modernity, including Socrates, Plato, Aristotle, Kant, Nietzsche, and Heidegger. Each with detailed biography, worldview, famous quotes, and intellectual comparisons.' } as ZhEn,
-  intro:       { zh: '从泰勒斯到罗蒂，跨越两千五百年的西方哲学巨匠全览。点击任意哲学家查看详细生平、世界观体系、传世金句与思想碰撞。', en: 'From Thales to Rorty — a comprehensive overview of Western philosophical giants spanning 2,500 years. Click any philosopher for detailed biography, worldview, famous quotes, and intellectual encounters.' } as ZhEn,
+  title:       { zh: '东西方哲学家名录 — 150+位哲学家详解 | 东西方哲学发展脉络', en: 'East-West Philosopher Directory — 150+ Thinkers | East-West Philosophy Network' } as ZhEn,
+  header:      { zh: '东西方哲学家名录', en: 'East-West Philosopher Directory' } as ZhEn,
+  description: { zh: '收录从古希腊到现代的西方哲学家，以及从先秦诸子到近代的中国哲学家，共150余位。包含苏格拉底、柏拉图、亚里士多德、康德、尼采、孔子、老子、庄子、王阳明、朱熹等。每位哲学家均有详细生平、世界观体系、传世金句与思想对比。', en: 'Featuring 150+ philosophers from both Western and Eastern traditions. Western thinkers from ancient Greece to modernity (Socrates, Plato, Aristotle, Kant, Nietzsche) and Chinese thinkers from Pre-Qin Hundred Schools to the modern era (Confucius, Laozi, Zhuangzi, Wang Yangming, Zhu Xi). Each with detailed biography, worldview, famous quotes, and intellectual comparisons.' } as ZhEn,
+  intro:       { zh: '从泰勒斯到罗蒂，从孔子到冯友兰——跨越两千五百年的东西方哲学巨匠全览。点击任意哲学家查看详细生平、世界观体系、传世金句与思想碰撞。', en: 'From Thales to Rorty, from Confucius to Feng Youlan — a comprehensive overview of East-West philosophical giants spanning 2,500 years. Click any philosopher for detailed biography, worldview, famous quotes, and intellectual encounters.' } as ZhEn,
   cta:         { zh: '可视化哲学家师承与对立关系', en: 'Visualize philosopher lineages and intellectual oppositions' } as ZhEn,
 };
 
 // ─── Epoch Pages ─────────────────────────────────────────────
 export const EPOCH = {
-  pageTitle:     { zh: '哲学时代分类 — 7大哲学纪元 | 西方哲学发展脉络', en: 'Philosophical Epochs — 7 Major Eras | Western Philosophy Network' } as ZhEn,
+  pageTitle:     { zh: '哲学时代分类 — 13大哲学纪元 | 东西方哲学发展脉络', en: 'Philosophical Epochs — 13 Major Eras | East-West Philosophy Network' } as ZhEn,
   header:        { zh: '哲学时代分类', en: 'Philosophical Epochs' } as ZhEn,
-  description:   { zh: '西方哲学的七大纪元：古希腊罗马哲学、中世纪经院哲学、文艺复兴与近代早期、法兰西启蒙、德意志古典哲学、19世纪中后期、现代派与分析哲学。', en: 'The seven major epochs of Western philosophy: Ancient Greco-Roman, Medieval Scholasticism, Renaissance & Early Modern, French Enlightenment, German Classical Idealism, Late 19th Century, and Modern/Analytic Philosophy.' } as ZhEn,
-  intro:         { zh: '西方哲学两千五百年的七大纪元，从古希腊的宇宙追问到当代的分析与解构。', en: 'Seven epochs spanning 2,500 years of Western philosophy, from the ancient Greek inquiry into nature to contemporary analysis and deconstruction.' } as ZhEn,
+  description:   { zh: '东西方哲学的十三大纪元：西方七大纪元从古希腊罗马到现代分析哲学，中国六大纪元从先秦诸子百家到清代实学与近代哲学。', en: 'Thirteen major epochs of East-West philosophy: seven Western epochs from Ancient Greco-Roman to Modern Analytic, and six Chinese epochs from Pre-Qin Hundred Schools to Qing Practical Learning.' } as ZhEn,
+  intro:         { zh: '东西方哲学两千五百年的十三大纪元，从古希腊的宇宙追问到当代的分析与解构，从先秦诸子百家争鸣到清代实学转型。', en: 'Thirteen epochs spanning 2,500 years of East-West philosophy, from ancient Greek inquiry into nature to contemporary analysis, and from Pre-Qin Hundred Schools to Qing practical learning.' } as ZhEn,
   philosophersInEpoch: (n: number, lang: Language) =>
     lang === 'en' ? `Philosophers in This Epoch (${n})` : `本期哲学家 (${n} 位)`,
   visualizeCta: (epochTitle: string, lang: Language) =>
@@ -72,14 +72,14 @@ export const EPOCH = {
 
 // ─── School Pages ─────────────────────────────────────────────
 export const SCHOOL = {
-  pageTitle:      { zh: '哲学流派分类 — 所有学派 | 西方哲学发展脉络', en: 'Philosophical Schools — All Schools | Western Philosophy Network' } as ZhEn,
+  pageTitle:      { zh: '哲学流派分类 — 所有学派 | 东西方哲学发展脉络', en: 'Philosophical Schools — All Schools | East-West Philosophy Network' } as ZhEn,
   pageHeader:     { zh: '哲学流派分类', en: 'Philosophical Schools' } as ZhEn,
-  pageDescription:{ zh: '西方哲学的所有流派：米利都学派、毕达哥拉斯学派、理性主义、经验主义、存在主义、实用主义等。每个流派包含代表哲学家详解。', en: 'All schools of Western philosophy: Milesian, Pythagorean, Rationalism, Empiricism, Existentialism, Pragmatism, and more. Each school features representative philosopher profiles.' } as ZhEn,
+  pageDescription:{ zh: '东西方哲学的所有流派：西方包括米利都学派、毕达哥拉斯学派、理性主义、经验主义、存在主义、实用主义等；中国包括儒家、道家、法家、墨家、佛学、理学、心学等。每个流派包含代表哲学家详解。', en: 'All schools of East-West philosophy: Western schools include Milesian, Pythagorean, Rationalism, Empiricism, Existentialism, Pragmatism; Chinese schools include Confucianism, Daoism, Legalism, Mohism, Buddhism, Neo-Confucianism, School of Mind. Each school features representative philosopher profiles.' } as ZhEn,
   pageIntro:      (n: number, lang: Language) =>
-    lang === 'en' ? `${n} schools of Western philosophy, from ancient Greek natural philosophy to modern analytic philosophy and post-structuralism.` : `西方哲学的${n}个流派，从古希腊的自然哲学到现代的分析哲学与后结构主义。`,
+    lang === 'en' ? `${n} schools of East-West philosophy, from ancient Greek natural philosophy to modern analytic philosophy, and from Pre-Qin Hundred Schools to Ming-Qing Neo-Confucianism.` : `东西方哲学的${n}个流派，从古希腊的自然哲学到现代的分析哲学，从先秦诸子到明清理学与心学。`,
   schoolPhilosophers: { zh: '流派哲学家', en: 'School Philosophers' } as ZhEn,
   schoolTitle:   (name: string, nameEng: string, lang: Language) =>
-    lang === 'en' ? `${nameEng} (${name}) — Philosophy School | Western Philosophy Network` : `${name} (${nameEng}) — 哲学流派 | 西方哲学发展脉络`,
+    lang === 'en' ? `${nameEng} (${name}) — Philosophy School | East-West Philosophy Network` : `${name} (${nameEng}) — 哲学流派 | 东西方哲学发展脉络`,
   schoolDesc:    (name: string, nameEng: string, n: number, lang: Language) =>
     lang === 'en' ? `${nameEng} (${name}) school featuring ${n} philosopher profiles. Includes core ideas, key figures, and their worldviews.` : `${name}（${nameEng}）流派的${n}位哲学家详解。包含该流派的核心思想、代表人物及其世界观体系。`,
 };
