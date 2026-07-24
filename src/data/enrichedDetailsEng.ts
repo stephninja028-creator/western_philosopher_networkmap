@@ -22,7 +22,32 @@ import { enrichedEpoch4Eng } from './enrichedEpoch4Eng';
 import { enrichedEpoch5Eng } from './enrichedEpoch5Eng';
 import { enrichedEpoch6Eng } from './enrichedEpoch6Eng';
 import { enrichedEpoch7Eng } from './enrichedEpoch7Eng';
+import { enrichedEpoch11Eng } from './enrichedEpoch11Eng';
+import { enrichedEpoch12Eng } from './enrichedEpoch12Eng';
+import { enrichedEpoch13Eng } from './enrichedEpoch13Eng';
+import { enrichedEpoch14Eng } from './enrichedEpoch14Eng';
+import { enrichedEpoch15Eng } from './enrichedEpoch15Eng';
+import { enrichedEpoch16Eng } from './enrichedEpoch16Eng';
 import { philosopherFallbackTranslations } from './translationsEng';
+import { easternFallbackTranslations } from './easternFallbackEng';
+
+// Merge Western and Eastern fallback translations into one lookup
+const mergedFallback: Record<string, {
+  details: string;
+  lifeAndTimes?: string;
+  worldviewSummary?: string;
+  quote?: string;
+  reflectionQuestion?: string;
+  concepts: string[];
+  comparisons?: Array<{
+    withName: string;
+    coreDifference: string;
+    reflectionPrompt: string;
+  }>;
+}> = {
+  ...philosopherFallbackTranslations,
+  ...easternFallbackTranslations,
+};
 
 export interface PhilosopherEnrichedEng {
   details?: string;
@@ -56,6 +81,12 @@ const epochEngMerged: Record<string, {
   ...enrichedEpoch5Eng,
   ...enrichedEpoch6Eng,
   ...enrichedEpoch7Eng,
+  ...enrichedEpoch11Eng,
+  ...enrichedEpoch12Eng,
+  ...enrichedEpoch13Eng,
+  ...enrichedEpoch14Eng,
+  ...enrichedEpoch15Eng,
+  ...enrichedEpoch16Eng,
 };
 
 /**
@@ -63,7 +94,7 @@ const epochEngMerged: Record<string, {
  * Returns null if no English data is available.
  */
 export function getEnrichedEng(id: string): PhilosopherEnrichedEng | null {
-  const fallback = philosopherFallbackTranslations[id];
+  const fallback = mergedFallback[id];
   const epochEng = epochEngMerged[id];
 
   // Case 1: Both sources available — merge for richest result
@@ -81,13 +112,14 @@ export function getEnrichedEng(id: string): PhilosopherEnrichedEng | null {
 
   // Case 2: Only epoch Eng file (new translations created by agents)
   if (epochEng) {
-    // Try to get concepts from fallback if it exists (even partial)
+    // Try to get concepts, details, and reflectionQuestion from fallback if it exists
     const concepts = fallback?.concepts || [];
     return {
       details: fallback?.details,
       lifeAndTimes: epochEng.lifeAndTimes,
       worldviewSummary: epochEng.worldviewSummary,
       quote: epochEng.quote,
+      reflectionQuestion: fallback?.reflectionQuestion,
       concepts,
       comparisons: epochEng.comparisons || [],
     };
@@ -138,6 +170,6 @@ export function hasCompleteEnrichedEng(id: string): boolean {
 export function getPhilosopherIdsWithEng(): string[] {
   const ids = new Set<string>();
   Object.keys(epochEngMerged).forEach(id => ids.add(id));
-  Object.keys(philosopherFallbackTranslations).forEach(id => ids.add(id));
+  Object.keys(mergedFallback).forEach(id => ids.add(id));
   return Array.from(ids);
 }

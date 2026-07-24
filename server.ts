@@ -7,6 +7,7 @@ import fs from "fs";
 import nodemailer from "nodemailer";
 import { schoolTranslations } from "./src/data/translationsEng";
 import { philosophyData } from "./src/data/philosophyData";
+import { easternPhilosophyData } from "./src/data/easternPhilosophyData";
 import type { Philosopher, Epoch } from "./src/types";
 import { detectLangFromRequest, buildHreflangTags, buildOgLocaleTags, htmlLangAttr, type Language } from "./src/i18n/config";
 import { getEnrichedEng } from "./src/data/enrichedDetailsEng";
@@ -986,7 +987,10 @@ ${sagesIntro}
 
   type PhilosopherWithEpoch = Philosopher & { epochId: number; epochTitle: string; epochSubtitle: string };
 
-  const allPhilosophers: PhilosopherWithEpoch[] = philosophyData.flatMap(epoch =>
+  // Merge Western and Eastern philosophy data for unified SSR coverage
+  const allEpochsData = [...philosophyData, ...easternPhilosophyData];
+
+  const allPhilosophers: PhilosopherWithEpoch[] = allEpochsData.flatMap(epoch =>
     epoch.philosophers.map(p => ({
       ...p,
       epochId: epoch.id,
@@ -1019,6 +1023,30 @@ ${sagesIntro}
     schoolMap.get(p.school)!.philosophers.push(p);
   });
   const allSchools = Array.from(schoolMap.values());
+
+  // Normalize comparison data: handles both old format ({ withId, withName, relationType, coreDifference, reflectionPrompt })
+  // and new format ({ withPhilosopher, topic, aspect, insight }) used by Eastern philosophers (epochs 12-16)
+  function normalizeComparison(c: any): { withId: string; withName: string; relationType?: string; coreDifference: string; reflectionPrompt: string } {
+    // Old format (epoch 11 and Western): has withId and coreDifference directly
+    if (c.withId && c.coreDifference !== undefined) {
+      return c;
+    }
+    // New format (epochs 12-16): { withPhilosopher, topic, aspect, insight }
+    if (c.withPhilosopher) {
+      const refPhilosopher = philosopherMap.get(c.withPhilosopher);
+      const refName = refPhilosopher
+        ? `${refPhilosopher.name} · ${refPhilosopher.nameEng}`
+        : c.withPhilosopher;
+      return {
+        withId: c.withPhilosopher,
+        withName: refName,
+        relationType: c.aspect === '同' ? 'influence' : 'opponent',
+        coreDifference: c.topic ? `${c.topic}: ${c.insight}` : (c.insight || ''),
+        reflectionPrompt: c.insight || '',
+      };
+    }
+    return c;
+  }
 
   function esc(text: string): string {
     return (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1055,7 +1083,7 @@ ${sagesIntro}
   <meta property="og:title" content="${esc(opts.title)}" />
   <meta property="og:description" content="${esc(desc)}" />
   <meta property="og:url" content="${opts.canonical}" />
-  <meta property="og:site_name" content="${lang === 'en' ? 'Western Philosophy Network' : '西方哲学发展脉络'}" />
+  <meta property="og:site_name" content="${lang === 'en' ? 'Philosophy Network' : '东西方哲学发展脉络'}" />
   ${ogLocaleTags}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(opts.title)}" />
@@ -1130,12 +1158,12 @@ ${sagesIntro}
     const worldviewSummary = isEn ? (engData?.worldviewSummary || p.worldviewSummary) : p.worldviewSummary;
     const quote = isEn ? (engData?.quote || p.quote) : p.quote;
     const desc = (details || lifeAndTimes || '').slice(0, 150);
-    const conceptsHtml = (p.concepts || []).map(c => `<span class="tag">${esc(c)}</span>`).join('');
+    const conceptsHtml = (isEn && engData?.concepts?.length ? engData.concepts : (p.concepts || [])).map(c => `<span class="tag">${esc(c)}</span>`).join('');
     const relatedSameSchool = schoolMap.get(p.school)!.philosophers.filter(x => x.id !== p.id).slice(0, 6);
     const relatedSameEpoch = allPhilosophers.filter(x => x.epochId === p.epochId && x.id !== p.id && x.school !== p.school).slice(0, 6);
 
     // Comparisons — use English data when available
-    const comparisons = p.comparisons || [];
+    const comparisons = (p.comparisons || []).map(c => normalizeComparison(c));
     const comparisonsHtml = comparisons.map((c, idx) => {
       const engComp = isEn ? engData?.comparisons?.[idx] : null;
       const relType = c.relationType;
@@ -1199,11 +1227,11 @@ ${sagesIntro}
 
     const html = seoPageHtml({
       title: isEn
-        ? `${p.nameEng} (${p.name}) — ${schoolEng} Philosopher | Western Philosophy Network`
-        : `${p.name} (${p.nameEng}) — ${p.school}哲学家 | 西方哲学发展脉络`,
+        ? `${p.nameEng} (${p.name}) — ${schoolEng} Philosopher | Philosophy Network`
+        : `${p.name} (${p.nameEng}) — ${p.school}哲学家 | 东西方哲学发展脉络`,
       description: desc,
       canonical: `https://www.knowphilosophers.site/philosopher/${p.id}`,
-      keywords: `${p.name}, ${p.nameEng}, ${p.school}, ${schoolEng}, ${p.eraDisp}, ${(p.concepts || []).join(', ')}, 哲学家, philosopher, 西方哲学, philosophy, western philosophy`,
+      keywords: `${p.name}, ${p.nameEng}, ${p.school}, ${schoolEng}, ${p.eraDisp}, ${(p.concepts || []).join(', ')}, 哲学家, philosopher, 东方哲学, eastern philosophy, 西方哲学, western philosophy`,
       ogType: 'profile',
       lang,
       jsonLd,
@@ -1259,8 +1287,8 @@ ${sagesIntro}
       description: T(PHIL_DIR.description, lang),
       canonical: 'https://www.knowphilosophers.site/philosophers',
       keywords: isEn
-        ? 'philosopher, philosopher directory, Western philosophers, Socrates, Plato, Aristotle, Kant, Nietzsche, Heidegger, Descartes, Hegel, Marx'
-        : '哲学家, 哲学家名录, 西方哲学家, philosopher list, 苏格拉底, 柏拉图, 亚里士多德, 康德, 尼采, 海德格尔, 笛卡尔, 黑格尔, 马克思',
+        ? 'philosopher, philosopher directory, Western philosophers, Eastern philosophers, Socrates, Plato, Aristotle, Kant, Nietzsche, Heidegger, Descartes, Hegel, Marx, Laozi, Confucius, Zhuangzi, Wang Yangming'
+        : '哲学家, 哲学家名录, 西方哲学家, 东方哲学家, philosopher list, 苏格拉底, 柏拉图, 亚里士多德, 康德, 尼采, 海德格尔, 笛卡尔, 黑格尔, 马克思, 老子, 孔子, 庄子, 王阳明',
       ogType: 'website',
       lang,
       jsonLd: [{
@@ -1290,7 +1318,7 @@ ${sagesIntro}
   // Epoch pages
   app.get("/epoch/:id", (req, res) => {
     const epochId = parseInt(req.params.id);
-    const epoch = philosophyData.find(e => e.id === epochId);
+    const epoch = allEpochsData.find(e => e.id === epochId);
     if (!epoch) return res.status(404).send("Epoch not found");
 
     const lang = detectLangFromRequest(req);
@@ -1348,7 +1376,7 @@ ${sagesIntro}
   app.get("/epochs", (req, res) => {
     const lang = detectLangFromRequest(req);
     const isEn = lang === 'en';
-    const items = philosophyData.map(e => {
+    const items = allEpochsData.map(e => {
       const eTr = isEn ? epochTranslations[e.id] : null;
       const title = eTr ? eTr.title : e.title;
       const subtitle = eTr ? eTr.subtitle : e.subtitle;
@@ -1364,8 +1392,8 @@ ${sagesIntro}
       description: T(EPOCH_T.description, lang),
       canonical: 'https://www.knowphilosophers.site/epochs',
       keywords: isEn
-        ? 'philosophy epochs, philosophy eras, Ancient Greek philosophy, Medieval philosophy, Renaissance philosophy, Enlightenment philosophy, German Classical philosophy, Modern philosophy'
-        : '哲学时代, 哲学纪元, 古希腊哲学, 中世纪哲学, 文艺复兴哲学, 启蒙哲学, 德国古典哲学, 现代哲学, philosophy eras',
+        ? 'philosophy epochs, philosophy eras, Ancient Greek philosophy, Medieval philosophy, Renaissance philosophy, Enlightenment philosophy, German Classical philosophy, Modern philosophy, Pre-Qin Hundred Schools, Song Neo-Confucianism, Ming Heart-Mind Studies, Chinese philosophy'
+        : '哲学时代, 哲学纪元, 古希腊哲学, 中世纪哲学, 文艺复兴哲学, 启蒙哲学, 德国古典哲学, 现代哲学, 先秦诸子, 宋代理学, 明代心学, 中国哲学, philosophy eras',
       ogType: 'website',
       lang,
       bodyHtml: `
@@ -1435,8 +1463,8 @@ ${sagesIntro}
       description: T(SCHOOL_T.pageDescription, lang),
       canonical: 'https://www.knowphilosophers.site/schools',
       keywords: isEn
-        ? 'philosophy schools, Rationalism, Empiricism, Existentialism, Pragmatism, Materialism, Idealism, philosophy schools list'
-        : '哲学流派, 哲学学派, philosophy schools, 理性主义, 经验主义, 存在主义, 实用主义, 唯物主义, 唯心主义',
+        ? 'philosophy schools, Rationalism, Empiricism, Existentialism, Pragmatism, Materialism, Idealism, Daoism, Confucianism, Legalism, Buddhism, Neo-Confucianism, philosophy schools list'
+        : '哲学流派, 哲学学派, philosophy schools, 理性主义, 经验主义, 存在主义, 实用主义, 唯物主义, 唯心主义, 道家, 儒家, 法家, 佛学, 理学',
       ogType: 'website',
       lang,
       bodyHtml: `
@@ -1480,7 +1508,7 @@ ${sagesIntro}
       urlEntry('schools', today, 'monthly', '0.8'),
       urlEntry('blog', today, 'monthly', '0.7'),
     ];
-    philosophyData.forEach(e => {
+    allEpochsData.forEach(e => {
       urls.push(urlEntry(`epoch/${e.id}`, today, 'monthly', '0.8'));
     });
     allSchools.forEach(s => {
