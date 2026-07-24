@@ -40,5 +40,33 @@
     "date": "2026-07-23",
     "category": "philosophy-school",
     "lang": "zh-CN"
+  },
+  {
+    "slug": "confucius-philosophy-explained",
+    "title": "孔子哲学思想详解：仁、礼、君子与天下大同",
+    "date": "2026-07-24",
+    "category": "philosopher-analysis",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "laozi-tao-te-ching-explained",
+    "title": "老子道德经思想详解：道、无为、柔弱胜刚强与上善若水",
+    "date": "2026-07-24",
+    "category": "philosopher-analysis",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "chinese-philosophy-history-complete-guide",
+    "title": "中国哲学史完整脉络：从先秦诸子到清代的简明指南",
+    "date": "2026-07-24",
+    "category": "philosophy-history",
+    "lang": "zh-CN"
+  },
+  {
+    "slug": "socrates-vs-confucius-comparison",
+    "title": "苏格拉底与孔子比较：东西方哲学的轴心时代对话",
+    "date": "2026-07-24",
+    "category": "east-west-comparison",
+    "lang": "zh-CN"
   }
 ]

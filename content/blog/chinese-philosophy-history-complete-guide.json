@@ -1,0 +1,57 @@
+{
+  "title": "中国哲学史完整脉络：从先秦诸子到清代的简明指南",
+  "titleEn": "Complete Guide to Chinese Philosophy History: From Pre-Qin Hundred Schools to the Qing Dynasty",
+  "date": "2026-07-24",
+  "slug": "chinese-philosophy-history-complete-guide",
+  "author": "knowphilosophers.site",
+  "sections": [
+    {
+      "type": "intro",
+      "heading": "中国哲学的源与流",
+      "body": "中国哲学拥有超过两千五百年的连续发展史，是世界上唯一未曾中断的哲学传统。从先秦诸子百家的辉煌争鸣，到两汉经学、魏晋玄学、隋唐佛学、宋明理学、清代实学，中国哲学在每一个时代都呈现出独特的面貌和深刻的智慧。\n\n与西方哲学以逻辑推理和概念分析为方法论传统不同，中国哲学以体悟、修养和实践为核心，强调知行合一、内圣外王。它不像西方哲学那样追求体系化的理论建构，而更像是一种「生命的学问」——关乎如何做人、如何治世、如何安身立命。\n\n本文将按时代脉络，简明梳理中国哲学史的六大阶段，帮助你建立完整的中国哲学知识框架。",
+      "bodyEn": "Chinese philosophy has developed continuously for over 2,500 years — the world's only unbroken philosophical tradition. From Pre-Qin Hundred Schools to Qing dynasty practical learning, this guide covers six major epochs of Chinese philosophical thought."
+    },
+    {
+      "type": "body",
+      "heading": "一、先秦诸子百家（BC 6世纪~BC 3世纪）：中国哲学的轴心时代",
+      "body": "春秋战国时期，周天子权威衰微，诸侯争霸，礼崩乐坏。正是在这个大动荡的时代，中国哲学迎来了与古希腊同时期的「轴心时代」——思想百花齐放，诸子百家并起。\n\n主要学派及其核心思想：\n\n• 儒家：以孔子为代表，主张仁义礼智，重视人伦秩序和道德修养。孟子发展出「性善论」，荀子提出「性恶论」。儒家强调「内圣外王」——个人修养与治国平天下相统一。\n• 道家：以老子、庄子为代表，主张道法自然、无为而治。道家追求精神自由与超越，与儒家入世担当形成互补。\n• 墨家：以墨子为代表，主张「兼爱」「非攻」「节用」「尚贤」。墨家是先秦最具平民色彩的学派，在逻辑学和物理学方面也有重要贡献。\n• 法家：以韩非子为代表，集商鞅、申不害、慎到之大成。主张以法治国、君主集权。法家思想直接指导了秦国的统一大业。\n• 名家：以公孙龙、惠施为代表，研究名实关系和逻辑问题。「白马非马」的著名辩题便出自名家。\n• 兵家：以孙子为代表，《孙子兵法》是世界上最早的系统兵学著作。\n• 阴阳家：以邹衍为代表，提出「五德终始」说，试图用阴阳五行解释历史变迁。\n\n先秦诸子的思想深度和广度，奠定了此后两千余年中国哲学的基本问题域。儒道两家尤其成为中国文化的主干。",
+      "bodyEn": "The Pre-Qin era (6th-3rd century BC) is China's Axial Age. Major schools: Confucianism (Ren, Li), Daoism (natural Way), Mohism (universal love), Legalism (rule by law), School of Names (logic), Military Strategy (Sun Tzu), and Yin-Yang. Confucianism and Daoism became the twin pillars of Chinese thought."
+    },
+    {
+      "type": "body",
+      "heading": "二、两汉经学与魏晋玄学（BC 2世纪~公元5世纪）",
+      "body": "秦朝以法家思想统一六国，但暴政速亡。汉初吸取教训，采用「黄老之术」——以道家无为思想治国，休养生息，成就了文景之治。\n\n• 经学确立：汉武帝采纳董仲舒「罢黜百家，独尊儒术」的建议，将儒学立为官方正统。董仲舒提出「天人感应」「三纲五常」，将儒学与阴阳五行、天人秩序结合，构建了汉代儒学的宇宙论框架。儒家经典被立为「经」，设五经博士，经学成为官方学术。\n• 今古文之争：汉代经学分为今文经学和古文经学两大流派。今文经学重在微言大义，古文经学重在名物训诂。这场争论延续了两千余年，是中国学术史的重要线索。\n• 王充的批判：东汉王充著《论衡》，以「疾虚妄」的精神批判当时流行的谶纬迷信和天人感应说，主张「效验」——以事实和经验为检验真理的标准，是中国哲学中罕见的经验主义和理性批判精神。\n• 魏晋玄学：到了魏晋时期，何晏、王弼等人以《老子》《庄子》《周易》（「三玄」）为核心，开创了玄学。玄学主张「以无为本」「得意忘言」，试图超越汉代的繁琐经学，回归哲学的精神性。嵇康、阮籍等竹林七贤以玄学为精神寄托，表达对现实政治的不满与超越。",
+      "bodyEn": "Han dynasty established Confucianism as state orthodoxy (Dong Zhongshu). Wang Chong's critical empiricism challenged superstition. Wei-Jin Xuanxue (Neo-Daoism) returned to the Three Mysteries (Laozi, Zhuangzi, Yijing), seeking philosophical depth beyond scholastic pedantry."
+    },
+    {
+      "type": "body",
+      "heading": "三、隋唐佛学与儒佛道三教融合（4世纪~10世纪）",
+      "body": "佛教自两汉之际传入中国，经过数百年的翻译、消化和本土化，在隋唐时期达到鼎盛，形成了天台、华严、禅宗等中国化的佛教宗派。\n\n• 天台宗：以智顗为代表，主张「一念三千」「三谛圆融」，将万法归于一心。天台宗是中国第一个独立的佛教宗派。\n• 华严宗：以法藏为代表，提出「法界缘起」「一即一切，一切即一」的宏大世界观，深刻影响了宋代理学。\n• 禅宗：以慧能为代表，是中国佛教最具原创性的宗派。慧能主张「顿悟」「本来无一物，何处惹尘埃」，将佛教从繁琐的经院哲学中解放出来，直指人心，见性成佛。禅宗对中国文化产生了极为深远的影响——从诗歌、绘画到茶道、武术，无不渗透禅的精神。\n• 儒佛道三教融合：隋唐时期，三教在争论中互相吸收。韩愈发起「古文运动」，力排佛老，维护儒家道统。但其后的李翱在《复性书》中已开始吸收佛教思想来重构儒学，为宋代理学的兴起铺平了道路。\n\n佛教中国化的过程，是世界文化交流史上最成功的案例之一——外来思想经过创造性转化，成为本土文化不可分割的一部分。",
+      "bodyEn": "Sui-Tang Buddhism flourished with Chinese schools: Tiantai (one mind, three truths), Huayan (interpenetration of all phenomena), and Chan/Zen (sudden enlightenment, direct pointing to mind). The Sinicization of Buddhism is one of history's most successful cross-cultural transformations."
+    },
+    {
+      "type": "body",
+      "heading": "四、宋明理学：儒学的复兴与深化（11世纪~17世纪）",
+      "body": "面对佛道两家的挑战，宋明儒家在吸收佛教哲学思辨方法的基础上，重新阐发先秦儒家经典，构建了宏大的理学体系。这是儒学继汉代经学之后的第二次高峰。\n\n• 北宋理学奠基：周敦颐以《太极图说》为理学开山，提出「无极而太极」的宇宙生成论。张载提出「气」一元论，「为天地立心，为生民立命，为往圣继绝学，为万世开太平」的四句教，成为中国士人的精神宣言。程颢、程颐兄弟确立了「理」的哲学范畴——「天理」是宇宙的本体，也是人性的根源。\n• 朱熹集大成：南宋朱熹集理学之大成，建立了一个以「理」「气」为核心的完整哲学体系。他主张「理在气先」「格物致知」「存天理，灭人欲」。朱熹编注的《四书章句集注》成为此后科举考试的标准教材，影响中国教育长达七百年。\n• 陆王心学：与朱熹的「理学」不同，陆九渊开创「心学」，主张「心即理」「宇宙便是吾心，吾心即是宇宙」。明代王阳明集心学之大成，提出「知行合一」「致良知」「心外无物」。王阳明认为，每个人心中都有天赋的良知（道德判断力），修养的路径不是向外格物，而是向内致良知。\n• 理学与心学的争论：朱熹主张「先知后行」「向外格物」，王阳明主张「知行合一」「向内致知」。这场争论贯穿了整个明代，深刻影响了中国思想的走向。\n\n宋明理学不仅是中国哲学的巅峰，也是东亚文明圈共同的思想遗产。朱子学在日本、韩国、越南都产生了深远影响。",
+      "bodyEn": "Song-Ming Neo-Confucianism (Lixue) revived Confucianism through philosophical dialogue with Buddhism. Key figures: Zhou Dunyi (Taiji), Zhang Zai (Qi monism), the Cheng brothers (heavenly principle), Zhu Xi (synthesizer), Lu Jiuyuan and Wang Yangming (School of Mind — 'knowledge and action are one')."
+    },
+    {
+      "type": "body",
+      "heading": "五、明清之际与清代实学（17世纪~19世纪）",
+      "body": "明亡清兴的历史巨变，促使一批思想家深刻反思宋明理学的流弊，转向「经世致用」的实学方向。\n\n• 明清之际的三大思想家：\n  - 黄宗羲：在《明夷待访录》中提出「天下为主，君为客」，批判君主专制，主张学校议政，是中国近代启蒙思想的先驱。\n  - 顾炎武：主张「经学即理学」「博学于文，行己有耻」，以实证考据精神纠正空谈心性的学风。\n  - 王夫之：在哲学上提出「气者理之依」「日新之谓盛德」，坚持唯物主义的实在论，是中国古代哲学的集大成者。\n• 颜李学派：颜元、李塨主张「习行」「实习」，反对读书穷理，强调实际行动和实践技能，是古代哲学中最具行动主义色彩的学派。\n• 戴震：清代考据学的代表，在《孟子字义疏证》中以严密的训诂方法批判宋儒「以理杀人」——指出「理」不应成为压抑正当人欲的教条。\n• 清代朴学：乾嘉学派以考据、训诂、校勘为方法，对中国古代典籍进行了系统整理。虽然被批评为「琐碎」，但乾嘉学派的实证精神和方法论，是中国学术走向现代的重要环节。",
+      "bodyEn": "The Ming-Qing transition sparked practical learning (Shixue). Huang Zongxi critiqued autocracy ('the world is primary, the ruler is guest'). Gu Yanwu promoted evidential scholarship. Wang Fuzhi built a materialist synthesis. Dai Zhen attacked Neo-Confucian dogmatism. Qianjia school pioneered textual criticism."
+    },
+    {
+      "type": "body",
+      "heading": "六、近代中国哲学：中西碰撞与转型（19世纪~20世纪）",
+      "body": "鸦片战争之后，中国面临「三千年未有之大变局」。西方思想的冲击，迫使中国哲学进行艰难而深刻的转型。\n\n• 中体西用：魏源提出「师夷长技以制夷」，张之洞主张「中学为体，西学为用」，试图在保持儒家道统的前提下引进西方技术。\n• 维新思想：康有为、梁启超、谭嗣同等人试图以今文经学为理论武器推动变法。康有为的《大同书》将儒家大同理想与西方启蒙思想结合。谭嗣同的《仁学》试图会通中西哲学。\n• 新文化运动：严复翻译《天演论》，引进进化论。胡适引进实用主义，提出「大胆假设，小心求证」。陈独秀、李大钊引进马克思主义。\n• 现代新儒家：熊十力、梁漱溟、冯友兰、牟宗三等人，在中西文化碰撞中，试图重建儒家的哲学体系。冯友兰以新实在论方法重构理学，著《中国哲学史》。牟宗三以康德哲学为参照，重新诠释中国哲学的「内圣之学」。\n\n近代中国哲学的核心问题是：如何在保持文化主体性的同时，吸收西方的现代性？这个问题至今仍在探讨之中，而中国哲学的生命力也正在于它面对新挑战时不断自我更新的能力。",
+      "bodyEn": "Modern Chinese philosophy faced unprecedented challenges from Western thought. From 'Chinese learning as substance, Western learning as application' to the New Culture Movement and New Confucianism (Feng Youlan, Mou Zongsan), the central question remains: how to modernize while preserving cultural identity."
+    },
+    {
+      "type": "callout",
+      "heading": "探索中国哲学的完整脉络",
+      "body": "想直观感受中国哲学两千五百年的发展脉络？访问 knowphilosophers.site，在交互式哲学网络图谱中探索从先秦到近代的完整谱系。点击任意哲学家——孔子、老子、庄子、孟子、王阳明、朱熹——开启AI灵魂对话，亲身体验思想的传承与碰撞。\n\n你还可以在思想格斗场中，让孔子与老子辩论「仁与道」，让王阳明与朱熹交锋「知行合一与格物致知」，让慧能与玄奘对话「顿悟与渐修」。东西方哲学家的跨文明辩论更是不可错过——孔子对苏格拉底，老子对赫拉克利特，王阳明对康德。\n\n延伸阅读：孔子哲学思想详解 | 老子道德经思想详解 | 苏格拉底与孔子比较 | 西方哲学史完整脉络",
+      "bodyEn": "Explore the complete lineage of Chinese philosophy at knowphilosophers.site. Engage with Confucius, Laozi, Zhuangzi, Wang Yangming through AI dialogue. Watch them debate each other — and Western philosophers — in the debate arena."
+    }
+  ]
+}
