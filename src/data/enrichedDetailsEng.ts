@@ -21,6 +21,7 @@ import { enrichedEpoch3Eng } from './enrichedEpoch3Eng';
 import { enrichedEpoch4Eng } from './enrichedEpoch4Eng';
 import { enrichedEpoch5Eng } from './enrichedEpoch5Eng';
 import { enrichedEpoch6Eng } from './enrichedEpoch6Eng';
+import { enrichedEpoch7Eng } from './enrichedEpoch7Eng';
 import { philosopherFallbackTranslations } from './translationsEng';
 
 export interface PhilosopherEnrichedEng {
@@ -54,6 +55,7 @@ const epochEngMerged: Record<string, {
   ...enrichedEpoch4Eng,
   ...enrichedEpoch5Eng,
   ...enrichedEpoch6Eng,
+  ...enrichedEpoch7Eng,
 };
 
 /**

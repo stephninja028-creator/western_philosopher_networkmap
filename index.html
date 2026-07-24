@@ -128,24 +128,66 @@
       ]
     }
     </script>
+
+    <!-- Language-aware meta injection: runs before React, updates tags based on ?lang= param -->
+    <script>
+      (function(){
+        var lang = 'zh';
+        var urlParam = new URLSearchParams(location.search).get('lang');
+        if (urlParam === 'en' || urlParam === 'zh') {
+          lang = urlParam;
+        } else {
+          try {
+            var stored = localStorage.getItem('knowphil-lang');
+            if (stored === 'en' || stored === 'zh') { lang = stored; }
+            else if (navigator.language && navigator.language.indexOf('zh') === 0) { lang = 'zh'; }
+            else if (navigator.language && navigator.language.indexOf('en') === 0) { lang = 'en'; }
+          } catch(e){}
+        }
+        if (lang === 'en') {
+          document.documentElement.setAttribute('lang','en');
+          var en = {
+            title: 'Western Philosophy Network Map — Interactive Philosopher Lineage | 西方哲学发展脉络',
+            desc: 'Explore the development of Western philosophy from ancient Greece to modernity. An interactive bilingual network map showing philosopher lineages, oppositions, and influences. Featuring AI-powered philosopher dialogues and intellectual debate arenas.',
+            ogTitle: 'Western Philosophy Network Map | Interactive Philosopher Knowledge Graph',
+            ogDesc: 'Explore the intellectual lineage of 70+ Western philosophers from ancient Greece to modernity. Interactive philosophy history graph featuring master-disciple lineages, AI soul dialogues, and debate arenas.',
+            siteName: 'Western Philosophy Network'
+          };
+          var titleTag = document.querySelector('title');
+          if (titleTag) titleTag.textContent = en.title;
+          var metaDesc = document.querySelector('meta[name="description"]');
+          if (metaDesc) metaDesc.setAttribute('content', en.desc);
+          var ogTitle = document.querySelector('meta[property="og:title"]');
+          if (ogTitle) ogTitle.setAttribute('content', en.ogTitle);
+          var ogDesc = document.querySelector('meta[property="og:description"]');
+          if (ogDesc) ogDesc.setAttribute('content', en.ogDesc);
+          var ogSite = document.querySelector('meta[property="og:site_name"]');
+          if (ogSite) ogSite.setAttribute('content', en.siteName);
+          var twTitle = document.querySelector('meta[name="twitter:title"]');
+          if (twTitle) twTitle.setAttribute('content', en.ogTitle);
+          var twDesc = document.querySelector('meta[name="twitter:description"]');
+          if (twDesc) twDesc.setAttribute('content', en.ogDesc);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <noscript>
       <div style="max-width:720px;margin:0 auto;padding:40px 20px;font-family:serif;line-height:1.8;color:#333">
-        <h1>西方哲学发展脉络 — 交互式哲人网络图谱</h1>
-        <p>探索从古希腊到现代的西方哲学发展脉络。交互式网络图谱展示70+位哲学家之间的师承、对立与影响关系。支持中英双语、AI灵魂对话与思想格斗辩论。</p>
-        <h2>哲学时代</h2>
+        <h1>西方哲学发展脉络 — 交互式哲人网络图谱 | Western Philosophy Network Map</h1>
+        <p>探索从古希腊到现代的西方哲学发展脉络。交互式网络图谱展示70+位哲学家之间的师承、对立与影响关系。支持中英双语、AI灵魂对话与思想格斗辩论。<br/>Explore the development of Western philosophy from ancient Greece to modernity. An interactive bilingual network map showing philosopher lineages, oppositions, and influences across 70+ thinkers.</p>
+        <h2>哲学时代 | Philosophical Epochs</h2>
         <ul>
-          <li><a href="/epoch/1">古希腊罗马哲学</a></li>
-          <li><a href="/epoch/2">中世纪与经院哲学</a></li>
-          <li><a href="/epoch/3">文艺复兴与近代早期</a></li>
-          <li><a href="/epoch/4">法兰西启蒙思想</a></li>
-          <li><a href="/epoch/5">德意志古典哲学</a></li>
-          <li><a href="/epoch/6">过渡时期与19世纪中后期</a></li>
-          <li><a href="/epoch/7">现代派与分析哲学</a></li>
+          <li><a href="/epoch/1">古希腊罗马哲学 | Ancient Greco-Roman Philosophy</a></li>
+          <li><a href="/epoch/2">中世纪与经院哲学 | Medieval & Scholastic Philosophy</a></li>
+          <li><a href="/epoch/3">文艺复兴与近代早期 | Renaissance & Early Modern</a></li>
+          <li><a href="/epoch/4">法兰西启蒙思想 | French Enlightenment</a></li>
+          <li><a href="/epoch/5">德意志古典哲学 | German Classical Idealism</a></li>
+          <li><a href="/epoch/6">过渡时期与19世纪中后期 | Late 19th Century Transition</a></li>
+          <li><a href="/epoch/7">现代派与分析哲学 | Modern & Analytic Philosophy</a></li>
         </ul>
-        <h2>热门哲学家</h2>
+        <h2>热门哲学家 | Popular Philosophers</h2>
         <ul>
           <li><a href="/philosopher/socrates">苏格拉底 (Socrates)</a></li>
           <li><a href="/philosopher/plato">柏拉图 (Plato)</a></li>
@@ -158,7 +200,7 @@
           <li><a href="/philosopher/sartre">萨特 (Sartre)</a></li>
           <li><a href="/philosopher/wittgenstein">维特根斯坦 (Wittgenstein)</a></li>
         </ul>
-        <p><a href="/philosophers">查看所有哲学家 →</a> | <a href="/epochs">查看所有时代 →</a> | <a href="/schools">查看所有流派 →</a> | <a href="/blog">哲学博客 →</a></p>
+        <p><a href="/philosophers">查看所有哲学家 → | All Philosophers →</a> | <a href="/epochs">查看所有时代 → | All Epochs →</a> | <a href="/schools">查看所有流派 → | All Schools →</a> | <a href="/blog">哲学博客 → | Blog →</a></p>
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
