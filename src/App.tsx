@@ -321,20 +321,20 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
 }
 
 export default function App() {
-  const [activeRegion, setActiveRegion] = useState<'west' | 'east'>('west');
-  const [activeTab, setActiveTab] = useState<'chronology' | 'debate'>('chronology');
+  const [activeTab, setActiveTab] = useState<'west' | 'east' | 'debate'>('west');
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<Philosopher | null>(() => {
     return philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
   });
 
   const activePhilosophyData = useMemo(() => {
-    return activeRegion === 'west' ? philosophyData : easternPhilosophyData;
-  }, [activeRegion]);
+    return activeTab === 'west' ? philosophyData : easternPhilosophyData;
+  }, [activeTab]);
 
   // Synchronize selection when switching region
   useEffect(() => {
-    if (activeRegion === 'west') {
+    if (activeTab === 'debate') return;
+    if (activeTab === 'west') {
       const defaultPhilosopher = philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
       setSelectedPhilosopher(defaultPhilosopher);
       setActiveEpochId(1);
@@ -343,7 +343,7 @@ export default function App() {
       setSelectedPhilosopher(defaultPhilosopher);
       setActiveEpochId(11); // Eastern epoch starting ID
     }
-  }, [activeRegion]);
+  }, [activeTab]);
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
@@ -362,10 +362,10 @@ export default function App() {
     const isSwipeLeft = distance > 70; // Swipe finger left: reveals right pane (East)
     const isSwipeRight = distance < -70; // Swipe finger right: reveals left pane (West)
 
-    if (isSwipeLeft && activeRegion === 'west') {
-      setActiveRegion('east');
-    } else if (isSwipeRight && activeRegion === 'east') {
-      setActiveRegion('west');
+    if (isSwipeLeft && activeTab === 'west') {
+      setActiveTab('east');
+    } else if (isSwipeRight && activeTab === 'east') {
+      setActiveTab('west');
     }
 
     setTouchStartX(null);
@@ -696,7 +696,7 @@ export default function App() {
         document.getElementById(`epoch-section-${epoch.id}`)
       );
 
-      let currentActiveId = activeRegion === 'west' ? 1 : 11;
+      let currentActiveId = activeTab === 'west' ? 1 : 11;
       let minDistance = Infinity;
 
       epochElements.forEach((el, index) => {
@@ -713,10 +713,10 @@ export default function App() {
 
       // Special clamps for very top or bottom of scroll depth
       if (window.scrollY < 120) {
-        currentActiveId = activeRegion === 'west' ? 1 : 11;
+        currentActiveId = activeTab === 'west' ? 1 : 11;
       }
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160) {
-        currentActiveId = activeRegion === 'west' ? 6 : 16;
+        currentActiveId = activeTab === 'west' ? 6 : 16;
       }
 
       setActiveEpochId(currentActiveId);
@@ -724,7 +724,7 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [detailedPhilosopher, activePhilosophyData, activeRegion]);
+  }, [detailedPhilosopher, activePhilosophyData, activeTab]);
 
   const allPhilosophersFlat = useMemo(() => {
     return [
@@ -1326,43 +1326,70 @@ export default function App() {
 
       {/* Hellenic Navigation Tabs */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-8 z-20">
-        <div className="flex border-b-2 border-[#D4AF37]/35 pb-0 justify-center sm:justify-start gap-4">
+        <div className="flex flex-wrap border-b-2 border-[#D4AF37]/35 pb-0 justify-center sm:justify-start gap-2 sm:gap-4">
+          {/* Western Philosophers */}
           <button
             onClick={() => {
-              setActiveTab('chronology');
+              setActiveTab('west');
               setDetailedPhilosopher(null);
             }}
-            className={`px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer ${
-              activeTab === 'chronology'
+            className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer ${
+              activeTab === 'west'
                 ? 'bg-[#0B2545] border-[#D4AF37]/50 text-[#FAF8F5]'
                 : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]'
             }`}
           >
-            <Scroll className="w-4 h-4 text-[#D4AF37]" />
-            <span>{language === 'zh' ? '📜 思想沿革史卷' : '📜 Chronicle Roll'}</span>
+            <Landmark className="w-4 h-4 text-[#D4AF37]" />
+            <span>{language === 'zh' ? '🏛️ 西方哲学家' : '🏛️ Western'}</span>
           </button>
-          
+
+          {/* Eastern Philosophers */}
+          <button
+            onClick={() => {
+              setActiveTab('east');
+              setDetailedPhilosopher(null);
+            }}
+            className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer ${
+              activeTab === 'east'
+                ? 'bg-[#C2593F] border-[#D4AF37]/50 text-[#FAF8F5]'
+                : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#C2593F]'
+            }`}
+          >
+            <Scroll className="w-4 h-4 text-[#C2593F]" />
+            <span>{language === 'zh' ? '⛩️ 东方哲学家' : '⛩️ Eastern'}</span>
+          </button>
+
+          {/* Debate */}
           <button
             onClick={() => {
               setActiveTab('debate');
               setDetailedPhilosopher(null);
             }}
-            className={`px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer relative ${
+            className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer relative ${
               activeTab === 'debate'
                 ? 'bg-[#0B2545] border-[#D4AF37]/50 text-[#FAF8F5]'
                 : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]'
             }`}
           >
             <Swords className="w-4 h-4 text-[#C2593F]" />
-            <span>{language === 'zh' ? '⚔️ 众神多边辩论' : '⚔️ Multilateral Debate'}</span>
+            <span>{language === 'zh' ? '⚔️ 辩论' : '⚔️ Debate'}</span>
             <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded-full font-sans font-extrabold animate-pulse shadow-3xs">
               NEW
             </span>
           </button>
+
+          {/* Blog */}
+          <a
+            href="/blog"
+            className="px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#0B2545]"
+          >
+            <BookOpen className="w-4 h-4 text-[#D4AF37]" />
+            <span>{language === 'zh' ? '📖 博客' : '📖 Blog'}</span>
+          </a>
         </div>
       </div>
 
-      {activeTab === 'chronology' ? (
+      {(activeTab === 'west' || activeTab === 'east') ? (
         <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
 
         {/* MAIN LAYOUT: Continuous Scrollway (Left) and Sticky Details Stele (Right) */}
@@ -1371,53 +1398,34 @@ export default function App() {
           {/* LEFT COLUMN: Majestic Continuous Scrollway */}
           <div className="lg:col-span-8 flex flex-col gap-10">
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#0B2545]/20 pb-4">
+            <div className="flex items-center justify-between gap-4 border-b border-[#0B2545]/20 pb-4">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-[#0B2545]" />
                 <h3 className="font-serif text-lg font-bold text-[#0B2545] tracking-wider uppercase">
-                  {activeRegion === 'west' 
+                  {activeTab === 'west' 
                     ? (language === 'zh' ? '西方哲人图谱流层 · 史学罗盘' : 'Western Scholastic Network Flow')
                     : (language === 'zh' ? '东方中国贤哲图谱 · 史学罗盘' : 'Eastern Scholastic Network Flow')}
                 </h3>
               </div>
-              
-              {/* Premium Dual-Region Switcher (Stone Pillar Aesthetics) */}
-              <div className="flex items-center bg-[#F2EDE2]/60 border border-[#D4AF37]/50 p-1 rounded-full shadow-3xs self-center sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setActiveRegion('west')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-serif font-extrabold tracking-widest uppercase transition-all duration-350 cursor-pointer flex items-center gap-1.5 ${
-                    activeRegion === 'west'
-                      ? 'bg-[#0B2545] text-[#FAF8F5] shadow-xs font-bold'
-                      : 'text-[#0D5C75] hover:text-[#0B2545] font-semibold'
-                  }`}
-                >
-                  <span>🏛️</span>
-                  <span>{language === 'zh' ? '西方哲学' : 'West'}</span>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => setActiveRegion('east')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-serif font-extrabold tracking-widest uppercase transition-all duration-350 cursor-pointer flex items-center gap-1.5 ${
-                    activeRegion === 'east'
-                      ? 'bg-[#C2593F] text-[#FAF8F5] shadow-xs font-bold'
-                      : 'text-[#0D5C75] hover:text-[#C2593F] font-semibold'
-                  }`}
-                >
-                  <span>⛩️</span>
-                  <span>{language === 'zh' ? '东方中国' : 'East'}</span>
-                </button>
-              </div>
+
+              {/* Blog quick-access link */}
+              <a
+                href="/blog"
+                className="flex items-center gap-1.5 text-xs font-serif font-bold tracking-wider uppercase text-[#0D5C75] hover:text-[#0B2545] transition-colors cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-[#D4AF37]" />
+                <span className="hidden sm:inline">{language === 'zh' ? '📖 深度分析文章' : '📖 Deep-Dive Articles'}</span>
+                <span className="sm:hidden">📖 Blog</span>
+              </a>
             </div>
 
             {/* Gesture indicators showing mobile swipe capabilities */}
             <div className="flex items-center justify-between text-[10px] font-mono text-[#0D5C75]/85">
               <span className="font-sans font-medium">
                 {language === 'zh' ? (
-                  <>💡 左右滑动或点击上方选项卡，即可在<b>西方思辨 ⇄ 东方中国智慧</b>间无缝穿梭</>
+                  <>💡 左右滑动，即可在<b>西方思辨 ⇄ 东方中国智慧</b>间无缝穿梭</>
                 ) : (
-                  <>💡 Swipe left/right or click tabs above to seamlessly switch between <b>Western & Eastern</b> heritages</>
+                  <>💡 Swipe left/right to seamlessly switch between <b>Western & Eastern</b> heritages</>
                 )}
               </span>
               <span className="hidden sm:inline font-semibold">
@@ -1511,10 +1519,10 @@ export default function App() {
               >
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={activeRegion}
-                    initial={{ x: activeRegion === 'west' ? -40 : 40, opacity: 0 }}
+                    key={activeTab}
+                    initial={{ x: activeTab === 'west' ? -40 : 40, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: activeRegion === 'west' ? 40 : -40, opacity: 0 }}
+                    exit={{ x: activeTab === 'west' ? 40 : -40, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 320, damping: 28 }}
                   >
                     <LineageDiagram
@@ -1949,7 +1957,7 @@ export default function App() {
             onTriggerPayment={() => setPaymentModalOpen(true)}
             onSelectPhilosopher={(p) => {
               setDetailedPhilosopher(p);
-              setActiveTab('chronology');
+              setActiveTab('west');
             }}
             setView={(v) => setActiveTab(v)}
           />
@@ -1963,7 +1971,7 @@ export default function App() {
           —— L O G O S  ·  A C A D E M Y ——
         </p>
         <p className="font-sans text-[10px] text-slate-500 mt-1.5 pb-4">
-          {language === 'zh' ? '西方哲学思想库交互史迹脉络图谱' : 'Western Philosophy Chronicle Roll'} © 2026. Designed with Athens Alabaster Marble & Mediterranean Aegean Blue Palette
+          {language === 'zh' ? '东西方哲学思想库交互史迹脉络图谱' : 'East & West Philosophy Chronicle Roll'} © 2026. Designed with Athens Alabaster Marble & Mediterranean Aegean Blue Palette
         </p>
       </footer>
 

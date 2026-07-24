@@ -11,7 +11,7 @@ interface MultilateralSymposiumProps {
   onDeductDebate: () => boolean;
   onTriggerPayment: () => void;
   onSelectPhilosopher?: (p: Philosopher) => void;
-  setView?: (v: 'chronology' | 'debate') => void;
+  setView?: (v: 'west' | 'east' | 'debate') => void;
 }
 
 export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
@@ -195,7 +195,7 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
       {/* Top action button */}
       {setView && (
         <button
-          onClick={() => setView('chronology')}
+          onClick={() => setView('west')}
           className="absolute top-6 left-6 z-10 flex items-center gap-1 bg-white hover:bg-slate-50 border border-gray-200 text-[#0D5C75] px-3 py-1.5 rounded-lg text-xs font-sans font-bold transition-all shadow-3xs cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
