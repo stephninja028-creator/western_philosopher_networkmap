@@ -34,5 +34,9 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.62.2",
+    "lightningcss-darwin-arm64": "^1.33.0"
   }
 }

@@ -1,5 +1,15 @@
+# https://www.knowphilosophers.site/robots.txt
+# Allow all crawlers full access to content pages
+
 User-agent: *
 Allow: /
+Allow: /philosopher/
+Allow: /epoch/
+Allow: /school/
+Allow: /philosophers
+Allow: /epochs
+Allow: /schools
+Allow: /blog/
 Disallow: /api/
 
 Sitemap: https://www.knowphilosophers.site/sitemap.xml

@@ -1,0 +1,63 @@
+{
+  "title": "西方哲学史完整脉络：从古希腊到现代的简明指南",
+  "titleEn": "A Complete Guide to Western Philosophy: From Ancient Greece to Modernity",
+  "date": "2026-07-20",
+  "slug": "western-philosophy-history-complete-guide",
+  "author": "knowphilosophers.site",
+  "sections": [
+    {
+      "type": "intro",
+      "heading": "西方哲学两千五百年的思想长河",
+      "body": "西方哲学从公元前6世纪古希腊的泰勒斯提出「水是万物的本原」开始，到21世纪的分析哲学与后现代思潮，跨越了整整两千五百年。这条思想长河并非一条直线，而是一张交织着师承、对立、影响与超越的复杂网络。\n\n本文将带你速览西方哲学史的七大纪元，理解每个时代的核心问题与代表人物，并附上每位哲学家的详解链接，帮助你建立完整的哲学知识体系。",
+      "bodyEn": "Western philosophy spans 2,500 years, from Thales' declaration that 'water is the arche of all things' in 6th century BC Greece, to 21st-century analytic and postmodern thought. This article provides a concise overview of seven major philosophical epochs."
+    },
+    {
+      "type": "body",
+      "heading": "一、古希腊罗马哲学（BC 6世纪 ~ AD 4世纪）：西方哲学的摇篮",
+      "body": "古希腊是西方哲学的诞生地。从泰勒斯、阿那克西曼德等米利都学派哲学家探寻宇宙本原开始，哲学逐渐从神话思维转向理性思辨。\n\n随后，苏格拉底将哲学的视线从自然转向人心，用「产婆术」式的追问揭示真理。他的学生柏拉图构建了宏大的理念世界，提出著名的洞穴隐喻。柏拉图的学生亚里士多德则被誉为古代百科全书式思想家，创立了形式逻辑、四因说和实体学说。\n\n希腊化与罗马时代，伊壁鸠鲁学派和斯多葛学派兴起，强调通过哲学获得心灵宁静。马可·奥勒留皇帝在《沉思录》中写下了跨越千年的智慧。\n\n代表哲学家：泰勒斯、赫拉克利特、巴门尼德、苏格拉底、柏拉图、亚里士多德、伊壁鸠鲁、马可·奥勒留、普罗提诺",
+      "bodyEn": "Ancient Greece is the birthplace of Western philosophy. Socrates turned philosophy from nature to the human soul, Plato constructed the world of Forms, and Aristotle founded formal logic and the theory of four causes."
+    },
+    {
+      "type": "body",
+      "heading": "二、中世纪与经院哲学（5 ~ 14世纪）：信仰与理性的角力",
+      "body": "中世纪哲学的核心问题是信仰与理性如何共存。奥古斯丁将柏拉图主义融入基督教神学，提出时间的主观心灵说和神圣恩典论。\n\n经院哲学全盛期，安瑟尔谟构造了上帝存在的本体论证明，托马斯·阿奎那在《神学大全》中结合亚里士多德哲学提出著名的五路论证。唯名论与实在论的大论战贯穿始终，最终奥卡姆以「如无必要，勿增实体」的剃刀原则为近代经验论铺平道路。\n\n代表哲学家：奥古斯丁、波爱修斯、安瑟尔谟、阿伯拉尔、托马斯·阿奎那、奥卡姆",
+      "bodyEn": "Medieval philosophy centers on the relationship between faith and reason. Augustine integrated Platonism with Christian theology, while Thomas Aquinas combined Aristotle with theology in his Five Ways."
+    },
+    {
+      "type": "body",
+      "heading": "三、文艺复兴与近代早期（15 ~ 17世纪）：理性的觉醒",
+      "body": "文艺复兴唤醒了人文主义精神，哲学从神学枷锁中挣脱。弗兰西斯·培根喊出「知识就是力量」，创立归纳法。\n\n笛卡尔以「我思故我在」开启近代哲学的认识论转向，建立心物二元论。斯宾诺莎提出「神即自然」的一元论，莱布尼茨构想了精神性的「单子论」。经验论方面，洛克的「白板说」彻底肃清天赋观念，休谟则将因果关系还原为心理习惯，惊醒了康德的独断迷梦。\n\n代表哲学家：培根、霍布斯、笛卡尔、洛克、斯宾诺莎、莱布尼茨、休谟",
+      "bodyEn": "The Renaissance awakened humanism. Descartes' 'I think therefore I am' initiated the epistemological turn, while Locke's tabula rasa and Hume's skepticism on causation set the stage for Kant."
+    },
+    {
+      "type": "body",
+      "heading": "四、法兰西启蒙（18世纪）：照亮旧制度的理性之光",
+      "body": "18世纪法国启蒙思想家走出学术象牙塔，投身社会改造。伏尔泰以辛辣笔调讽刺神权专制，孟德斯鸠构画三权分立蓝图，卢梭在《社会契约论》中高呼「人是生而自由的，但无处不在枷锁之中」。\n\n狄德罗主编《百科全书》，拉美特利宣称「人是机器」，霍尔巴赫构建了彻底的唯物主义体系。这些思想直接催生了法国大革命。\n\n代表哲学家：伏尔泰、孟德斯鸠、卢梭、狄德罗、拉美特利、霍尔巴赫",
+      "bodyEn": "French Enlightenment thinkers championed reason against the old regime. Montesquieu proposed separation of powers, Rousseau declared 'man is born free but everywhere in chains,' and Diderot edited the Encyclopedia."
+    },
+    {
+      "type": "body",
+      "heading": "五、德意志古典哲学（1770 ~ 1844）：理性大厦的穹顶",
+      "body": "康德发动了认识论的「哥白尼式革命」：不是心灵符合对象，而是对象符合心灵的认识形式。他在《纯粹理性批判》中划定理性的边界，在《实践理性批判》中以绝对命令守护道德自由。\n\n费希特的主观唯心论、谢林的同一哲学，最终在黑格尔的绝对精神辩证法中达到巅峰。黑格尔认为宇宙、思想与历史是绝对精神自我展开的过程。费尔巴哈随后以人本主义唯物论终结了黑格尔的神话。\n\n代表哲学家：康德、费希特、谢林、黑格尔、费尔巴哈",
+      "bodyEn": "Kant's Copernican revolution in epistemology, Fichte's subjective idealism, Schelling's identity philosophy, and Hegel's absolute idealism represent the pinnacle of German classical philosophy."
+    },
+    {
+      "type": "body",
+      "heading": "六、19世纪中后期（1844 ~ 1900）：现代前夜的洪流",
+      "body": "古典哲学大厦崩塌后，思想界多元迸发。叔本华揭示意志是世界的本体，人生在欲望满足与不满足之间痛苦摇摆。克尔凯郭尔开创存在主义，强调主观性即真理。\n\n马克思以唯物史观解剖资本主义，宣称「哲学家们只是用不同的方式解释世界，而问题在于改变世界」。尼采敲响「上帝已死」的钟声，呼吁重估一切价值，走向超人。孔德创立实证主义与社会学，密尔在《论自由》中划清群己权界。\n\n代表哲学家：叔本华、克尔凯郭尔、马克思、尼采、孔德、密尔",
+      "bodyEn": "Schopenhauer's will, Kierkegaard's existentialism, Marx's historical materialism, and Nietzsche's death of God mark the turbulent transition to modernity."
+    },
+    {
+      "type": "body",
+      "heading": "七、现代派与分析哲学（20世纪 ~ 当代）：大分流",
+      "body": "20世纪哲学发生巨大分流。英美分析哲学一侧，弗雷格奠基数理逻辑，罗素提出摹状词理论，维特根斯坦从图像论转向语言游戏说，奎因拆毁分析-综合教条。\n\n欧洲大陆哲学一侧，胡塞尔创立现象学，海德格尔追问存在本身，萨特高扬「存在先于本质」。后结构主义时代，福柯揭露权力与知识的关系，德里达解构理性中心主义。美国实用主义由皮尔士、詹姆斯和杜威开创，罗蒂最终敲碎「自然之镜」。\n\n代表哲学家：弗雷格、罗素、维特根斯坦、胡塞尔、海德格尔、萨特、福柯、德里达",
+      "bodyEn": "20th-century philosophy split into Anglo-American analytic philosophy (Frege, Russell, Wittgenstein) and Continental philosophy (Husserl, Heidegger, Sartre, Foucault, Derrida)."
+    },
+    {
+      "type": "callout",
+      "heading": "探索完整的哲学网络",
+      "body": "以上只是西方哲学史的骨架。真正的理解来自于看到思想之间的联系——谁影响了谁，谁反对了谁，谁综合了前人的智慧。\n\n访问 knowphilosophers.site，使用交互式哲学网络图谱，可视化地探索70+位哲学家的师承与对立关系。你还可以与任何哲学家进行AI灵魂对话，或在思想格斗场中观看两位哲人辩论。\n\n推荐阅读：\n• 苏格拉底哲学详解\n• 康德三大批判详解\n• 尼采超人哲学详解\n• 存在主义详解",
+      "bodyEn": "Visit knowphilosophers.site to explore the interactive philosophy network map and engage in AI-powered dialogues with any philosopher."
+    }
+  ]
+}

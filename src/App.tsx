@@ -8,6 +8,8 @@ import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
 import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
+import { getEnrichedEng, hasCompleteEnrichedEng } from './data/enrichedDetailsEng';
+import { detectLang, SUPPORTED_LANGS, STORAGE_KEY, type Language } from './i18n/config';
 import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
 import { MultilateralSymposium } from './components/MultilateralSymposium';
@@ -162,31 +164,34 @@ function getCleanEnglishFallback(p: Philosopher): {
   comparisons: any[];
 } {
   const id = p.id;
+  // Try aggregated English enriched details first (from epoch Eng files)
+  const engData = getEnrichedEng(id);
   const fallbackObj = (philosopherFallbackTranslations[id] || {}) as any;
   const schoolEn = schoolTranslations[p.school] || p.school;
   const eraEn = translateEraDisp(p.eraDisp);
   const conceptsEn = p.concepts.map(c => conceptTranslations[c] || c);
 
-  const details = fallbackObj.details || 
+  const details = engData?.details || fallbackObj.details || 
     `${p.nameEng} was an influential philosopher of the ${schoolEn} school active during the ${eraEn}. ${p.details ? "They made significant contributions to classical Western philosophy." : ""}`;
 
-  const worldviewSummary = fallbackObj.worldviewSummary || 
+  const worldviewSummary = engData?.worldviewSummary || fallbackObj.worldviewSummary || 
     `${p.nameEng}'s philosophical worldview centers on their core doctrine and tenets. Belonging to the ${schoolEn} school, they formulated a distinct system of thought that sought to address the fundamental nature of reality, knowledge, and existence, leaving a lasting legacy on the development of subsequent intellectual lineages.`;
 
-  const lifeAndTimes = fallbackObj.lifeAndTimes || 
+  const lifeAndTimes = engData?.lifeAndTimes || fallbackObj.lifeAndTimes || 
     `Born and active in the ${eraEn} era, ${p.nameEng} developed their doctrines amidst the shifting cultural and political landscapes of their time. As a key representative of the ${schoolEn} school, their life and teachings responded directly to the intellectual challenges of their contemporaries, shaping the academic pathways of Western thought.`;
 
-  const quote = fallbackObj.quote || p.quote || "";
-  const concepts = fallbackObj.concepts || conceptsEn;
+  const quote = engData?.quote || fallbackObj.quote || p.quote || "";
+  const concepts = fallbackObj.concepts || engData?.concepts || conceptsEn;
 
   const comparisons = p.comparisons?.map((comp, idx) => {
+    const engComp = engData?.comparisons?.[idx];
     const fbComp = fallbackObj.comparisons?.[idx];
     const withNameEn = 'withName' in comp ? comp.withName : comp.withPhilosopher;
     return {
       withName: withNameEn,
-      coreDifference: fbComp?.coreDifference || 
+      coreDifference: engComp?.coreDifference || fbComp?.coreDifference || 
         `While ${p.nameEng} formulated their system within the framework of the ${schoolEn} school, ${withNameEn} offered a contrasting methodology, leading to a profound debate on the fundamental tenets of their respective doctrines.`,
-      reflectionPrompt: fbComp?.reflectionPrompt || 
+      reflectionPrompt: engComp?.reflectionPrompt || fbComp?.reflectionPrompt || 
         `When evaluating the arguments of both ${p.nameEng} and ${withNameEn}, which conceptual framework provides a more coherent explanation of reality and human experience?`
     };
   }) || [];
@@ -445,7 +450,36 @@ export default function App() {
   // Premium interactive states
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
-  const [language, setLanguage] = useState<'zh' | 'en'>('zh');
+  const [language, setLanguageState] = useState<'zh' | 'en'>(() => {
+    // Triple-fallback language detection (borrowed from bubble.huofengcap.com pattern)
+    try {
+      // 1. URL ?lang= parameter
+      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      if (urlLang && (SUPPORTED_LANGS as string[]).includes(urlLang)) return urlLang as 'zh' | 'en';
+      // 2. Stored preference
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored && (SUPPORTED_LANGS as string[]).includes(stored)) return stored as 'zh' | 'en';
+      // 3. Browser language
+      const navList = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+      for (const nav of navList) {
+        const base = nav.split('-')[0];
+        if (base === 'zh') return 'zh';
+        if (base === 'en') return 'en';
+      }
+    } catch { /* SSR or private mode */ }
+    return 'zh';
+  });
+
+  // Language setter that syncs URL + localStorage + state
+  const setLanguage = (lang: 'zh' | 'en') => {
+    setLanguageState(lang);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, lang);
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.history.replaceState({}, '', url.toString());
+    } catch { /* private mode */ }
+  };
   const [copiedEmail, setCopiedEmail] = useState<boolean>(false);
   const [copiedWeChat, setCopiedWeChat] = useState<boolean>(false);
 
@@ -516,14 +550,34 @@ export default function App() {
     setCopiedQuote(false);
   }, [detailedPhilosopher]);
 
-  // Dynamic Gemini translation resolver
+  // Dynamic English translation resolver — uses static files first, API as last resort
   useEffect(() => {
     const targetId = detailedPhilosopher?.id || selectedPhilosopher?.id;
     if (language !== 'en' || !targetId) return;
 
     if (translatedPhilosopherValues[targetId]) return;
 
-    // Fetch from pre-defined local translations first ONLY if complete to avoid missing fields
+    // Priority 1: Use aggregated English enriched details (static files, zero API calls)
+    if (hasCompleteEnrichedEng(targetId)) {
+      const engData = getEnrichedEng(targetId);
+      if (engData) {
+        setTranslatedPhilosopherValues(prev => ({
+          ...prev,
+          [targetId]: {
+            details: engData.details || '',
+            lifeAndTimes: engData.lifeAndTimes,
+            worldviewSummary: engData.worldviewSummary,
+            quote: engData.quote,
+            concepts: engData.concepts,
+            comparisons: engData.comparisons,
+            reflectionQuestion: engData.reflectionQuestion,
+          }
+        }));
+        return;
+      }
+    }
+
+    // Priority 2: Use legacy fallback translations if complete
     if (philosopherFallbackTranslations[targetId] && isLocalFallbackComplete(targetId)) {
       setTranslatedPhilosopherValues(prev => ({
         ...prev,

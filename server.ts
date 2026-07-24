@@ -6,6 +6,10 @@ import dotenv from "dotenv";
 import fs from "fs";
 import nodemailer from "nodemailer";
 import { schoolTranslations } from "./src/data/translationsEng";
+import { philosophyData } from "./src/data/philosophyData";
+import type { Philosopher, Epoch } from "./src/types";
+import { detectLangFromRequest, buildHreflangTags, buildOgLocaleTags, htmlLangAttr, type Language } from "./src/i18n/config";
+import { getEnrichedEng } from "./src/data/enrichedDetailsEng";
 
 dotenv.config();
 
@@ -811,6 +815,664 @@ ${sagesIntro}
         ]
       });
     }
+  });
+
+  // --- BLOG SEO ROUTES ---
+  // Blog content directory (try cwd first, fallback to dist/content for production builds)
+  function getBlogDir(): string {
+    const cwd = process.cwd();
+    const primary = path.join(cwd, "content", "blog");
+    if (fs.existsSync(primary)) return primary;
+    const fallback = path.join(cwd, "dist", "content", "blog");
+    if (fs.existsSync(fallback)) return fallback;
+    return primary; // return primary even if not found, let file reads handle errors
+  }
+
+  function renderBlogPage(meta: {
+    title: string;
+    description: string;
+    canonical: string;
+    ogImage?: string;
+    lang?: string;
+  }, bodyHtml: string): string {
+    const lang = meta.lang || "zh-CN";
+    const desc = meta.description.length > 160 ? meta.description.slice(0, 157) + "..." : meta.description;
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${meta.title} | 西方哲学发展脉络</title>
+  <meta name="description" content="${desc}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${meta.canonical}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="${meta.title}" />
+  <meta property="og:description" content="${desc}" />
+  <meta property="og:url" content="${meta.canonical}" />
+  <meta property="og:site_name" content="西方哲学发展脉络" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${meta.title}" />
+  <meta name="twitter:description" content="${desc}" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f2; color: #2c2b27; line-height: 1.8; }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    .header { text-align: center; padding: 60px 0 40px; border-bottom: 1px solid #d4cfc4; margin-bottom: 40px; }
+    .header h1 { font-size: 28px; font-weight: 700; color: #1a1814; margin-bottom: 12px; }
+    .header .date { font-size: 13px; color: #8c877a; }
+    .section { margin-bottom: 36px; }
+    .section h2 { font-size: 20px; font-weight: 600; color: #3d372b; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #e8dcc8; }
+    .section p { white-space: pre-line; font-size: 16px; color: #4a4538; }
+    .callout { background: #f0ebe0; border-left: 4px solid #c4a87c; padding: 20px 24px; margin: 40px 0; border-radius: 4px; }
+    .callout h2 { border: none; margin-bottom: 8px; }
+    .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #d4cfc4; text-align: center; font-size: 13px; color: #8c877a; }
+    .footer a { color: #5c5340; text-decoration: underline; }
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px 60px; }
+      .header h1 { font-size: 22px; }
+      .section h2 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  ${bodyHtml}
+</body>
+</html>`;
+  }
+
+  function loadPostFromDisk(slug: string): any {
+    try {
+      const filePath = path.join(getBlogDir(), `${slug}.json`);
+      if (!fs.existsSync(filePath)) return null;
+      return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function loadPostIndex(): { title: string; slug: string; date: string; }[] {
+    try {
+      const idxPath = path.join(getBlogDir(), "posts.json");
+      if (!fs.existsSync(idxPath)) return [];
+      return JSON.parse(fs.readFileSync(idxPath, "utf8"));
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Blog index route
+  app.get("/blog", (req, res) => {
+    const posts = loadPostIndex();
+    const items = posts.map((p: any) =>
+      `<li style="margin-bottom:16px">
+        <a href="/blog/${p.slug}" style="font-size:18px;color:#3d372b;text-decoration:none;font-weight:600;">${p.title}</a>
+        <span style="display:block;font-size:13px;color:#8c877a;margin-top:2px;">${p.date}</span>
+      </li>`
+    ).join("");
+
+    const html = renderBlogPage({
+      title: "博客 — 西方哲学发展脉络",
+      description: "探索西方哲学史、哲学家思想与哲学学习方法。涵盖从古希腊到后现代的哲学讨论，中英双语内容。Western philosophy blog covering ancient Greece to post-modernity.",
+      canonical: "https://www.knowphilosophers.site/blog",
+    }, `
+    <div class="container">
+      <div class="header">
+        <h1>哲学博客</h1>
+        <p class="date">Philosophy Blog — 西方哲学发展脉络</p>
+      </div>
+      <ul style="list-style:none;padding:0">${items}</ul>
+      ${posts.length === 0 ? '<p style="text-align:center;color:#8c877a;">文章即将上线，敬请期待。</p>' : ''}
+      <div class="footer">
+        <a href="/">← 返回西方哲学网络图谱</a>
+      </div>
+    </div>`);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Individual blog post route
+  app.get("/blog/:slug", (req, res) => {
+    const { slug } = req.params;
+    if (slug.includes(".")) return res.status(404).send("Not found");
+
+    const post = loadPostFromDisk(slug);
+    if (!post) return res.status(404).send("Post not found");
+
+    const sectionsHtml = (post.sections || []).map((s: any) => {
+      if (s.type === "callout") {
+        return `<div class="callout">
+          <h2>${s.heading}</h2>
+          <p>${s.body.replace(/\n/g, "<br/>")}</p>
+          ${s.bodyEn ? `<p style="margin-top:12px;font-style:italic;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+        </div>`;
+      }
+      if (s.type === "intro") {
+        return `<div class="section" style="margin-top:0">
+          <h2>${s.heading}</h2>
+          <p>${s.body.replace(/\n/g, "<br/>")}</p>
+          ${s.bodyEn ? `<p style="margin-top:8px;font-size:14px;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+        </div>`;
+      }
+      return `<div class="section">
+        <h2>${s.heading}</h2>
+        <p>${s.body.replace(/\n/g, "<br/>")}</p>
+        ${s.bodyEn ? `<p style="margin-top:8px;font-size:14px;color:#666;">${s.bodyEn.replace(/\n/g, "<br/>")}</p>` : ""}
+      </div>`;
+    }).join("");
+
+    const postDesc = (post.sections || []).find((s: any) => s.type === "intro")?.body?.slice(0, 150) || "";
+
+    const html = renderBlogPage({
+      title: post.title,
+      description: postDesc,
+      canonical: `https://www.knowphilosophers.site/blog/${slug}`,
+    }, `
+    <div class="container">
+      <div class="header">
+        <h1>${post.title}</h1>
+        <p class="date">${post.date} — ${post.author}</p>
+      </div>
+      ${sectionsHtml}
+      <div class="footer">
+        <a href="/">← 探索西方哲学网络图谱</a> | <a href="/blog">所有文章</a>
+      </div>
+    </div>`);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // --- SEO SSR ROUTES: PHILOSOPHER PAGES, EPOCH PAGES, SCHOOL PAGES ---
+
+  type PhilosopherWithEpoch = Philosopher & { epochId: number; epochTitle: string; epochSubtitle: string };
+
+  const allPhilosophers: PhilosopherWithEpoch[] = philosophyData.flatMap(epoch =>
+    epoch.philosophers.map(p => ({
+      ...p,
+      epochId: epoch.id,
+      epochTitle: epoch.title,
+      epochSubtitle: epoch.subtitle,
+    }))
+  );
+
+  const philosopherMap = new Map<string, PhilosopherWithEpoch>();
+  allPhilosophers.forEach(p => philosopherMap.set(p.id, p));
+
+  function slugifySchool(school: string): string {
+    const eng = schoolTranslations[school];
+    if (eng) {
+      return eng.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+    return 'school-' + school.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+  }
+
+  const schoolMap = new Map<string, { name: string; nameEng: string; slug: string; philosophers: PhilosopherWithEpoch[] }>();
+  allPhilosophers.forEach(p => {
+    if (!schoolMap.has(p.school)) {
+      schoolMap.set(p.school, {
+        name: p.school,
+        nameEng: schoolTranslations[p.school] || p.school,
+        slug: slugifySchool(p.school),
+        philosophers: [],
+      });
+    }
+    schoolMap.get(p.school)!.philosophers.push(p);
+  });
+  const allSchools = Array.from(schoolMap.values());
+
+  function esc(text: string): string {
+    return (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function seoPageHtml(opts: {
+    title: string; description: string; canonical: string;
+    keywords?: string; ogType?: string; bodyHtml: string;
+    jsonLd?: object[];
+    lang?: Language;
+  }): string {
+    const lang = opts.lang || 'zh';
+    const desc = opts.description.length > 160 ? opts.description.slice(0, 157) + '...' : opts.description;
+    const jsonLdScripts = (opts.jsonLd || []).map(j =>
+      `<script type="application/ld+json">${JSON.stringify(j)}</script>`
+    ).join('\n  ');
+    const hreflangTags = buildHreflangTags(opts.canonical);
+    const ogLocaleTags = buildOgLocaleTags(lang);
+    const htmlLang = htmlLangAttr(lang);
+    return `<!DOCTYPE html>
+<html lang="${htmlLang}">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4543YRLR30"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-4543YRLR30');</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(opts.title)}</title>
+  <meta name="description" content="${esc(desc)}" />
+  ${opts.keywords ? `<meta name="keywords" content="${esc(opts.keywords)}" />` : ''}
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${opts.canonical}" />
+  ${hreflangTags}
+  <meta property="og:type" content="${opts.ogType || 'article'}" />
+  <meta property="og:title" content="${esc(opts.title)}" />
+  <meta property="og:description" content="${esc(desc)}" />
+  <meta property="og:url" content="${opts.canonical}" />
+  <meta property="og:site_name" content="${lang === 'en' ? 'Western Philosophy Network' : '西方哲学发展脉络'}" />
+  ${ogLocaleTags}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${esc(opts.title)}" />
+  <meta name="twitter:description" content="${esc(desc)}" />
+  ${jsonLdScripts}
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Serif SC',serif;background:#faf8f2;color:#2c2b27;line-height:1.8}
+    .container{max-width:760px;margin:0 auto;padding:40px 20px 80px}
+    .breadcrumb{font-size:13px;color:#8c877a;margin-bottom:24px}
+    .breadcrumb a{color:#5c5340;text-decoration:none}
+    .breadcrumb a:hover{text-decoration:underline}
+    .header{text-align:center;padding:40px 0 30px;border-bottom:2px solid #c4a87c;margin-bottom:36px}
+    .header h1{font-size:30px;font-weight:700;color:#1a1814;margin-bottom:8px}
+    .header .en-name{font-size:18px;color:#8c877a;font-weight:400;font-style:italic}
+    .header .meta{font-size:14px;color:#6b6354;margin-top:10px}
+    .header .meta a{color:#0D5C75;text-decoration:none}
+    .header .meta span{margin:0 8px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+    .tag{background:#e8dcc8;color:#5c4e3d;padding:4px 12px;border-radius:20px;font-size:13px;border:1px solid #d4c5a8}
+    .section{margin-bottom:36px}
+    .section h2{font-size:20px;font-weight:600;color:#3d372b;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e8dcc8}
+    .section p{white-space:pre-line;font-size:16px;color:#4a4538}
+    .quote-box{background:linear-gradient(135deg,#f5f0e6,#ede4d4);border-left:4px solid #c4a87c;padding:24px 28px;margin:36px 0;border-radius:4px}
+    .quote-box blockquote{font-size:17px;color:#3d372b;font-style:italic;line-height:1.9}
+    .reflection-box{background:#f0ebe0;border:1px solid #d4cfc4;padding:20px 24px;margin:36px 0;border-radius:8px}
+    .reflection-box h2{border:none;margin-bottom:8px;font-size:18px;color:#5c4e3d}
+    .reflection-box p{font-size:15px;color:#5c5340}
+    .comparison{margin-bottom:24px;padding:16px 20px;background:#faf6ee;border-radius:8px;border:1px solid #e8dcc8}
+    .comparison h3{font-size:16px;color:#3d372b;margin-bottom:8px}
+    .comparison h3 a{color:#0D5C75;text-decoration:none}
+    .comparison p{font-size:14px;color:#5c5340;margin-bottom:6px}
+    .comparison .prompt{font-style:italic;color:#7a7060;font-size:13px}
+    .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
+    .related-card{background:#f5f0e6;border:1px solid #e0d8c8;border-radius:8px;padding:12px 16px;text-decoration:none;transition:border-color .2s}
+    .related-card:hover{border-color:#c4a87c}
+    .related-card .name{font-size:15px;font-weight:600;color:#3d372b}
+    .related-card .school{font-size:12px;color:#8c877a;margin-top:2px}
+    .dir-list{list-style:none;padding:0}
+    .dir-list li{margin-bottom:12px;padding:12px 16px;background:#f5f0e6;border-radius:8px;border:1px solid #e0d8c8}
+    .dir-list li a{font-size:16px;font-weight:600;color:#3d372b;text-decoration:none}
+    .dir-list li a:hover{color:#0D5C75}
+    .dir-list li .desc{font-size:13px;color:#8c877a;margin-top:4px}
+    .footer{margin-top:60px;padding-top:20px;border-top:1px solid #d4cfc4;text-align:center;font-size:13px;color:#8c877a}
+    .footer a{color:#5c5340;text-decoration:underline}
+    .cta-box{text-align:center;margin:40px 0;padding:24px;background:linear-gradient(135deg,#1a1814,#2d2820);border-radius:12px}
+    .cta-box a{color:#c4a87c;font-size:16px;text-decoration:none;font-weight:600}
+    .cta-box p{color:#a89b80;font-size:13px;margin-top:6px}
+    @media(max-width:600px){.container{padding:20px 16px 60px}.header h1{font-size:24px}.related-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  ${opts.bodyHtml}
+</body>
+</html>`;
+  }
+
+  // Individual philosopher page — language-aware SSR
+  app.get("/philosopher/:slug", (req, res) => {
+    const p = philosopherMap.get(req.params.slug);
+    if (!p) return res.status(404).send("Philosopher not found");
+
+    const lang = detectLangFromRequest(req);
+    const isEn = lang === 'en';
+    const schoolEng = schoolTranslations[p.school] || p.school;
+    const schoolSlug = slugifySchool(p.school);
+    const engData = getEnrichedEng(p.id);
+
+    // Use English content when available, otherwise Chinese
+    const details = isEn ? (engData?.details || p.details) : p.details;
+    const lifeAndTimes = isEn ? (engData?.lifeAndTimes || p.lifeAndTimes) : p.lifeAndTimes;
+    const worldviewSummary = isEn ? (engData?.worldviewSummary || p.worldviewSummary) : p.worldviewSummary;
+    const quote = isEn ? (engData?.quote || p.quote) : p.quote;
+    const desc = (details || lifeAndTimes || '').slice(0, 150);
+    const conceptsHtml = (p.concepts || []).map(c => `<span class="tag">${esc(c)}</span>`).join('');
+    const relatedSameSchool = schoolMap.get(p.school)!.philosophers.filter(x => x.id !== p.id).slice(0, 6);
+    const relatedSameEpoch = allPhilosophers.filter(x => x.epochId === p.epochId && x.id !== p.id && x.school !== p.school).slice(0, 6);
+
+    // Comparisons — use English data when available
+    const comparisons = p.comparisons || [];
+    const comparisonsHtml = comparisons.map((c, idx) => {
+      const engComp = isEn ? engData?.comparisons?.[idx] : null;
+      const relType = c.relationType;
+      const relLabel = isEn
+        ? (relType === 'opponent' ? 'Debate with' : relType === 'successor' ? 'Succession from' : relType === 'synthesizer' ? 'Synthesis of' : 'Influence of')
+        : (relType === 'opponent' ? '对立' : relType === 'successor' ? '传承' : relType === 'synthesizer' ? '综合' : '影响');
+      const coreDiff = isEn ? (engComp?.coreDifference || c.coreDifference) : c.coreDifference;
+      const reflPrompt = isEn ? (engComp?.reflectionPrompt || c.reflectionPrompt) : c.reflectionPrompt;
+      return `
+      <div class="comparison">
+        <h3>${relLabel} <a href="/philosopher/${c.withId}${isEn ? '?lang=en' : ''}">${esc(isEn ? c.withName : c.withName)}</a></h3>
+        <p>${esc(coreDiff)}</p>
+        <p class="prompt">${esc(reflPrompt)}</p>
+      </div>`;
+    }).join('');
+
+    const relatedHtml = [...relatedSameSchool, ...relatedSameEpoch].slice(0, 8).map(r => `
+      <a class="related-card" href="/philosopher/${r.id}${isEn ? '?lang=en' : ''}">
+        <div class="name">${esc(r.name)} · ${esc(r.nameEng)}</div>
+        <div class="school">${esc(isEn ? (schoolTranslations[r.school] || r.school) : r.school)}</div>
+      </a>`).join('');
+
+    // Section titles based on language
+    const t = (zh: string, en: string) => isEn ? en : zh;
+
+    const jsonLd: object[] = [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": p.nameEng,
+        "alternateName": p.name,
+        "description": desc,
+        "jobTitle": "Philosopher",
+        "knowsAbout": [p.school, schoolEng, ...(p.concepts || [])],
+        "url": `https://www.knowphilosophers.site/philosopher/${p.id}`,
+        "worksFor": { "@type": "EducationalOrganization", "name": p.school },
+        "inLanguage": isEn ? "en" : "zh-CN",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": t("首页", "Home"), "item": "https://www.knowphilosophers.site/" },
+          { "@type": "ListItem", "position": 2, "name": t("哲学家名录", "Philosopher Directory"), "item": "https://www.knowphilosophers.site/philosophers" },
+          { "@type": "ListItem", "position": 3, "name": p.name, "item": `https://www.knowphilosophers.site/philosopher/${p.id}` },
+        ],
+      },
+    ];
+
+    if (p.reflectionQuestion) {
+      jsonLd.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [{
+          "@type": "Question",
+          "name": (isEn ? (engData?.reflectionQuestion || p.reflectionQuestion) : p.reflectionQuestion).slice(0, 80),
+          "acceptedAnswer": { "@type": "Answer", "text": worldviewSummary || details || '' },
+        }],
+      });
+    }
+
+    const html = seoPageHtml({
+      title: isEn
+        ? `${p.nameEng} (${p.name}) — ${schoolEng} Philosopher | Western Philosophy Network`
+        : `${p.name} (${p.nameEng}) — ${p.school}哲学家 | 西方哲学发展脉络`,
+      description: desc,
+      canonical: `https://www.knowphilosophers.site/philosopher/${p.id}`,
+      keywords: `${p.name}, ${p.nameEng}, ${p.school}, ${schoolEng}, ${p.eraDisp}, ${(p.concepts || []).join(', ')}, 哲学家, philosopher, 西方哲学, philosophy, western philosophy`,
+      ogType: 'profile',
+      lang,
+      jsonLd,
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="/${isEn ? '?lang=en' : ''}">${t("首页", "Home")}</a> › <a href="/philosophers${isEn ? '?lang=en' : ''}">${t("哲学家名录", "Philosopher Directory")}</a> › ${esc(isEn ? p.nameEng : p.name)}
+    </nav>
+    <div class="header">
+      <h1>${esc(isEn ? p.nameEng : p.name)} <span class="en-name">${esc(isEn ? p.name : p.nameEng)}</span></h1>
+      <div class="meta">
+        <span>${esc(p.eraDisp)}</span>
+        <span>·</span>
+        <span><a href="/school/${schoolSlug}${isEn ? '?lang=en' : ''}">${esc(isEn ? schoolEng : p.school)} · ${esc(isEn ? p.school : schoolEng)}</a></span>
+        <span>·</span>
+        <span><a href="/epoch/${p.epochId}${isEn ? '?lang=en' : ''}">${esc(p.epochTitle)}</a></span>
+      </div>
+    </div>
+    ${conceptsHtml ? `<div class="tags">${conceptsHtml}</div>` : ''}
+    ${details ? `<div class="section"><h2>${t("哲学概述", "Philosophical Overview")}</h2><p>${esc(details)}</p></div>` : ''}
+    ${lifeAndTimes ? `<div class="section"><h2>${t("生平与时代背景", "Life and Historical Context")}</h2><p>${esc(lifeAndTimes)}</p></div>` : ''}
+    ${worldviewSummary ? `<div class="section"><h2>${t("世界观体系", "Worldview and Philosophy")}</h2><p>${esc(worldviewSummary)}</p></div>` : ''}
+    ${quote ? `<div class="quote-box"><blockquote>"${esc(quote)}"</blockquote></div>` : ''}
+    ${p.reflectionQuestion ? `<div class="reflection-box"><h2>${t("思考题", "Reflection Question")}</h2><p>${esc(isEn ? (engData?.reflectionQuestion || p.reflectionQuestion) : p.reflectionQuestion)}</p></div>` : ''}
+    ${comparisonsHtml ? `<div class="section"><h2>${t("与其他哲学家的思想碰撞", "Intellectual Encounters")}</h2>${comparisonsHtml}</div>` : ''}
+    ${relatedHtml ? `<div class="section"><h2>${t("相关哲学家", "Related Philosophers")}</h2><div class="related-grid">${relatedHtml}</div></div>` : ''}
+    <div class="cta-box">
+      <a href="/${isEn ? '?lang=en' : ''}">${t("探索交互式哲学网络图谱 →", "Explore the Interactive Philosophy Network →")}</a>
+      <p>${t(`与 ${esc(p.name)} 进行 AI 灵魂对话，或参与思想格斗场辩论`, `Engage in AI soul dialogue with ${esc(p.nameEng)}, or join the intellectual debate arena`)}</p>
+    </div>
+    <div class="footer">
+      <a href="/${isEn ? '?lang=en' : ''}">${t("← 返回首页", "← Back to Home")}</a> | <a href="/philosophers${isEn ? '?lang=en' : ''}">${t("所有哲学家", "All Philosophers")}</a> | <a href="/epochs${isEn ? '?lang=en' : ''}">${t("哲学时代", "Epochs")}</a> | <a href="/schools${isEn ? '?lang=en' : ''}">${t("哲学流派", "Schools")}</a> | <a href="/blog${isEn ? '?lang=en' : ''}">${t("博客", "Blog")}</a>
+    </div>
+  </div>`,
+    });
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Philosopher directory
+  app.get("/philosophers", (req, res) => {
+    const lang = detectLangFromRequest(req);
+    const items = allPhilosophers.map(p => `
+      <li>
+        <a href="/philosopher/${p.id}${lang === 'en' ? '?lang=en' : ''}">${esc(p.name)} · ${esc(p.nameEng)}</a>
+        <div class="desc">${esc(p.eraDisp)} | ${esc(p.school)} | ${(p.concepts || []).slice(0, 3).map(c => esc(c)).join('、')}</div>
+      </li>`).join('');
+
+    const html = seoPageHtml({
+      title: '西方哲学家名录 — 70+位哲学家详解 | 西方哲学发展脉络',
+      description: '收录从古希腊到现代的70余位西方哲学家，包含苏格拉底、柏拉图、亚里士多德、康德、尼采、海德格尔等。每位哲学家均有详细生平、世界观体系、传世金句与思想对比。',
+      canonical: 'https://www.knowphilosophers.site/philosophers',
+      keywords: '哲学家, 哲学家名录, 西方哲学家, philosopher list, 苏格拉底, 柏拉图, 亚里士多德, 康德, 尼采, 海德格尔, 笛卡尔, 黑格尔, 马克思',
+      ogType: 'website',
+      lang,
+      jsonLd: [{
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "西方哲学家名录",
+        "numberOfItems": allPhilosophers.length,
+        "url": "https://www.knowphilosophers.site/philosophers",
+      }],
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › 哲学家名录</nav>
+    <div class="header">
+      <h1>西方哲学家名录</h1>
+      <div class="meta"><span>收录 ${allPhilosophers.length} 位哲学家</span></div>
+    </div>
+    <p style="margin-bottom:24px;color:#5c5340">从泰勒斯到罗蒂，跨越两千五百年的西方哲学巨匠全览。点击任意哲学家查看详细生平、世界观体系、传世金句与思想碰撞。</p>
+    <ul class="dir-list">${items}</ul>
+    <div class="cta-box"><a href="/">探索交互式哲学网络图谱 →</a><p>可视化哲学家师承与对立关系</p></div>
+    <div class="footer"><a href="/">← 返回首页</a> | <a href="/epochs">哲学时代</a> | <a href="/schools">哲学流派</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Epoch pages
+  app.get("/epoch/:id", (req, res) => {
+    const epochId = parseInt(req.params.id);
+    const epoch = philosophyData.find(e => e.id === epochId);
+    if (!epoch) return res.status(404).send("Epoch not found");
+
+    const lang = detectLangFromRequest(req);
+    const philosophersHtml = epoch.philosophers.map(p => `
+      <li>
+        <a href="/philosopher/${p.id}${lang === 'en' ? '?lang=en' : ''}">${esc(p.name)} · ${esc(p.nameEng)}</a>
+        <div class="desc">${esc(p.eraDisp)} | ${esc(p.school)} | ${(p.concepts || []).slice(0, 3).map(c => esc(c)).join('、')}</div>
+      </li>`).join('');
+
+    const html = seoPageHtml({
+      title: `${epoch.title} — ${epoch.subtitle} | 哲学时代`,
+      description: epoch.description.slice(0, 150),
+      canonical: `https://www.knowphilosophers.site/epoch/${epoch.id}`,
+      keywords: `${epoch.title}, ${epoch.subtitle}, 哲学时代, philosophy era, ${epoch.philosophers.slice(0, 5).map(p => p.nameEng).join(', ')}`,
+      ogType: 'article',
+      lang,
+      jsonLd: [{
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": epoch.title,
+        "description": epoch.description,
+        "url": `https://www.knowphilosophers.site/epoch/${epoch.id}`,
+        "about": epoch.philosophers.map(p => ({ "@type": "Person", "name": p.nameEng })),
+      }],
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › <a href="/epochs">哲学时代</a> › ${esc(epoch.title)}</nav>
+    <div class="header">
+      <h1>${esc(epoch.title)}</h1>
+      <div class="meta"><span>${esc(epoch.subtitle)}</span></div>
+    </div>
+    <div class="section"><p>${esc(epoch.description)}</p></div>
+    <div class="section">
+      <h2>本期哲学家 (${epoch.philosophers.length} 位)</h2>
+      <ul class="dir-list">${philosophersHtml}</ul>
+    </div>
+    <div class="cta-box"><a href="/">探索交互式哲学网络图谱 →</a><p>可视化${esc(epoch.title)}的师承与对立关系</p></div>
+    <div class="footer"><a href="/">← 返回首页</a> | <a href="/philosophers">所有哲学家</a> | <a href="/epochs">哲学时代</a> | <a href="/schools">哲学流派</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Epoch directory
+  app.get("/epochs", (req, res) => {
+    const lang = detectLangFromRequest(req);
+    const items = philosophyData.map(e => `
+      <li>
+        <a href="/epoch/${e.id}${lang === 'en' ? '?lang=en' : ''}">${esc(e.title)}</a>
+        <div class="desc">${esc(e.subtitle)} | ${e.philosophers.length} 位哲学家</div>
+      </li>`).join('');
+
+    const html = seoPageHtml({
+      title: '哲学时代分类 — 7大哲学纪元 | 西方哲学发展脉络',
+      description: '西方哲学的七大纪元：古希腊罗马哲学、中世纪经院哲学、文艺复兴与近代早期、法兰西启蒙、德意志古典哲学、19世纪中后期、现代派与分析哲学。',
+      canonical: 'https://www.knowphilosophers.site/epochs',
+      keywords: '哲学时代, 哲学纪元, 古希腊哲学, 中世纪哲学, 文艺复兴哲学, 启蒙哲学, 德国古典哲学, 现代哲学, philosophy eras',
+      ogType: 'website',
+      lang,
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › 哲学时代</nav>
+    <div class="header"><h1>哲学时代分类</h1></div>
+    <p style="margin-bottom:24px;color:#5c5340">西方哲学两千五百年的七大纪元，从古希腊的宇宙追问到当代的分析与解构。</p>
+    <ul class="dir-list">${items}</ul>
+    <div class="footer"><a href="/">← 返回首页</a> | <a href="/philosophers">所有哲学家</a> | <a href="/schools">哲学流派</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // School pages
+  app.get("/school/:slug", (req, res) => {
+    const school = allSchools.find(s => s.slug === req.params.slug);
+    if (!school) return res.status(404).send("School not found");
+
+    const lang = detectLangFromRequest(req);
+    const philosophersHtml = school.philosophers.map(p => `
+      <li>
+        <a href="/philosopher/${p.id}${lang === 'en' ? '?lang=en' : ''}">${esc(p.name)} · ${esc(p.nameEng)}</a>
+        <div class="desc">${esc(p.eraDisp)} | ${(p.concepts || []).slice(0, 3).map(c => esc(c)).join('、')}</div>
+      </li>`).join('');
+
+    const html = seoPageHtml({
+      title: `${school.name} (${school.nameEng}) — 哲学流派 | 西方哲学发展脉络`,
+      description: `${school.name}（${school.nameEng}）流派的${school.philosophers.length}位哲学家详解。包含该流派的核心思想、代表人物及其世界观体系。`,
+      canonical: `https://www.knowphilosophers.site/school/${school.slug}`,
+      keywords: `${school.name}, ${school.nameEng}, 哲学流派, philosophy school, ${school.philosophers.map(p => p.nameEng).join(', ')}`,
+      ogType: 'article',
+      lang,
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › <a href="/schools">哲学流派</a> › ${esc(school.name)}</nav>
+    <div class="header">
+      <h1>${esc(school.name)}</h1>
+      <div class="meta"><span>${esc(school.nameEng)}</span><span>·</span><span>${school.philosophers.length} 位哲学家</span></div>
+    </div>
+    <div class="section">
+      <h2>流派哲学家</h2>
+      <ul class="dir-list">${philosophersHtml}</ul>
+    </div>
+    <div class="cta-box"><a href="/">探索交互式哲学网络图谱 →</a></div>
+    <div class="footer"><a href="/">← 返回首页</a> | <a href="/philosophers">所有哲学家</a> | <a href="/epochs">哲学时代</a> | <a href="/schools">哲学流派</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // School directory
+  app.get("/schools", (req, res) => {
+    const lang = detectLangFromRequest(req);
+    const items = allSchools.map(s => `
+      <li>
+        <a href="/school/${s.slug}${lang === 'en' ? '?lang=en' : ''}">${esc(s.name)} · ${esc(s.nameEng)}</a>
+        <div class="desc">${s.philosophers.length} 位哲学家 | ${s.philosophers.slice(0, 3).map(p => esc(p.nameEng)).join(', ')}${s.philosophers.length > 3 ? '...' : ''}</div>
+      </li>`).join('');
+
+    const html = seoPageHtml({
+      title: '哲学流派分类 — 所有学派 | 西方哲学发展脉络',
+      description: '西方哲学的所有流派：米利都学派、毕达哥拉斯学派、理性主义、经验主义、存在主义、实用主义等。每个流派包含代表哲学家详解。',
+      canonical: 'https://www.knowphilosophers.site/schools',
+      keywords: '哲学流派, 哲学学派, philosophy schools, 理性主义, 经验主义, 存在主义, 实用主义, 唯物主义, 唯心主义',
+      ogType: 'website',
+      lang,
+      bodyHtml: `
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › 哲学流派</nav>
+    <div class="header"><h1>哲学流派分类</h1></div>
+    <p style="margin-bottom:24px;color:#5c5340">西方哲学的${allSchools.length}个流派，从古希腊的自然哲学到现代的分析哲学与后结构主义。</p>
+    <ul class="dir-list">${items}</ul>
+    <div class="footer"><a href="/">← 返回首页</a> | <a href="/philosophers">所有哲学家</a> | <a href="/epochs">哲学时代</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // Dynamic sitemap — includes hreflang annotations for multilingual SEO
+  app.get("/sitemap.xml", (req, res) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const base = 'https://www.knowphilosophers.site';
+
+    // Helper: generate a URL entry with hreflang alternate links
+    function urlEntry(path: string, lastmod: string, changefreq: string, priority: string): string {
+      const loc = `${base}/${path}`;
+      const zhHref = `${base}/${path}${path.includes('?') ? '&' : '?'}lang=zh`;
+      const enHref = `${base}/${path}${path.includes('?') ? '&' : '?'}lang=en`;
+      return `  <url>
+    <loc>${loc}</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="${zhHref}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${enHref}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}"/>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+    }
+
+    const urls: string[] = [
+      urlEntry('', today, 'weekly', '1.0'),
+      urlEntry('philosophers', today, 'weekly', '0.9'),
+      urlEntry('epochs', today, 'monthly', '0.8'),
+      urlEntry('schools', today, 'monthly', '0.8'),
+      urlEntry('blog', today, 'monthly', '0.7'),
+    ];
+    philosophyData.forEach(e => {
+      urls.push(urlEntry(`epoch/${e.id}`, today, 'monthly', '0.8'));
+    });
+    allSchools.forEach(s => {
+      urls.push(urlEntry(`school/${s.slug}`, today, 'monthly', '0.6'));
+    });
+    allPhilosophers.forEach(p => {
+      const priority = p.isMajor ? '0.9' : '0.7';
+      urls.push(urlEntry(`philosopher/${p.id}`, today, 'monthly', priority));
+    });
+    const posts = loadPostIndex();
+    posts.forEach(p => {
+      urls.push(urlEntry(`blog/${p.slug}`, today, 'monthly', '0.7'));
+    });
+
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>`);
   });
 
   // Vite middleware setup for Development vs Production

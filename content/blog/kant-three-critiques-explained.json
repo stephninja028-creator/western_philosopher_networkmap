@@ -1,0 +1,45 @@
+{
+  "title": "康德三大批判详解：纯粹理性批判、实践理性批判与判断力批判",
+  "titleEn": "Kant's Three Critiques Explained: Pure Reason, Practical Reason, and Judgment",
+  "date": "2026-07-22",
+  "slug": "kant-three-critiques-explained",
+  "author": "knowphilosophers.site",
+  "sections": [
+    {
+      "type": "intro",
+      "heading": "康德：西方哲学史的中流砥柱",
+      "body": "伊曼努尔·康德（Immanuel Kant，1724~1804）是西方哲学史上公认的中流砥柱。他一生几乎未曾离开哥尼斯堡，却以「三大批判」完成了经验论与唯理论的终极大调和，发动了认识论的「哥白尼式革命」。\n\n康德哲学的核心问题是：人的认识能力有多大边界？道德的基础是什么？审美判断如何可能？这三大问题分别对应三部不朽著作。",
+      "bodyEn": "Immanuel Kant (1724-1804) is a central pillar of Western philosophy. His Three Critiques resolved the dispute between rationalism and empiricism, and initiated a Copernican revolution in epistemology."
+    },
+    {
+      "type": "body",
+      "heading": "一、《纯粹理性批判》：认识论的哥白尼革命",
+      "body": "在康德之前，唯理论（笛卡尔、莱布尼茨）认为理性是知识的源泉，经验论（洛克、休谟）认为感官经验是知识的来源。休谟的因果怀疑论将经验论推向极端——因果关系只是心理习惯的联想，并非客观铁律。康德说，是休谟将他从「独断的迷梦」中惊醒。\n\n康德的革命性洞见：不是我们的认识符合对象（传统观点），而是对象符合我们的认识形式。人的心灵具有先天的认识结构：\n\n• 感性直观形式：空间与时间（我们透过时空滤镜感知世界）\n• 知性范畴：量、质、关系、模态等12个先天范畴（如因果性就是知性范畴之一）\n\n因此，因果性不是外在事物的客观属性，而是人的知性赋予经验的法则。但这也意味着：我们只能认识「现象界」（事物呈现给我们的样子），永远无法认识「物自身」（事物本来的样子，即本体界）。\n\n康德由此为理性划定了边界，既回应了休谟的怀疑论，又为科学知识的普遍必然性奠定了基础。",
+      "bodyEn": "Kant's Copernican revolution: objects conform to our cognition, not vice versa. We can only know phenomena (things as they appear), never noumena (things-in-themselves)."
+    },
+    {
+      "type": "body",
+      "heading": "二、《实践理性批判》：绝对命令与道德自由",
+      "body": "如果理论理性无法认识物自身，那么道德的基础在哪里？康德的回答是：在实践理性中。\n\n康德提出道德的最高原则——绝对命令（Categorical Imperative）：\n\n• 普遍法则公式：「只按照你能同时意愿它成为普遍法则的准则行动」\n  ——你的行为准则必须能被所有人普遍采用而不自相矛盾\n\n• 人为目的公式：「永远把人当作目的，而不仅仅当作手段」\n  ——每个人都是有尊严的理性存在者，不可被仅仅利用\n\n绝对命令不同于假言命令（如果...就...）。假言命令以欲望为目的（「如果你想吃蛋糕，就去买面粉」），而绝对命令是无条件的、普遍的、先天的。\n\n康德由此推出三大道德公设：\n1. 意志自由（人必须能自由选择，否则道德无意义）\n2. 灵魂不灭（只有在无限时间中才能完全实现道德完善）\n3. 上帝存在（保证德福一致——有德者最终应当获得幸福）\n\n康德的名言：「头顶的星空与心中的道德法则」——前者揭示宇宙的浩瀚，后者确立人的尊严。",
+      "bodyEn": "Kant's categorical imperative: act only according to maxims you can will to be universal law. Always treat humanity as an end, never merely as a means."
+    },
+    {
+      "type": "body",
+      "heading": "三、《判断力批判》：审美与目的论",
+      "body": "《判断力批判》桥接了理论理性（自然界的必然）与实践理性（自由界的应然）。康德探讨了两类判断：\n\n• 审美判断：当我们说「这朵花很美」时，这不是客观事实陈述，也不是主观偏好表达。审美判断具有「主观普遍性」——它源于个人感受，却要求他人的普遍赞同。美的特征是「无目的的合目的性」——我们对对象的愉悦不来自功利目的，却感受到一种形式上的和谐。\n\n• 目的论判断：自然界中有机体呈现出目的性特征（如一棵树各部分相互依存以维持整体生命）。康德认为这不是说自然真有目的，而是我们的知性需要用目的论概念来理解有机体。\n\n这部批判深刻影响了席勒的美学、黑格尔的辩证法以及浪漫主义运动。",
+      "bodyEn": "The Critique of Judgment bridges nature's necessity and freedom's ought. Aesthetic judgments possess 'subjective universality' — originating in feeling yet demanding universal assent."
+    },
+    {
+      "type": "body",
+      "heading": "四、康德哲学的影响与遗产",
+      "body": "康德哲学是西方哲学的分水岭。他之后的几乎所有哲学家都必须回应他的体系：\n\n• 费希特：将康德的物自身取消，推向主观唯心论\n• 谢林：发展自然哲学与同一哲学\n• 黑格尔：将康德的辩证推向绝对唯心主义的巅峰\n• 叔本华：将物自身重新解释为盲目意志\n• 新康德主义：19世纪末复兴康德认识论\n• 罗尔斯：在政治哲学中复兴康德式建构主义\n\n康德对现代哲学的影响至今不衰。他的认识论框架启发了分析哲学对语言和意义边界的探讨，他的伦理学影响了从哈贝马斯到罗尔斯的正义理论。",
+      "bodyEn": "Kant's philosophy is a watershed. Nearly every philosopher after him had to respond to his system — Fichte, Schelling, Hegel, Schopenhauer, and modern thinkers from Rawls to Habermas."
+    },
+    {
+      "type": "callout",
+      "heading": "与康德对话",
+      "body": "想直接向康德请教认识论或道德哲学的问题？访问 knowphilosophers.site，在哲学网络图谱中点击康德，开启AI灵魂对话。你可以问他的绝对命令如何应用于现代道德困境，或他的哥白尼革命如何改变了哲学。\n\n你还可以在思想格斗场中让康德与休谟、尼采或萨特辩论，看不同哲学立场的正面碰撞。\n\n延伸阅读：西方哲学史完整脉络 | 尼采超人哲学详解 | 存在主义详解",
+      "bodyEn": "Engage in AI-powered dialogue with Kant at knowphilosophers.site. Ask him about the categorical imperative, the Copernican revolution, or any philosophical question."
+    }
+  ]
+}
