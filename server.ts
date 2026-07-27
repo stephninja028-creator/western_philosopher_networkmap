@@ -826,11 +826,15 @@ ${sagesIntro}
     ogImage?: string;
     lang?: string;
     langCode?: Language;
+    jsonLd?: object[];
   }, bodyHtml: string): string {
     const langCode: Language = meta.langCode || 'zh';
     const lang = meta.lang || (langCode === 'en' ? 'en' : 'zh-CN');
     const siteName = T(SITE.name, langCode);
     const desc = meta.description.length > 160 ? meta.description.slice(0, 157) + "..." : meta.description;
+    const jsonLdScripts = (meta.jsonLd || []).map(j =>
+      `<script type="application/ld+json">${JSON.stringify(j)}</script>`
+    ).join('\n  ');
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -840,6 +844,7 @@ ${sagesIntro}
   <meta name="description" content="${desc}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${meta.canonical}" />
+  <link rel="alternate" type="application/atom+xml" title="${siteName} Blog Feed" href="https://www.knowphilosophers.site/feed.xml" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="${meta.title}" />
   <meta property="og:description" content="${desc}" />
@@ -848,6 +853,7 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${meta.title}" />
   <meta name="twitter:description" content="${desc}" />
+  ${jsonLdScripts}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f2; color: #2c2b27; line-height: 1.8; }
@@ -912,6 +918,33 @@ ${sagesIntro}
       description: T(BLOG.description, langCode),
       canonical: "https://www.knowphilosophers.site/blog",
       langCode,
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": T(BLOG.pageTitle, langCode),
+          "description": T(BLOG.description, langCode),
+          "url": "https://www.knowphilosophers.site/blog",
+          "inLanguage": isEn ? "en" : "zh-CN",
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": posts.map((p: any, idx: number) => ({
+              "@type": "ListItem",
+              "position": idx + 1,
+              "url": `https://www.knowphilosophers.site/blog/${p.slug}`,
+              "name": p.title,
+            })),
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": isEn ? "Home" : "首页", "item": "https://www.knowphilosophers.site/" },
+            { "@type": "ListItem", "position": 2, "name": isEn ? "Blog" : "博客", "item": "https://www.knowphilosophers.site/blog" },
+          ],
+        },
+      ],
     }, `
     <div class="container">
       <div class="header">
@@ -968,6 +1001,30 @@ ${sagesIntro}
       description: postDesc,
       canonical: `https://www.knowphilosophers.site/blog/${slug}`,
       langCode,
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": post.title,
+          "description": postDesc,
+          "datePublished": post.date,
+          "dateModified": post.date,
+          "author": { "@type": "Person", "name": post.author || "knowphilosophers.site" },
+          "publisher": { "@type": "Organization", "name": "knowphilosophers.site", "url": "https://www.knowphilosophers.site" },
+          "url": `https://www.knowphilosophers.site/blog/${slug}`,
+          "inLanguage": isEn ? "en" : "zh-CN",
+          "wordCount": (post.sections || []).reduce((acc: number, s: any) => acc + (s.body || '').split(/\s+/).length, 0),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": isEn ? "Home" : "首页", "item": "https://www.knowphilosophers.site/" },
+            { "@type": "ListItem", "position": 2, "name": isEn ? "Blog" : "博客", "item": "https://www.knowphilosophers.site/blog" },
+            { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://www.knowphilosophers.site/blog/${slug}` },
+          ],
+        },
+      ],
     }, `
     <div class="container">
       <div class="header">
@@ -1525,6 +1582,48 @@ ${sagesIntro}
 
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>`);
+  });
+
+  // RSS/Atom Feed — auto-discovery for RSS readers and aggregators
+  app.get("/feed.xml", (req, res) => {
+    const base = 'https://www.knowphilosophers.site';
+    const today = new Date().toISOString();
+    const posts = loadPostIndex();
+
+    const entries = posts.map((p: any) => {
+      const post = loadPostFromDisk(p.slug);
+      const introBody = post
+        ? (post.sections || []).find((s: any) => s.type === 'intro')?.body || ''
+        : '';
+      const summary = introBody.slice(0, 500).replace(/<[^>]*>/g, '');
+      return `<entry>
+    <title>${esc(p.title)}</title>
+    <link href="${base}/blog/${p.slug}" />
+    <id>${base}/blog/${p.slug}</id>
+    <published>${p.date}T00:00:00Z</published>
+    <updated>${p.date}T00:00:00Z</updated>
+    <author><name>knowphilosophers.site</name></author>
+    <summary type="text">${esc(summary)}</summary>
+    <category term="${p.category || 'philosophy'}" />
+  </entry>`;
+    }).join('\n');
+
+    const atom = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <id>${base}/feed.xml</id>
+  <title>knowphilosophers.site — East-West Philosophy Blog</title>
+  <subtitle>Exploring Eastern and Western philosophy through articles, comparisons, and concept guides</subtitle>
+  <link href="${base}/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="${base}/blog" rel="alternate" type="text/html" />
+  <link href="${base}" rel="alternate" type="text/html" />
+  <updated>${today}</updated>
+  <generator>knowphilosophers.site</generator>
+  <rights>Copyright ${new Date().getFullYear()} knowphilosophers.site</rights>
+${entries}
+</feed>`;
+
+    res.setHeader("Content-Type", "application/atom+xml; charset=utf-8");
+    res.send(atom);
   });
 
   // Vite middleware setup for Development vs Production
