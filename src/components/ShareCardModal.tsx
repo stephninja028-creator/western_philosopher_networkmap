@@ -2,6 +2,7 @@ import { useRef, useCallback, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { Download, Copy, Check, X } from 'lucide-react';
 import type { Philosopher } from '../types';
+import { getPhilosopherPortrait } from '../data/portraitMap';
 
 interface ShareCardModalProps {
   philosopher: Philosopher;
@@ -18,6 +19,7 @@ export function ShareCardModal({ philosopher, displayQuote, onClose }: ShareCard
   const subName = philosopher.nameEng && philosopher.name !== philosopher.nameEng ? philosopher.name : '';
   const eraSchool = `${philosopher.eraDisp} · ${philosopher.school}`;
   const quote = displayQuote || philosopher.quote || '';
+  const portrait = getPhilosopherPortrait(philosopher.id);
 
   const handleDownload = useCallback(async () => {
     if (!cardRef.current) return;
@@ -88,6 +90,19 @@ export function ShareCardModal({ philosopher, displayQuote, onClose }: ShareCard
             <div className="flex flex-col items-center z-10 w-full px-4">
               {/* Divider */}
               <div className="w-12 h-[2px] rounded-full mb-5 opacity-60" style={{ background: '#c4a87c' }} />
+
+              {/* Portrait */}
+              {portrait && (
+                <div className="mb-4">
+                  <img
+                    src={portrait.thumb}
+                    alt={name}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2"
+                    style={{ borderColor: '#c4a87c' }}
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
 
               {/* Name */}
               <div className="text-3xl sm:text-4xl font-bold mb-1.5 leading-tight" style={{ color: '#c4a87c' }}>

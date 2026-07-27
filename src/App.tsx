@@ -14,6 +14,7 @@ import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
 import { MultilateralSymposium } from './components/MultilateralSymposium';
 import { ShareCardModal } from './components/ShareCardModal';
+import { getPhilosopherPortrait } from './data/portraitMap';
 
 // Background MP3 Music Tracker for Ambient Study
 let bgAudio: HTMLAudioElement | null = null;
@@ -905,6 +906,22 @@ export default function App() {
                       {isEn ? 'Classical Sage' : detailedPhilosopher.nameEng}
                     </p>
                   </div>
+
+                  {/* Portrait Image */}
+                  {(() => {
+                    const portrait = getPhilosopherPortrait(detailedPhilosopher.id);
+                    if (!portrait) return null;
+                    return (
+                      <div className="flex justify-center mt-1 mb-1">
+                        <img
+                          src={portrait.large}
+                          alt={isEn ? detailedPhilosopher.nameEng : detailedPhilosopher.name}
+                          className="w-40 h-40 object-cover rounded-xl border-2 border-[#D4AF37]/40 shadow-md"
+                          loading="lazy"
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Bottom blockquote container */}
