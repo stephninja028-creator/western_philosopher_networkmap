@@ -4,8 +4,16 @@
  */
 import fs from "fs";
 import path from "path";
-import satori from "satori";
 import sharp from "sharp";
+
+// ---- Dynamic ESM import for satori (ESM-only, can't be require()'d in CJS) ----
+let _satori: any = null;
+async function getSatori() {
+  if (!_satori) {
+    _satori = (await import("satori")).default;
+  }
+  return _satori;
+}
 
 // ---- Font loading ----
 // In dev (tsx): use import.meta.url. In prod (esbuild CJS bundle): use process.cwd().
@@ -171,7 +179,7 @@ export async function generatePhilosopherOG(input: OGPhilosopherInput): Promise<
     }
   }, ...children);
 
-  const svg = await satori(tree as any, {
+  const svg = await (await getSatori())(tree as any, {
     width: CARD_W, height: CARD_H,
     fonts: [
       { name: "Noto Serif", data: getFontRegular(), weight: 400, style: "normal" },
@@ -270,7 +278,7 @@ export async function generateBlogOG(input: OGBlogInput): Promise<Buffer> {
     }
   }, ...children);
 
-  const svg = await satori(tree as any, {
+  const svg2 = await (await getSatori())(tree as any, {
     width: CARD_W, height: CARD_H,
     fonts: [
       { name: "Noto Serif", data: getFontRegular(), weight: 400, style: "normal" },
@@ -278,5 +286,5 @@ export async function generateBlogOG(input: OGBlogInput): Promise<Buffer> {
     ],
   });
 
-  return sharp(Buffer.from(svg)).png().toBuffer();
+  return sharp(Buffer.from(svg2)).png().toBuffer();
 }
