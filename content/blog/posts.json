@@ -82,5 +82,61 @@
     "date": "2026-07-27",
     "category": "philosopher-analysis",
     "lang": "en"
+  },
+  {
+    "slug": "tao-vs-logos-east-west-comparison",
+    "title": "Tao vs Logos: The Fundamental Difference Between Eastern and Western Philosophy",
+    "date": "2026-07-27",
+    "category": "east-west-comparison",
+    "lang": "en"
+  },
+  {
+    "slug": "ren-vs-virtue-ethics-confucius-aristotle",
+    "title": "Ren vs Virtue Ethics: Confucius and Aristotle Across Civilizations",
+    "date": "2026-07-27",
+    "category": "east-west-comparison",
+    "lang": "en"
+  },
+  {
+    "slug": "wu-wei-vs-stoic-dichotomy-of-control",
+    "title": "Wu Wei and Stoic Dichotomy of Control: A Surprising Resonance Across Civilizations",
+    "date": "2026-07-27",
+    "category": "east-west-comparison",
+    "lang": "en"
+  },
+  {
+    "slug": "zen-and-phenomenology-comparison",
+    "title": "Zen and Phenomenology: Direct Experience in Eastern and Western Philosophy",
+    "date": "2026-07-27",
+    "category": "east-west-comparison",
+    "lang": "en"
+  },
+  {
+    "slug": "what-is-stoicism-introduction",
+    "title": "What Is Stoicism: A Complete Introduction to the Ancient Philosophy of Resilience",
+    "date": "2026-07-27",
+    "category": "philosophy-school",
+    "lang": "en"
+  },
+  {
+    "slug": "what-is-existentialism-introduction",
+    "title": "What Is Existentialism: A Complete Introduction to Sartre, Camus, and the Meaning of Life",
+    "date": "2026-07-27",
+    "category": "philosophy-school",
+    "lang": "en"
+  },
+  {
+    "slug": "what-is-confucianism-introduction",
+    "title": "What Is Confucianism: A Complete Introduction to China's Most Influential Philosophy",
+    "date": "2026-07-27",
+    "category": "philosophy-school",
+    "lang": "en"
+  },
+  {
+    "slug": "what-is-daoism-introduction",
+    "title": "What Is Daoism (Taoism): A Complete Introduction to the Way and Its Power",
+    "date": "2026-07-27",
+    "category": "philosophy-school",
+    "lang": "en"
   }
 ]
