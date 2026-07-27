@@ -854,10 +854,10 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${meta.title}" />
   <meta name="twitter:description" content="${desc}" />
-  ${meta.ogImage ? `<meta property="og:image" content="${meta.ogImage}" />
+  ${meta.ogImage ? `<meta property="og:image" content="${meta.ogImage}" />` : `<meta property="og:image" content="https://www.knowphilosophers.site/og-image.png" />`}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta name="twitter:image" content="${meta.ogImage}" />` : ''}
+  <meta name="twitter:image" content="${meta.ogImage || 'https://www.knowphilosophers.site/og-image.png'}" />
   ${jsonLdScripts}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1005,7 +1005,6 @@ ${sagesIntro}
       title: post.title,
       description: postDesc,
       canonical: `https://www.knowphilosophers.site/blog/${slug}`,
-      ogImage: `https://www.knowphilosophers.site/og/blog/${slug}`,
       langCode,
       jsonLd: [
         {
@@ -1151,10 +1150,10 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(opts.title)}" />
   <meta name="twitter:description" content="${esc(desc)}" />
-  ${opts.ogImage ? `<meta property="og:image" content="${opts.ogImage}" />
+  ${opts.ogImage ? `<meta property="og:image" content="${opts.ogImage}" />` : `<meta property="og:image" content="https://www.knowphilosophers.site/og-image.png" />`}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta name="twitter:image" content="${opts.ogImage}" />` : ''}
+  <meta name="twitter:image" content="${opts.ogImage || 'https://www.knowphilosophers.site/og-image.png'}" />
   ${jsonLdScripts}
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -1300,7 +1299,6 @@ ${sagesIntro}
       canonical: `https://www.knowphilosophers.site/philosopher/${p.id}`,
       keywords: `${p.name}, ${p.nameEng}, ${p.school}, ${schoolEng}, ${p.eraDisp}, ${(p.concepts || []).join(', ')}, 哲学家, philosopher, 东方哲学, eastern philosophy, 西方哲学, western philosophy`,
       ogType: 'profile',
-      ogImage: `https://www.knowphilosophers.site/og/philosopher/${p.id}`,
       lang,
       jsonLd,
       bodyHtml: `
