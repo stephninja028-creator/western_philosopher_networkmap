@@ -38,12 +38,16 @@ def center_crop_square(img: Image.Image) -> Image.Image:
 
 def process_one(raw_path: str, name_eng: str) -> dict:
     """Process one portrait: resize to thumb + large WebP. Returns output paths."""
+    # Normalize raw_path: some entries have full path, some are relative to OUTPUT_DIR
     raw_full = PROJECT_DIR / "public" / "images" / raw_path
+    if not raw_full.exists():
+        # Try relative to OUTPUT_DIR (public/images/philosophers/)
+        raw_full = OUTPUT_DIR / raw_path
     if not raw_full.exists():
         print(f"  [ERROR] Raw file not found: {raw_full}")
         return {}
 
-    slug = name_eng.lower().replace(" ", "_")
+    slug = name_eng.lower().replace(" ", "_").replace(".", "").replace(",", "")
     try:
         img = Image.open(raw_full).convert("RGB")
     except Exception as e:
