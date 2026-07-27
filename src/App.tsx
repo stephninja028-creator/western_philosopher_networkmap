@@ -6,13 +6,14 @@ import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2 } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { getEnrichedEng, hasCompleteEnrichedEng } from './data/enrichedDetailsEng';
 import { detectLang, SUPPORTED_LANGS, STORAGE_KEY, type Language } from './i18n/config';
 import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
 import { MultilateralSymposium } from './components/MultilateralSymposium';
+import { ShareCardModal } from './components/ShareCardModal';
 
 // Background MP3 Music Tracker for Ambient Study
 let bgAudio: HTMLAudioElement | null = null;
@@ -545,6 +546,7 @@ export default function App() {
   // Immersive biographical detailed page state
   const [detailedPhilosopher, setDetailedPhilosopher] = useState<Philosopher | null>(null);
   const [copiedQuote, setCopiedQuote] = useState<boolean>(false);
+  const [showShareCard, setShowShareCard] = useState<boolean>(false);
 
   useEffect(() => {
     setCopiedQuote(false);
@@ -1048,18 +1050,27 @@ export default function App() {
                       * {isEn ? 'FOUNDATIONAL MANUSCRIPT STANDPOINT' : '哲学核心原点箴言 / STANDPOINT'}
                     </span>
                     
-                    {/* Copy button! */}
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(isEn ? `${detailedPhilosopher.nameEng} quote: "${displayQuote}"` : `${detailedPhilosopher.name}名言：“${displayQuote}”`);
-                        setCopiedQuote(true);
-                        setTimeout(() => setCopiedQuote(false), 2000);
-                      }}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FAF8F5]/10 hover:bg-[#FAF8F5]/20 text-white rounded border border-white/20 hover:border-[#D4AF37] text-xs font-serif font-bold transition-all cursor-pointer"
-                    >
-                      {copiedQuote ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5 text-[#D4AF37]" />}
-                      <span>{copiedQuote ? (isEn ? 'Copied Scroll' : '已复制名言卷') : (isEn ? 'Copy Scroll' : '复制名言卷')}</span>
-                    </button>
+                    {/* Copy + Share buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(isEn ? `${detailedPhilosopher.nameEng} quote: "${displayQuote}"` : `${detailedPhilosopher.name}名言："${displayQuote}"`);
+                          setCopiedQuote(true);
+                          setTimeout(() => setCopiedQuote(false), 2000);
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FAF8F5]/10 hover:bg-[#FAF8F5]/20 text-white rounded border border-white/20 hover:border-[#D4AF37] text-xs font-serif font-bold transition-all cursor-pointer"
+                      >
+                        {copiedQuote ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5 text-[#D4AF37]" />}
+                        <span>{copiedQuote ? (isEn ? 'Copied Scroll' : '已复制名言卷') : (isEn ? 'Copy Scroll' : '复制名言卷')}</span>
+                      </button>
+                      <button
+                        onClick={() => setShowShareCard(true)}
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] rounded border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 text-xs font-serif font-bold transition-all cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>{isEn ? 'Share Card' : '分享卡片'}</span>
+                      </button>
+                    </div>
                   </div>
                 </section>
               )}
@@ -1272,6 +1283,15 @@ export default function App() {
           language={language}
           onSuccess={handlePaymentSuccess}
         />
+
+        {/* SHARE CARD MODAL */}
+        {showShareCard && detailedPhilosopher && (
+          <ShareCardModal
+            philosopher={detailedPhilosopher}
+            displayQuote={displayQuote}
+            onClose={() => setShowShareCard(false)}
+          />
+        )}
       </div>
     );
   }

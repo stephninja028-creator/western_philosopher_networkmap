@@ -13,6 +13,7 @@ import { detectLangFromRequest, buildHreflangTags, buildOgLocaleTags, htmlLangAt
 import { getEnrichedEng } from "./src/data/enrichedDetailsEng";
 import { epochTranslations } from "./src/data/translationsEng";
 import { T, SITE, COMMON, BLOG, PHIL_DIR, EPOCH as EPOCH_T, SCHOOL as SCHOOL_T, SECTIONS, API, AI_PROMPTS } from "./src/i18n/uiStrings";
+import { generatePhilosopherOG, generateBlogOG } from "./server/og-image";
 
 dotenv.config();
 
@@ -853,6 +854,10 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${meta.title}" />
   <meta name="twitter:description" content="${desc}" />
+  ${meta.ogImage ? `<meta property="og:image" content="${meta.ogImage}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:image" content="${meta.ogImage}" />` : ''}
   ${jsonLdScripts}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1000,6 +1005,7 @@ ${sagesIntro}
       title: post.title,
       description: postDesc,
       canonical: `https://www.knowphilosophers.site/blog/${slug}`,
+      ogImage: `https://www.knowphilosophers.site/og/blog/${slug}`,
       langCode,
       jsonLd: [
         {
@@ -1111,7 +1117,7 @@ ${sagesIntro}
 
   function seoPageHtml(opts: {
     title: string; description: string; canonical: string;
-    keywords?: string; ogType?: string; bodyHtml: string;
+    keywords?: string; ogType?: string; ogImage?: string; bodyHtml: string;
     jsonLd?: object[];
     lang?: Language;
   }): string {
@@ -1145,6 +1151,10 @@ ${sagesIntro}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(opts.title)}" />
   <meta name="twitter:description" content="${esc(desc)}" />
+  ${opts.ogImage ? `<meta property="og:image" content="${opts.ogImage}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:image" content="${opts.ogImage}" />` : ''}
   ${jsonLdScripts}
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -1290,6 +1300,7 @@ ${sagesIntro}
       canonical: `https://www.knowphilosophers.site/philosopher/${p.id}`,
       keywords: `${p.name}, ${p.nameEng}, ${p.school}, ${schoolEng}, ${p.eraDisp}, ${(p.concepts || []).join(', ')}, 哲学家, philosopher, 东方哲学, eastern philosophy, 西方哲学, western philosophy`,
       ogType: 'profile',
+      ogImage: `https://www.knowphilosophers.site/og/philosopher/${p.id}`,
       lang,
       jsonLd,
       bodyHtml: `
@@ -1624,6 +1635,62 @@ ${entries}
 
     res.setHeader("Content-Type", "application/atom+xml; charset=utf-8");
     res.send(atom);
+  });
+
+  // OG Image generation — dynamic Open Graph preview cards for social media
+  app.get("/og/philosopher/:slug", async (req, res) => {
+    try {
+      const p = philosopherMap.get(req.params.slug);
+      if (!p) return res.status(404).send("Not found");
+
+      const schoolEng = schoolTranslations[p.school] || p.school;
+      const quote = p.quote || "";
+
+      const png = await generatePhilosopherOG({
+        name: p.nameEng || p.name,
+        nameSub: p.nameEng !== p.name ? p.name : undefined,
+        eraSchool: `${p.eraDisp} · ${schoolEng}`,
+        quote: quote || undefined,
+      });
+
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+      res.send(png);
+    } catch (err) {
+      console.error("OG philosopher error:", err);
+      res.status(500).send("OG generation failed");
+    }
+  });
+
+  app.get("/og/blog/:slug", async (req, res) => {
+    try {
+      const post = loadPostFromDisk(req.params.slug);
+      if (!post) return res.status(404).send("Not found");
+
+      const posts = loadPostIndex();
+      const meta = posts.find((m: any) => m.slug === req.params.slug);
+      const date = meta?.date || "";
+      const category = meta?.category === "east-west-comparison"
+        ? "East-West Comparison"
+        : meta?.category === "philosopher-analysis"
+          ? "Philosopher Analysis"
+          : meta?.category === "concept-intro"
+            ? "Concept Introduction"
+            : meta?.category || "Philosophy";
+
+      const png = await generateBlogOG({
+        title: post.title || "",
+        category,
+        date: date || undefined,
+      });
+
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+      res.send(png);
+    } catch (err) {
+      console.error("OG blog error:", err);
+      res.status(500).send("OG generation failed");
+    }
   });
 
   // Vite middleware setup for Development vs Production
