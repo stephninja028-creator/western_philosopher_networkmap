@@ -45,21 +45,6 @@
     "large_size_kb": 15
   },
   {
-    "name_eng": "Friedrich Nietzsche",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/L%C3%A9on_Spilliaert_-_Ecce_Homo_%28Portrait_of_Friedrich_Nietzsche%29.jpg",
-    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/L%C3%A9on_Spilliaert_-_Ecce_Homo_%28Portrait_of_Friedrich_Nietzsche%29.jpg/500px-L%C3%A9on_Spilliaert_-_Ecce_Homo_%28Portrait_of_Friedrich_Nietzsche%29.jpg",
-    "commons_title": "File:Léon Spilliaert - Ecce Homo (Portrait of Friedrich Nietzsche).jpg",
-    "license": "Public domain",
-    "artist": "<bdi><a href=\"https://en.wikipedia.org/wiki/en:L%C3%A9on_Spilliaert\" class=\"extiw\" title=\"w:en:Léon Spilliaert\"><span title=\"Belgian graphic artist, illustrator and painter (1881-1946)\">Léon Spilliaert</span></a></bdi>",
-    "width": 4320,
-    "height": 4320,
-    "raw_file": "philosophers/raw/friedrich_nietzsche.jpg",
-    "thumb": "public/images/philosophers/friedrich_nietzsche_thumb.webp",
-    "thumb_size_kb": 11,
-    "large": "public/images/philosophers/friedrich_nietzsche_large.webp",
-    "large_size_kb": 39
-  },
-  {
     "name_eng": "Confucius",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Confucius_Portrait%2C_Kongzi_%28Confucius%29_Family_Mansion%2C_Qufu_%2813044335945%29.jpg",
     "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Confucius_Portrait%2C_Kongzi_%28Confucius%29_Family_Mansion%2C_Qufu_%2813044335945%29.jpg/500px-Confucius_Portrait%2C_Kongzi_%28Confucius%29_Family_Mansion%2C_Qufu_%2813044335945%29.jpg",
@@ -75,36 +60,6 @@
     "large_size_kb": 31
   },
   {
-    "name_eng": "Laozi",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/The_Three_Vinegar_Tasters_%28cropped%29.jpg",
-    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/The_Three_Vinegar_Tasters_%28cropped%29.jpg/500px-The_Three_Vinegar_Tasters_%28cropped%29.jpg",
-    "commons_title": "File:The Three Vinegar Tasters (cropped).jpg",
-    "license": "Public domain",
-    "artist": "Kanō school artist",
-    "width": 644,
-    "height": 1174,
-    "raw_file": "philosophers/raw/laozi.jpg",
-    "thumb": "public/images/philosophers/laozi_thumb.webp",
-    "thumb_size_kb": 17,
-    "large": "public/images/philosophers/laozi_large.webp",
-    "large_size_kb": 51
-  },
-  {
-    "name_eng": "Zhuangzi",
-    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Zhuangzi.png",
-    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Zhuangzi.png/500px-Zhuangzi.png",
-    "commons_title": "File:Zhuangzi.png",
-    "license": "Public domain",
-    "artist": "Unknown author<span style=\"display: none;\">Unknown author</span>",
-    "width": 1339,
-    "height": 1799,
-    "raw_file": "philosophers/raw/zhuangzi.png",
-    "thumb": "public/images/philosophers/zhuangzi_thumb.webp",
-    "thumb_size_kb": 10,
-    "large": "public/images/philosophers/zhuangzi_large.webp",
-    "large_size_kb": 59
-  },
-  {
     "name_eng": "Plato",
     "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/06/Portrait_of_Plato%3B_bust._Wellcome_M0005618.jpg",
     "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Portrait_of_Plato%3B_bust._Wellcome_M0005618.jpg/500px-Portrait_of_Plato%3B_bust._Wellcome_M0005618.jpg",
@@ -118,5 +73,44 @@
     "thumb_size_kb": 12,
     "large": "public/images/philosophers/plato_large.webp",
     "large_size_kb": 54
+  },
+  {
+    "name_eng": "Friedrich Nietzsche",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Nietzsche1882.jpg",
+    "commons_title": "File:Nietzsche1882.jpg",
+    "license": "Public domain",
+    "width": 1274,
+    "height": 1700,
+    "raw_file": "philosophers/raw/friedrich_nietzsche.jpg",
+    "thumb": "public/images/philosophers/friedrich_nietzsche_thumb.webp",
+    "thumb_size_kb": 15,
+    "large": "public/images/philosophers/friedrich_nietzsche_large.webp",
+    "large_size_kb": 44
+  },
+  {
+    "name_eng": "Laozi",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Laozi.jpg",
+    "commons_title": "File:Laozi.jpg",
+    "license": "Public domain",
+    "width": 400,
+    "height": 575,
+    "raw_file": "philosophers/raw/laozi.jpg",
+    "thumb": "public/images/philosophers/laozi_thumb.webp",
+    "thumb_size_kb": 28,
+    "large": "public/images/philosophers/laozi_large.webp",
+    "large_size_kb": 45
+  },
+  {
+    "name_eng": "Zhuangzi",
+    "source_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Zhuangzi-Butterfly-Dream.jpg",
+    "commons_title": "File:Zhuangzi-Butterfly-Dream.jpg",
+    "license": "Public domain",
+    "width": 384,
+    "height": 296,
+    "raw_file": "philosophers/raw/zhuangzi.jpg",
+    "thumb": "public/images/philosophers/zhuangzi_thumb.webp",
+    "thumb_size_kb": 17,
+    "large": "public/images/philosophers/zhuangzi_large.webp",
+    "large_size_kb": 17
   }
 ]
