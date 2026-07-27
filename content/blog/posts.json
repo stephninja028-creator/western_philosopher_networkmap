@@ -68,5 +68,19 @@
     "date": "2026-07-24",
     "category": "east-west-comparison",
     "lang": "zh-CN"
+  },
+  {
+    "slug": "zhuangzi-philosophy-explained",
+    "title": "Zhuangzi Philosophy Explained: Equality, Freedom, and the Butterfly Dream",
+    "date": "2026-07-27",
+    "category": "philosopher-analysis",
+    "lang": "en"
+  },
+  {
+    "slug": "mencius-philosophy-explained",
+    "title": "Mencius Philosophy Explained: Innate Goodness, the Four Sprouts, and Benevolent Governance",
+    "date": "2026-07-27",
+    "category": "philosopher-analysis",
+    "lang": "en"
   }
 ]
