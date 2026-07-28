@@ -112,8 +112,8 @@ const stopSynthFallback = () => {
 
 const startStudyMusic = () => {
   try {
-    // If bgAudio already exists but its source is not the new Debussy track, stop and recreate it
-    if (bgAudio && !bgAudio.src.includes('debussy.mp3')) {
+    // If bgAudio already exists but its source is not the Satie track, stop and recreate it
+    if (bgAudio && !bgAudio.src.includes('satie-gymnopedie-1.mp3')) {
       try {
         bgAudio.pause();
       } catch (e) {}
@@ -121,8 +121,8 @@ const startStudyMusic = () => {
     }
 
     if (!bgAudio) {
-      // Use a cache-busting version query (?v=2) to guarantee the browser pulls the fresh audio file immediately
-      bgAudio = new Audio('/assets/debussy.mp3?v=2');
+      // Use a cache-busting version query (?v=3) to guarantee the browser pulls the fresh audio file immediately
+      bgAudio = new Audio('/assets/satie-gymnopedie-1.mp3?v=3');
       bgAudio.loop = true;
       bgAudio.volume = 0.28; // Soft classical volume
       bgAudio.addEventListener('error', () => {
@@ -2016,7 +2016,7 @@ export default function App() {
       <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-white/95 backdrop-blur-sm border border-[#D4AF37]/35 shadow-[0_8px_32px_rgba(11,37,69,0.12)] px-5 py-3 rounded-full flex items-center justify-between gap-8 max-w-[92vw] select-none text-slate-700 font-sans transition-all">
         {/* Leftmost version identifier */}
         <div className="font-mono text-xs font-bold tracking-wider text-slate-400 pl-1 uppercase border-r border-[#D4AF37]/25 pr-4">
-          v1.0.2
+          V1.10
         </div>
 
         {/* Action jump links */}
