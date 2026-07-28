@@ -596,13 +596,21 @@ Ensure that all outputs are in strict, fluid English and conform EXACTLY to the 
       res.json({ success: true, rounds: parsed.rounds });
     } catch (err: any) {
       console.error("Gemini Debate Arena error:", err);
+      let cleanMsg = err.message || String(err);
+      if (cleanMsg.startsWith('{') && cleanMsg.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(cleanMsg);
+          const apiErr = parsed.error || parsed;
+          cleanMsg = apiErr.message || cleanMsg;
+        } catch { /* keep original */ }
+      }
       res.json({
         success: false,
         rounds: [
           {
             speakerName: isEn ? "Great Arbiter of Athens" : "雅典大审判官",
             speakerId: "moderator",
-            utterance: isEn ? `Debate encountered a temporal rift: ${err.message || err}. Please re-summon.` : `辩论遭遇时空裂缝纠纷：${err.message || err}。请重新调整辩题及召唤能量。`
+            utterance: isEn ? `Debate encountered a temporal rift: ${cleanMsg}. Please re-summon.` : `辩论遭遇时空裂缝纠纷：${cleanMsg}。请重新调整辩题及召唤能量。`
           }
         ]
       });
@@ -796,13 +804,22 @@ ${sagesIntro}
       });
     } catch (err: any) {
       console.error("Gemini Multilateral Debate Arena Error:", err);
+      // Try to extract a clean human-readable message from Gemini error objects
+      let cleanMsg = err.message || String(err);
+      if (cleanMsg.startsWith('{') && cleanMsg.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(cleanMsg);
+          const apiErr = parsed.error || parsed;
+          cleanMsg = apiErr.message || cleanMsg;
+        } catch { /* keep original */ }
+      }
       res.json({
         success: false,
         rounds: [
           {
             speakerName: API.debate.error(isEn ? 'en' : 'zh'),
             speakerId: "moderator",
-            utterance: API.debate.errorMsg(err.message || String(err), isEn ? 'en' : 'zh')
+            utterance: API.debate.errorMsg(cleanMsg, isEn ? 'en' : 'zh')
           }
         ]
       });

@@ -170,6 +170,9 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
 
       if (data.success && data.rounds) {
         setDebateRounds(data.rounds);
+      } else if (data.rounds && data.rounds.length > 0) {
+        // Server returned a graceful error round (e.g. Gemini 503) — show it to the user
+        setDebateRounds(data.rounds);
       } else {
         throw new Error(data.message || 'Failed to generate multilateral debate');
       }

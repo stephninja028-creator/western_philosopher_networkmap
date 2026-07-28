@@ -614,6 +614,9 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                                       const data = await res.json();
                                       if (data.success && data.rounds) {
                                         setDebateRounds(data.rounds);
+                                      } else if (data.rounds && data.rounds.length > 0) {
+                                        // Show server's graceful error round (e.g. Gemini 503) instead of generic error
+                                        setDebateRounds(data.rounds);
                                       } else {
                                         throw new Error(data.message || "Failed to generate debate");
                                       }
