@@ -6,7 +6,7 @@ import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2 } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2, Sun, Moon } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { getEnrichedEng, hasCompleteEnrichedEng } from './data/enrichedDetailsEng';
 import { detectLang, SUPPORTED_LANGS, STORAGE_KEY, type Language } from './i18n/config';
@@ -452,6 +452,12 @@ export default function App() {
   // Premium interactive states
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const [language, setLanguageState] = useState<'zh' | 'en'>(() => {
     // Triple-fallback language detection (borrowed from bubble.huofengcap.com pattern)
     try {
@@ -552,6 +558,17 @@ export default function App() {
   useEffect(() => {
     setCopiedQuote(false);
   }, [detailedPhilosopher]);
+
+  // Apply theme class to document root and persist to localStorage
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Dynamic English translation resolver — uses static files first, API as last resort
   useEffect(() => {
@@ -2089,6 +2106,23 @@ export default function App() {
               {language === 'zh' ? "中英文切换 / Language Select" : "中英文切换 / Language Select"}
             </span>
           </div>
+
+          {/* Day / Night theme toggle */}
+          <button
+            type="button"
+            className="cursor-pointer p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all relative group"
+            onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+            title={theme === 'dark' ? (language === 'zh' ? '切换亮色模式' : 'Switch to Light') : (language === 'zh' ? '切换暗色模式' : 'Switch to Dark')}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400 transition-transform group-hover:scale-110" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-600 transition-transform group-hover:scale-110" />
+            )}
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 bg-slate-800 dark:bg-slate-700 text-white text-[8px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none mb-1 text-center whitespace-nowrap">
+              {theme === 'dark' ? (language === 'zh' ? '亮色' : 'Light') : (language === 'zh' ? '暗色' : 'Dark')}
+            </span>
+          </button>
 
           {/* Music player toggle */}
           <button

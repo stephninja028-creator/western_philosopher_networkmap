@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode (instead of prefers-color-scheme) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 鎏金闪动 (Gilded Shimmer) Animations for Major Philosophers */
 .gilded-shimmer-border {
   overflow: hidden;
@@ -79,6 +82,325 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: 4;
+}
+
+/* ============================================
+   Dark Mode — "Night Study" theme
+   Inspired by rushiwowen.co: deep, calm, eye-friendly
+   Overrides the Aegean/Mediterranean light palette
+   ============================================ */
+
+/* --- Smooth transition on theme switch --- */
+html {
+  transition: background-color 0.4s ease;
+}
+
+/* --- Root & body --- */
+.dark {
+  background-color: #0B1118;
+  color: #E8E6E1;
+}
+
+/* ==========================================
+   BACKGROUND COLOR OVERRIDES
+   ========================================== */
+
+/* Main page backgrounds (warm cream tones → deep midnight) */
+.dark .bg-\[\#FDFBF7\] {
+  background-color: #0B1118 !important;
+}
+.dark .bg-\[\#FAF8F5\] {
+  background-color: #141B28 !important;
+}
+.dark .bg-\[\#FAF6EC\] {
+  background-color: #111824 !important;
+}
+
+/* Semi-transparent backgrounds — preserve opacity for backdrop-blur */
+.dark .bg-\[\#FDFBF7\]\/95 {
+  background-color: rgba(11, 17, 24, 0.95) !important;
+}
+.dark .bg-\[\#FDFBF7\]\/80 {
+  background-color: rgba(11, 17, 24, 0.8) !important;
+}
+.dark .bg-\[\#FAF8F5\]\/95 {
+  background-color: rgba(20, 27, 40, 0.95) !important;
+}
+.dark .bg-\[\#FAF8F5\]\/80 {
+  background-color: rgba(20, 27, 40, 0.8) !important;
+}
+.dark .bg-\[\#FAF8F5\]\/10 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+.dark .bg-\[\#FAF8F5\]\/20 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.dark .bg-white\/45 {
+  background-color: rgba(26, 35, 51, 0.5) !important;
+}
+.dark .bg-white\/95 {
+  background-color: rgba(26, 35, 51, 0.95) !important;
+}
+
+/* White cards → dark card surface */
+.dark .bg-white {
+  background-color: #1A2333 !important;
+}
+
+/* Gradient header (from-[#F2EDE2] to-[#FAF8F5]) */
+.dark .bg-gradient-to-b.from-\[\#F2EDE2\] {
+  background-image: linear-gradient(to bottom, #0D141F, #141B28) !important;
+}
+
+/* Quote box, tag backgrounds */
+.dark .bg-\[\#F4F6F8\] {
+  background-color: #161E2D !important;
+}
+.dark .bg-\[\#EAF2F5\] {
+  background-color: #1F2A3E !important;
+}
+
+/* Dark blue section backgrounds — keep but slightly deeper */
+.dark .bg-\[\#0B2545\] {
+  background-color: #0D1A30 !important;
+}
+.dark .bg-\[\#0B2545\]\/60 {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Terracotta accent circle */
+.dark .bg-\[\#C2593F\]\/5 {
+  background-color: rgba(212, 102, 74, 0.08) !important;
+}
+
+/* Slate utility backgrounds */
+.dark .bg-slate-100,
+.dark .hover\:bg-slate-100:hover {
+  background-color: #1F2A3E !important;
+}
+.dark .bg-slate-800 {
+  background-color: #2A3344 !important;
+}
+.dark .bg-slate-700,
+.dark .dark\:hover\:bg-slate-700:hover {
+  background-color: #2A3344 !important;
+}
+
+/* Hover backgrounds */
+.dark .hover\:bg-white:hover {
+  background-color: #1F2A3E !important;
+}
+.dark .hover\:bg-black\/5:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+.dark .hover\:bg-\[\#FDFBF7\]:hover {
+  background-color: #141B28 !important;
+}
+
+/* Badge backgrounds */
+.dark .bg-red-50 { background-color: rgba(180, 60, 50, 0.15) !important; }
+.dark .bg-green-50 { background-color: rgba(40, 120, 70, 0.15) !important; }
+.dark .bg-purple-50 { background-color: rgba(100, 60, 150, 0.15) !important; }
+.dark .bg-blue-50 { background-color: rgba(50, 80, 140, 0.15) !important; }
+.dark .bg-amber-50 { background-color: rgba(160, 110, 20, 0.15) !important; }
+
+/* ==========================================
+   TEXT COLOR OVERRIDES
+   ========================================== */
+
+/* Primary navy text → light blue */
+.dark .text-\[\#0B2545\],
+.dark .text-\[\#0B2545\]\/85,
+.dark .text-\[\#0B2545\]\/90 {
+  color: #A8C5E8 !important;
+}
+
+/* Teal links → lighter teal */
+.dark .text-\[\#0D5C75\] {
+  color: #5DB7D4 !important;
+}
+
+/* Slate text → light variants */
+.dark .text-slate-900 { color: #E8E6E1 !important; }
+.dark .text-slate-700 { color: #B0AEBA !important; }
+.dark .text-slate-650 { color: #A8A6B5 !important; }
+.dark .text-slate-600 { color: #9A98A5 !important; }
+.dark .text-slate-500 { color: #8A8895 !important; }
+.dark .text-slate-400 { color: #7A7A85 !important; }
+
+/* Hover text colors */
+.dark .hover\:text-\[\#0B2545\]:hover {
+  color: #A8C5E8 !important;
+}
+.dark .hover\:text-\[\#0D5C75\]:hover {
+  color: #5DB7D4 !important;
+}
+.dark .hover\:text-slate-700:hover {
+  color: #B0AEBA !important;
+}
+
+/* Amber/sky/emerald — brighten slightly for dark bg */
+.dark .text-amber-700 { color: #E8B850 !important; }
+.dark .text-amber-800 { color: #D4A040 !important; }
+.dark .text-amber-600 { color: #E8B850 !important; }
+.dark .text-sky-600 { color: #5DADE0 !important; }
+.dark .text-emerald-600 { color: #4ADE80 !important; }
+
+/* Badge text colors */
+.dark .text-red-700 { color: #E88070 !important; }
+.dark .text-green-700 { color: #70C890 !important; }
+.dark .text-purple-700 { color: #B090D0 !important; }
+.dark .text-blue-700 { color: #80A0D0 !important; }
+
+/* ==========================================
+   BORDER COLOR OVERRIDES
+   ========================================== */
+
+/* Gold borders — muted in dark */
+.dark .border-\[\#D4AF37\]\/35,
+.dark .border-\[\#D4AF37\]\/25,
+.dark .border-\[\#D4AF37\]\/30,
+.dark .border-\[\#D4AF37\]\/50,
+.dark .border-\[\#D4AF37\]\/60,
+.dark .border-\[\#D4AF37\]\/65 {
+  border-color: rgba(154, 128, 53, 0.35) !important;
+}
+.dark .hover\:border-\[\#D4AF37\]:hover {
+  border-color: rgba(200, 168, 70, 0.6) !important;
+}
+
+/* Navy borders */
+.dark .border-\[\#0B2545\],
+.dark .border-\[\#0B2545\]\/85,
+.dark .border-\[\#0B2545\]\/40,
+.dark .border-\[\#0B2545\]\/35,
+.dark .border-2.border-\[\#0B2545\]\/85,
+.dark .border-2.border-\[\#0B2545\]\/40 {
+  border-color: #2A3A55 !important;
+}
+
+/* Gray borders */
+.dark .border-gray-200,
+.dark .border-gray-150,
+.dark .border-gray-205,
+.dark .border-gray-300 {
+  border-color: #2A3344 !important;
+}
+.dark .hover\:border-gray-300:hover {
+  border-color: #3A4555 !important;
+}
+.dark .hover\:border-amber-400:hover {
+  border-color: #D4AF37 !important;
+}
+
+/* ==========================================
+   SHADOW ADJUSTMENTS
+   ========================================== */
+
+.dark .shadow-xs,
+.dark .shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.dark .shadow-3xs {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+.dark .shadow-lg {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.dark .shadow-md {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ==========================================
+   LINEAGE DIAGRAM & NETWORK GRAPH
+   ========================================== */
+
+/* The network graph SVG/canvas — keep dark background */
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #0F141E !important;
+}
+
+/* ==========================================
+   INPUT & FORM ELEMENTS
+   ========================================== */
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1A2333 !important;
+  color: #E8E6E1 !important;
+  border-color: #2A3344 !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6A6A75 !important;
+}
+.dark input:focus,
+.dark textarea:focus {
+  border-color: #5DB7D4 !important;
+}
+
+/* ==========================================
+   ADDITIONAL GRAY UTILITY OVERRIDES
+   ========================================== */
+
+/* Gray text → light variants */
+.dark .text-gray-700 { color: #B0AEBA !important; }
+.dark .text-gray-650 { color: #A8A6B5 !important; }
+.dark .text-gray-500 { color: #8A8895 !important; }
+.dark .text-gray-400 { color: #7A7A85 !important; }
+
+/* Gray backgrounds */
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #0F141E !important;
+}
+.dark .hover\:bg-gray-50:hover {
+  background-color: #161E2D !important;
+}
+.dark .bg-\[\#F2EFE9\],
+.dark .hover\:bg-\[\#F2EFE9\]:hover {
+  background-color: #1A2333 !important;
+}
+
+/* Gray borders (additional) */
+.dark .border-gray-100 {
+  border-color: #222B3A !important;
+}
+.dark .border-gray-300 {
+  border-color: #2A3344 !important;
+}
+
+/* Slate-750 text */
+.dark .text-slate-750 { color: #A8A6B5 !important; }
+
+/* Amber-900 → brighten */
+.dark .text-amber-900 { color: #E8B850 !important; }
+
+/* Amber borders */
+.dark .border-amber-200\/60,
+.dark .border-amber-200 {
+  border-color: rgba(180, 130, 30, 0.3) !important;
+}
+
+/* Hover backgrounds (additional) */
+.dark .hover\:bg-\[\#EBF5F8\]:hover {
+  background-color: #1F2A3E !important;
+}
+
+/* Border gray-200/80 */
+.dark .border-gray-200\/80 {
+  border-color: rgba(42, 51, 68, 0.8) !important;
+}
+
+/* Shadow inner */
+.dark .shadow-inner {
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+.dark .shadow-2xs,
+.dark .shadow-2xs {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 
