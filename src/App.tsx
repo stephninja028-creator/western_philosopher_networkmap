@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, FormEvent, TouchEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { philosophyData } from './data/philosophyData';
 import { easternPhilosophyData } from './data/easternPhilosophyData';
@@ -458,7 +459,6 @@ export default function App() {
     if (stored === 'dark' || stored === 'light') return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
-  const [themeTransition, setThemeTransition] = useState<{ x: number; y: number; to: 'light' | 'dark' } | null>(null);
   const [language, setLanguageState] = useState<'zh' | 'en'>(() => {
     // Triple-fallback language detection (borrowed from bubble.huofengcap.com pattern)
     try {
@@ -571,17 +571,42 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Theme toggle with radial ripple transition (like rushiwowen.co)
+  // Theme toggle with native View Transitions API (like rushiwowen.co)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setThemeTransition({ x, y, to: nextTheme });
-    setTimeout(() => {
-      setTheme(nextTheme);
-      setThemeTransition(null);
-    }, 550);
+
+    const applyTheme = () => {
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+      localStorage.setItem('theme', nextTheme);
+      flushSync(() => setTheme(nextTheme));
+    };
+
+    // Fallback for browsers without View Transitions API (Safari, Firefox)
+    if (typeof (document as any).startViewTransition !== 'function') {
+      applyTheme();
+      return;
+    }
+
+    const transition = (document as any).startViewTransition(applyTheme);
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(150% at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 550,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    });
   };
 
   // Dynamic English translation resolver — uses static files first, API as last resort
@@ -1351,18 +1376,6 @@ export default function App() {
       onClick={() => setSelectedPhilosopher(null)}
     >
       
-      {/* Theme transition ripple overlay — expands from toggle button like rushiwowen.co */}
-      {themeTransition && (
-        <div
-          className="fixed inset-0 z-[9999] pointer-events-none theme-transition-ripple"
-          style={{
-            '--ripple-x': `${themeTransition.x}px`,
-            '--ripple-y': `${themeTransition.y}px`,
-            '--ripple-color': themeTransition.to === 'dark' ? '#0B1118' : '#FDFBF7',
-          } as React.CSSProperties}
-        />
-      )}
-
       {/* Decorative Greek Meander Wave Header Accent */}
       <GreekMeander className="bg-[#FAF8F5]/80" />
 

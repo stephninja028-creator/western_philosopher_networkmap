@@ -494,21 +494,19 @@ html {
 }
 
 /* ==========================================
-   THEME TRANSITION RIPPLE (rushiwowen.co style)
-   Expanding radial mask from the toggle button
+   VIEW TRANSITIONS API (rushiwowen.co style)
+   Native browser snapshot transition for theme toggle.
+   JS animates ::view-transition-new(root) clip-path
+   from circle(0px) to circle(150%) at click point.
    ========================================== */
-.theme-transition-ripple {
-  background: radial-gradient(
-    circle at var(--ripple-x) var(--ripple-y),
-    var(--ripple-color) 0%,
-    var(--ripple-color) 100%
-  );
-  clip-path: circle(0% at var(--ripple-x) var(--ripple-y));
-  animation: theme-ripple-expand 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
-
-@keyframes theme-ripple-expand {
-  to {
-    clip-path: circle(150% at var(--ripple-x) var(--ripple-y));
-  }
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
 }
