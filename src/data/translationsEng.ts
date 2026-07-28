@@ -511,27 +511,6 @@ export const philosopherFallbackTranslations: Record<string, {
       }
     ]
   },
-  nietzche: {
-    details: 'The iconoclast who declared the death of God. He urged the revaluation of all values, heralding the Will to Power, the Übermensch, and the eternal recurrence as ecstatic acts of life-affirmation.',
-    concepts: [
-      'Dionysian Metaphysical Intoxication',
-      'The Will to Power & Overman',
-      'Deconstruction of Master-Slave Morality'
-    ],
-    quote: 'God is dead! All self-overcoming must rely on the Will to Power roaring within each individual who stands tall amidst suffering. Man is a tightrope stretched over an abyss between beast and Overman. Sing Amor Fati: even if this cold life repeats its tragedies on eternal recurrence, I will laugh and shout for it to return a thousand times over!',
-    comparisons: [
-      {
-        withName: 'Schopenhauer',
-        coreDifference: 'Schopenhauer proved the world is driven by a blind Will to Live, leading to permanent suffering, and urged ascetic renuniciation; Nietzsche revolted, declaring the Will to be the Will to Power—an active self-overcoming to be embraced through tragic joy.',
-        reflectionPrompt: 'When facing life’s meaningless suffering, should we seek peaceful ascetic detachment and inner desirelessness, or should we proudly unleash our active vitality as the armor-backed Overman?'
-      },
-      {
-        withName: 'Marx',
-        coreDifference: 'Marx believed history is driven by material conditions and collective labor, aiming for a classless, equal society; Nietzsche dismissed collective equality as slave morality born of resentment, arguing that humanity’s meaning resides solely in the rare, self-legislating Overmen.',
-        reflectionPrompt: 'Is justice found in collective solidarity to build an equal, exploitation-free public world, or is it found in ascending to solitary individual excellence that surpasses mediocre conventions?'
-      }
-    ]
-  },
   nietzsche: {
     details: 'The iconoclast who declared the death of God. He urged the revaluation of all values, heralding the Will to Power, the Übermensch, and the eternal recurrence as ecstatic acts of life-affirmation.',
     concepts: [

@@ -63,7 +63,7 @@ const SUGGESTED_PROMPTS_ZH: Record<string, string[]> = {
     "我们普通人应该如何通过‘艺术与审美’解脱生命意志的折磨？",
     "你如何看待大哲学家尼采对你那种否定生命生存意志的辛辣批判？"
   ],
-  nietzche: [
+  nietzsche: [
     "你高喊‘上帝死了’，是想警示世人什么？我们应该如何重估一切价值？",
     "什么是‘超人’（Übermensch）精神？我该如何超越虚无、成为我自己的神？",
     "向我诠释一下‘权力意志’（Will to Power）与‘永恒轮回’的深层奥义。"
@@ -111,7 +111,7 @@ const SUGGESTED_PROMPTS_EN: Record<string, string[]> = {
     "How can ordinary people free themselves from the torment of the Will to live through 'art and aesthetics'?",
     "How do you view Nietzsche's sharp criticism of your negation of the Will to live?"
   ],
-  nietzche: [
+  nietzsche: [
     "What were you warning the world when you proclaimed 'God is dead'? How should we re-evaluate all values?",
     "What is the spirit of the 'Übermensch' (Overman)? How can I transcend nihilism and become my own master?",
     "Interpret the deep meaning of the 'Will to Power' and 'Eternal Recurrence' for me."
@@ -137,7 +137,7 @@ const DEFAULT_GREETINGS: Record<string, { zh: string; en: string }> = {
     zh: "游者你好。我是阿卡德米学院的柏拉图。在这个由影子和感官构成的低维洞穴里，你是否渴望跃入明亮、永恒的理型（Forms）阳光之下，寻得那份不朽的真理？",
     en: "Hello, traveler. I am Plato of the Academy. Do you wish to leave the dim cave of sensory shadows and ascend to the radiant sunlight of absolute, eternal Forms?"
   },
-  nietzche: {
+  nietzsche: {
     zh: "哼，你终于来了！看哪，凡俗的偶像正在崩塌。‘上帝死了’，人类在无底的深渊上失去了绳索。你是否做好了撕裂虚饰、宣告你的‘生命伟力’并重估一切价值的准备？不要温和地走进那个良夜，向我开战吧！",
     en: "Ah, you are here! The old idols crumble. 'God is dead,' and humanity dances on a tightrope over the abyss. Are you strong enough to re-evaluate all values and embrace the Will to Power? Strike me with your thoughts!"
   },

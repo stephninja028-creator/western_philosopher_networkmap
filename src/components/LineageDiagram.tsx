@@ -67,7 +67,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
     const crossEpochList = [
       { from: 'plato', to: 'schopenhauer', type: 'influence' as const },
       { from: 'kant', to: 'schopenhauer', type: 'influence' as const },
-      { from: 'heraclitus', to: 'nietzche', type: 'influence' as const },
+      { from: 'heraclitus', to: 'nietzsche', type: 'influence' as const },
       { from: 'spinoza', to: 'hegel', type: 'influence' as const },
       { from: 'hegel', to: 'marx', type: 'succession' as const },
 
@@ -80,17 +80,17 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
       { from: 'hume', to: 'quine', type: 'influence' as const },         // Quine's naturalized empiricism and skepticism of analytical/synthetic dogmas
       { from: 'kant', to: 'husserl', type: 'succession' as const },      // Husserl resolving Kantian "thing-in-itself" gap by phenomenon bracketing
       { from: 'descartes', to: 'husserl', type: 'influence' as const },   // Husserl's phenomenological system acting as Cartesian Meditations
-      { from: 'nietzche', to: 'heidegger', type: 'influence' as const },  // Heidegger's meditation on Nietzsche's Will to Power as climax of metaphysics
+      { from: 'nietzsche', to: 'heidegger', type: 'influence' as const },  // Heidegger's meditation on Nietzsche's Will to Power as climax of metaphysics
       { from: 'aristotle', to: 'heidegger', type: 'influence' as const },  // Heidegger deconstructing and reconstructing Aristotelian Being (Ousia)
       { from: 'kierkegaard', to: 'sartre', type: 'succession' as const }, // Sartre's secularizing of Kierkegaardian dread and leap of faith
       { from: 'marx', to: 'sartre', type: 'influence' as const },         // Sartre synthesizing existential freedom with Marxist historical-social materialism
       { from: 'kant', to: 'peirce', type: 'influence' as const },         // Peirce adapting his terminology from Kant's "pragmatischer" concept in Critiques
       { from: 'locke', to: 'james', type: 'succession' as const },        // William James upgrading Locke's passive "tabula rasa" into active/radical empiricism
       { from: 'hegel', to: 'dewey', type: 'influence' as const },         // John Dewey's early education in Hegelian organicism shaping his functionalism
-      { from: 'nietzche', to: 'foucault', type: 'succession' as const },  // Foucault's power-knowledge genealogy inherited from Nietzsche's Genealogy of Morals
+      { from: 'nietzsche', to: 'foucault', type: 'succession' as const },  // Foucault's power-knowledge genealogy inherited from Nietzsche's Genealogy of Morals
       { from: 'marx', to: 'foucault', type: 'influence' as const },       // Foucault critiquing economic-reductionist state power model of Marxism
       { from: 'plato', to: 'derrida', type: 'influence' as const },       // Derrida deconstructing Platonic logocentrism (phonocentrism) in Phaedrus
-      { from: 'nietzche', to: 'derrida', type: 'influence' as const },    // Derrida's play of signs influenced by Nietzschean infinite interpretation
+      { from: 'nietzsche', to: 'derrida', type: 'influence' as const },    // Derrida's play of signs influenced by Nietzschean infinite interpretation
       { from: 'kant', to: 'rorty', type: 'influence' as const },         // Rorty's "Philosophy and the Mirror of Nature" dismantling Kantian foundational epistemology
       
       // Eastern/Chinese Philosophy - Great Cross-Epoch & School Links

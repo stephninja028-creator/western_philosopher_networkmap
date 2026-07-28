@@ -1315,7 +1315,7 @@ const rawPhilosophyData: Epoch[] = [
         details: '英国启蒙学者。他首造“适者生存、物竞天择”。把生物进化机制野蛮地搬运至人类阶级竞争领域，宣称社会是在优胜劣汰残酷铁规下自我演进的自然有机体。'
       },
       {
-        id: 'nietzche',
+        id: 'nietzsche',
         name: '尼采',
         nameEng: 'Nietzsche',
         eraDisp: '19世纪末',
@@ -1353,12 +1353,12 @@ const rawPhilosophyData: Epoch[] = [
     ],
     connections: [
       { from: 'schopenhauer', to: 'kierkegaard', type: 'influence' },
-      { from: 'schopenhauer', to: 'nietzche', type: 'succession' },
-      { from: 'kierkegaard', to: 'nietzche', type: 'influence' },
+      { from: 'schopenhauer', to: 'nietzsche', type: 'succession' },
+      { from: 'kierkegaard', to: 'nietzsche', type: 'influence' },
       { from: 'comte', to: 'mill_j', type: 'succession' },
       { from: 'mill_j', to: 'spencer', type: 'succession' },
       { from: 'feuerbach', to: 'marx', type: 'succession' },
-      { from: 'marx', to: 'nietzche', type: 'influence' }
+      { from: 'marx', to: 'nietzsche', type: 'influence' }
     ]
   },
   {

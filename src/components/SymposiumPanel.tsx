@@ -171,8 +171,8 @@ export const SymposiumPanel: React.FC<SymposiumPanelProps> = ({
                 const isActive = activePresetId === debate.id && !customP1Id;
                 const trans = symposiumTranslations[debate.id];
                 const displayTitle = isEn && trans ? trans.title : debate.title;
-                const p1DispName = isEn ? (debate.p1Id === 'plato' ? 'Plato' : debate.p1Id === 'aristotle' ? 'Aristotle' : debate.p1Id === 'descartes' ? 'Descartes' : debate.p1Id === 'locke' ? 'Locke' : debate.p1Id === 'schopenhauer' ? 'Schopenhauer' : debate.p1Id === 'nietzche' ? 'Nietzsche' : debate.p1Id === 'hegel' ? 'Hegel' : debate.p1Id === 'marx' ? 'Marx' : debate.p1Name) : debate.p1Name;
-                const p2DispName = isEn ? (debate.p2Id === 'plato' ? 'Plato' : debate.p2Id === 'aristotle' ? 'Aristotle' : debate.p2Id === 'descartes' ? 'Descartes' : debate.p2Id === 'locke' ? 'Locke' : debate.p2Id === 'schopenhauer' ? 'Schopenhauer' : debate.p2Id === 'nietzche' ? 'Nietzsche' : debate.p2Id === 'hegel' ? 'Hegel' : debate.p2Id === 'marx' ? 'Marx' : debate.p2Name) : debate.p2Name;
+                const p1DispName = isEn ? (debate.p1Id === 'plato' ? 'Plato' : debate.p1Id === 'aristotle' ? 'Aristotle' : debate.p1Id === 'descartes' ? 'Descartes' : debate.p1Id === 'locke' ? 'Locke' : debate.p1Id === 'schopenhauer' ? 'Schopenhauer' : debate.p1Id === 'nietzsche' ? 'Nietzsche' : debate.p1Id === 'hegel' ? 'Hegel' : debate.p1Id === 'marx' ? 'Marx' : debate.p1Name) : debate.p1Name;
+                const p2DispName = isEn ? (debate.p2Id === 'plato' ? 'Plato' : debate.p2Id === 'aristotle' ? 'Aristotle' : debate.p2Id === 'descartes' ? 'Descartes' : debate.p2Id === 'locke' ? 'Locke' : debate.p2Id === 'schopenhauer' ? 'Schopenhauer' : debate.p2Id === 'nietzsche' ? 'Nietzsche' : debate.p2Id === 'hegel' ? 'Hegel' : debate.p2Id === 'marx' ? 'Marx' : debate.p2Name) : debate.p2Name;
                 
                 return (
                   <button

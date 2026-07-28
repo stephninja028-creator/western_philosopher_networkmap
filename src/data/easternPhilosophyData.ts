@@ -158,7 +158,7 @@ export const easternPhilosophyData: Epoch[] = [
         quote: '天地与我并生，而万物与我为一。——《庄子·齐物论》',
         reflectionQuestion: '庄子的"庄周梦蝶"和精神绝对自由，对面对重重社会束缚和感知失真的现代人有何慰藉？',
         comparisons: [
-          { withId: 'nietzche', withName: '尼采', relationType: 'influence', coreDifference: '庄子的"逍遥游"与尼采的"超人"皆呼唤个体冲破世俗规范与道德枷锁，以生命意志创造自我价值，唯庄子以柔克刚、以无用为大用，尼采以刚破旧、以权力意志为驱动。', reflectionPrompt: '精神的绝对自由是庄子式的逍遥无为还是尼采式的权力创造？面对人生的荒谬与束缚，该以柔克刚还是以刚破旧？' },
+          { withId: 'nietzsche', withName: '尼采', relationType: 'influence', coreDifference: '庄子的"逍遥游"与尼采的"超人"皆呼唤个体冲破世俗规范与道德枷锁，以生命意志创造自我价值，唯庄子以柔克刚、以无用为大用，尼采以刚破旧、以权力意志为驱动。', reflectionPrompt: '精神的绝对自由是庄子式的逍遥无为还是尼采式的权力创造？面对人生的荒谬与束缚，该以柔克刚还是以刚破旧？' },
           { withId: 'spinoza', withName: '斯宾诺莎', relationType: 'influence', coreDifference: '庄子"道在屎溺"的道遍在论与斯宾诺莎"神即自然"的泛神论皆取消超越性主宰，将神圣内化于宇宙万物本身，以理性或直觉冥合大全，共同指向一种无神的神圣宇宙观。', reflectionPrompt: '神圣存在于万物之中还是超越万物之上？庄子和斯宾诺莎的泛神论世界观，如何帮助我们重新理解人与自然的伦理关系？' }
         ]
       },

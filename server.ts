@@ -933,6 +933,20 @@ ${sagesIntro}
     next();
   });
 
+  // Philosopher slug redirects — fix historical typos
+  const philosopherRedirects: Record<string, string> = {
+    'nietzche': '/philosopher/nietzsche',
+  };
+
+  app.use("/philosopher/:slug", (req, res, next) => {
+    const slug = req.params.slug;
+    if (philosopherRedirects[slug]) {
+      const langParam = req.query.lang ? `?lang=${req.query.lang}` : '';
+      return res.redirect(301, `${philosopherRedirects[slug]}${langParam}`);
+    }
+    next();
+  });
+
   // Blog index route
   app.get("/blog", (req, res) => {
     const langCode = detectLangFromRequest(req);
@@ -1028,6 +1042,24 @@ ${sagesIntro}
 
     const postDesc = (post.sections || []).find((s: any) => s.type === "intro")?.body?.slice(0, 150) || "";
 
+    // Find philosophers mentioned in this blog post for internal linking
+    const blogText = [
+      post.title || '',
+      post.titleEn || '',
+      ...(post.sections || []).map((s: any) => `${s.heading || ''} ${s.body || ''} ${s.bodyEn || ''}`),
+    ].join(' ');
+    const mentionedPhilosophers = allPhilosophers
+      .filter(p => p.name && blogText.includes(p.name))
+      .slice(0, 8);
+    const mentionedPhilosophersHtml = mentionedPhilosophers.map(p => {
+      const schoolEng = schoolTranslations[p.school] || p.school;
+      const schoolSlug = slugifySchool(p.school);
+      return `<a class="related-card" href="/philosopher/${p.id}${isEn ? '?lang=en' : ''}">
+        <div class="name">${esc(p.name)} · ${esc(p.nameEng)}</div>
+        <div class="school">${esc(isEn ? schoolEng : p.school)}</div>
+      </a>`;
+    }).join('');
+
     const html = renderBlogPage({
       title: post.title,
       description: postDesc,
@@ -1064,6 +1096,7 @@ ${sagesIntro}
         <p class="date">${post.date} — ${post.author}</p>
       </div>
       ${sectionsHtml}
+      ${mentionedPhilosophersHtml ? `<div class="section"><h2>${isEn ? 'Mentioned Philosophers' : '本文涉及的哲学家'}</h2><div class="related-grid">${mentionedPhilosophersHtml}</div></div>` : ''}
       <div class="footer">
         <a href="/${isEn ? '?lang=en' : ''}">${T(BLOG.exploreMap, langCode)}</a> | <a href="/blog${isEn ? '?lang=en' : ''}">${T(BLOG.allArticles, langCode)}</a>
       </div>
@@ -1122,6 +1155,36 @@ ${sagesIntro}
     schoolMap.get(p.school)!.philosophers.push(p);
   });
   const allSchools = Array.from(schoolMap.values());
+
+  // Build philosopher → blog post index for internal linking
+  // Maps philosopher ID to array of related blog post slugs
+  const blogPostIndex = loadPostIndex();
+  const philosopherBlogIndex = new Map<string, { slug: string; title: string; date: string; }[]>();
+  
+  for (const postMeta of blogPostIndex) {
+    const post = loadPostFromDisk(postMeta.slug);
+    if (!post) continue;
+    // Combine all text content for matching
+    const allText = [
+      post.title || '',
+      post.titleEn || '',
+      ...(post.sections || []).map((s: any) => `${s.heading || ''} ${s.body || ''} ${s.bodyEn || ''}`),
+    ].join(' ');
+
+    // Check which philosophers are mentioned in this blog post
+    for (const phil of allPhilosophers) {
+      if (phil.name && allText.includes(phil.name)) {
+        if (!philosopherBlogIndex.has(phil.id)) {
+          philosopherBlogIndex.set(phil.id, []);
+        }
+        philosopherBlogIndex.get(phil.id)!.push({
+          slug: postMeta.slug,
+          title: postMeta.title,
+          date: postMeta.date,
+        });
+      }
+    }
+  }
 
   // Normalize comparison data: handles both old format ({ withId, withName, relationType, coreDifference, reflectionPrompt })
   // and new format ({ withPhilosopher, topic, aspect, insight }) used by Eastern philosophers (epochs 12-16)
@@ -1289,6 +1352,14 @@ ${sagesIntro}
         <div class="school">${esc(isEn ? (schoolTranslations[r.school] || r.school) : r.school)}</div>
       </a>`).join('');
 
+    // Related blog posts — internal linking from philosopher pages to blog articles
+    const relatedPosts = (philosopherBlogIndex.get(p.id) || []).slice(0, 5);
+    const relatedPostsHtml = relatedPosts.map(bp => `
+      <a class="related-card" href="/blog/${bp.slug}${isEn ? '?lang=en' : ''}">
+        <div class="name">${esc(bp.title)}</div>
+        <div class="school">${bp.date}</div>
+      </a>`).join('');
+
     // Section titles based on language
     const t = (zh: string, en: string) => isEn ? en : zh;
 
@@ -1361,6 +1432,7 @@ ${sagesIntro}
     ${p.reflectionQuestion ? `<div class="reflection-box"><h2>${t("思考题", "Reflection Question")}</h2><p>${esc(isEn ? (engData?.reflectionQuestion || p.reflectionQuestion) : p.reflectionQuestion)}</p></div>` : ''}
     ${comparisonsHtml ? `<div class="section"><h2>${t("与其他哲学家的思想碰撞", "Intellectual Encounters")}</h2>${comparisonsHtml}</div>` : ''}
     ${relatedHtml ? `<div class="section"><h2>${t("相关哲学家", "Related Philosophers")}</h2><div class="related-grid">${relatedHtml}</div></div>` : ''}
+    ${relatedPostsHtml ? `<div class="section"><h2>${t("深度阅读：相关文章", "Further Reading: Related Articles")}</h2><div class="related-grid">${relatedPostsHtml}</div></div>` : ''}
     <div class="cta-box">
       <a href="/${isEn ? '?lang=en' : ''}">${t("探索交互式哲学网络图谱 →", "Explore the Interactive Philosophy Network →")}</a>
       <p>${t(`与 ${esc(p.name)} 进行 AI 灵魂对话，或参与思想格斗场辩论`, `Engage in AI soul dialogue with ${esc(p.nameEng)}, or join the intellectual debate arena`)}</p>

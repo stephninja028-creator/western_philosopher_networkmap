@@ -73,7 +73,7 @@ export const symposiumDebates: DebateTopic[] = [
     question: '既然生命本质充斥痛苦与挣扎，我们应当以消极寂灭求得解脱，还是以酒神秘义超越悲剧？',
     p1Id: 'schopenhauer',
     p1Name: '叔本华',
-    p2Id: 'nietzche',
+    p2Id: 'nietzsche',
     p2Name: '尼采',
     dialogue: [
       {

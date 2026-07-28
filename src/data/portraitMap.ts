@@ -257,7 +257,7 @@ export const philosopherPortraits: Record<string, { thumb: string; large: string
     thumb: "/images/philosophers/thomas_more_thumb.webp",
     large: "/images/philosophers/thomas_more_large.webp",
   },
-  nietzche: {
+  nietzsche: {
     thumb: "/images/philosophers/nietzsche_thumb.webp",
     large: "/images/philosophers/nietzsche_large.webp",
   },

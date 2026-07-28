@@ -59,7 +59,7 @@ export function getPhilosopherPedigree(p: Philosopher): PedigreeInfo {
       'augustine', 'aquinas',            // Middle Ages & Scholasticism
       'descartes', 'kant', 'hegel',     // Rationalists, Idealism
       'hume', 'spinoza', 'locke',        // Key moderns
-      'nietzsche', 'nietzche', 'marx',   // Late 19th Century
+      'nietzsche', 'marx',   // Late 19th Century
       'heidegger', 'wittgenstein'        // 20th Century
     ]);
 
