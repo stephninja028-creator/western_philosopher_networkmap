@@ -458,6 +458,7 @@ export default function App() {
     if (stored === 'dark' || stored === 'light') return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
+  const [themeTransition, setThemeTransition] = useState<{ x: number; y: number; to: 'light' | 'dark' } | null>(null);
   const [language, setLanguageState] = useState<'zh' | 'en'>(() => {
     // Triple-fallback language detection (borrowed from bubble.huofengcap.com pattern)
     try {
@@ -569,6 +570,19 @@ export default function App() {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  // Theme toggle with radial ripple transition (like rushiwowen.co)
+  const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setThemeTransition({ x, y, to: nextTheme });
+    setTimeout(() => {
+      setTheme(nextTheme);
+      setThemeTransition(null);
+    }, 550);
+  };
 
   // Dynamic English translation resolver — uses static files first, API as last resort
   useEffect(() => {
@@ -1337,6 +1351,18 @@ export default function App() {
       onClick={() => setSelectedPhilosopher(null)}
     >
       
+      {/* Theme transition ripple overlay — expands from toggle button like rushiwowen.co */}
+      {themeTransition && (
+        <div
+          className="fixed inset-0 z-[9999] pointer-events-none theme-transition-ripple"
+          style={{
+            '--ripple-x': `${themeTransition.x}px`,
+            '--ripple-y': `${themeTransition.y}px`,
+            '--ripple-color': themeTransition.to === 'dark' ? '#0B1118' : '#FDFBF7',
+          } as React.CSSProperties}
+        />
+      )}
+
       {/* Decorative Greek Meander Wave Header Accent */}
       <GreekMeander className="bg-[#FAF8F5]/80" />
 
@@ -2111,7 +2137,7 @@ export default function App() {
           <button
             type="button"
             className="cursor-pointer p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all relative group"
-            onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+            onClick={handleThemeToggle}
             title={theme === 'dark' ? (language === 'zh' ? '切换亮色模式' : 'Switch to Light') : (language === 'zh' ? '切换暗色模式' : 'Switch to Dark')}
           >
             {theme === 'dark' ? (
