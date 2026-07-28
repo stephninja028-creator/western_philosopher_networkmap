@@ -234,7 +234,7 @@ async function startServer() {
       const ai = getGeminiClient();
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash",
         contents: `Please translate the following classical philosopher profile from Chinese to English with high academic precision, elegant prose, and appropriate classical terminology. Keep standard terms and schools in standard English translations. Do NOT translate names of philosophers if they are in English, but keep them academic (e.g. Socrates, Plato). Return a clean, complete translated version mirroring the same fields in the schema.
 
 Profile fields to translate:
@@ -448,7 +448,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       }));
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash",
         contents,
         config: {
           systemInstruction,
@@ -522,7 +522,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       const ai = getGeminiClient();
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash",
         contents: isEn ? `You are now the Chief Moderator Judge of the open Athenian Palestra Academy.
 We are conducting an intense, high-density, high-tension academic intellectual duel (Debate Duel)!
 
@@ -763,7 +763,7 @@ ${sagesIntro}
 请严苛遵循以下 JSON 格式输出，确保 speakerId 完美匹配其 philosopherId，主持人为 'moderator'。`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash",
         contents: isEn ? `Please organize this multilateral debate on the topic "${topic}" based on the Sages of Athens. Output the complete JSON conforming to the schema.`
                        : `针对辩题“${topic}”，请组织这场多边群星大辩论会。输出符合 schema 的完整 JSON 数据。`,
         config: {
