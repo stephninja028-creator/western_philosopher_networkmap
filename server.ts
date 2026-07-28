@@ -906,6 +906,33 @@ ${sagesIntro}
     }
   }
 
+  // 301 redirects for old/renamed blog URLs — prevents 404s and passes link equity
+  const blogRedirects: Record<string, string> = {
+    'why-western-philosophy-matters': '/blog/western-philosophy-history-complete-guide',
+    'what-is-phenomenology': '/blog/zen-and-phenomenology-comparison',
+    'western-philosophy-learning-roadmap': '/blog/western-philosophy-history-complete-guide',
+    'how-to-read-kant': '/blog/kant-three-critiques-explained',
+    'nietzsche-philosophy-introduction': '/blog/nietzsche-ubermensch-philosophy-explained',
+    'western-philosophy-timeline': '/blog/western-philosophy-history-complete-guide',
+    'what-is-existentialism': '/blog/what-is-existentialism-introduction',
+    'kant-vs-hegel': '/blog/kant-three-critiques-explained',
+    'plato-vs-aristotle': '/blog/socrates-philosophy-explained',
+    'marx-vs-nietzsche': '/blog/nietzsche-ubermensch-philosophy-explained',
+    'rationalism-vs-empiricism': '/blog/western-philosophy-history-complete-guide',
+    'socrates-plato-aristotle-relationship': '/blog/socrates-philosophy-explained',
+    'what-is-dialectics': '/blog/western-philosophy-history-complete-guide',
+  };
+
+  app.use("/blog/:slug", (req, res, next) => {
+    const slug = req.params.slug;
+    if (slug.includes(".")) return res.status(404).send("Not found");
+    if (blogRedirects[slug]) {
+      const langParam = req.query.lang ? `?lang=${req.query.lang}` : '';
+      return res.redirect(301, `${blogRedirects[slug]}${langParam}`);
+    }
+    next();
+  });
+
   // Blog index route
   app.get("/blog", (req, res) => {
     const langCode = detectLangFromRequest(req);
@@ -1069,7 +1096,17 @@ ${sagesIntro}
     if (eng) {
       return eng.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     }
-    return 'school-' + school.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+    // Fallback: use a hash of the Chinese name to guarantee a non-empty, unique slug
+    const asciiPart = school.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+    if (asciiPart) {
+      return 'school-' + asciiPart;
+    }
+    // Pure CJK name with no translation: hash the characters to produce a unique slug
+    let hash = 0;
+    for (let i = 0; i < school.length; i++) {
+      hash = ((hash << 5) - hash + school.charCodeAt(i)) | 0;
+    }
+    return 'school-' + Math.abs(hash).toString(36);
   }
 
   const schoolMap = new Map<string, { name: string; nameEng: string; slug: string; philosophers: PhilosopherWithEpoch[] }>();
@@ -1540,6 +1577,174 @@ ${sagesIntro}
     <p style="margin-bottom:24px;color:#5c5340">${SCHOOL_T.pageIntro(allSchools.length, lang)}</p>
     <ul class="dir-list">${items}</ul>
     <div class="footer"><a href="/${isEn ? '?lang=en' : ''}">${T(COMMON.backToHome, lang)}</a> | <a href="/philosophers${isEn ? '?lang=en' : ''}">${T(COMMON.allPhilosophers, lang)}</a> | <a href="/epochs${isEn ? '?lang=en' : ''}">${T(COMMON.allEpochs, lang)}</a></div>
+  </div>`,
+    });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  });
+
+  // ─── HOME PAGE SSR ───────────────────────────────────────────
+  // Pre-renders the homepage with real content for search engine crawlers.
+  // Previously the root path fell through to the SPA catch-all (<div id="root"></div>),
+  // which forced Googlebot to queue JS rendering — delaying indexing.
+  // This route returns a fully populated HTML page with philosopher listings,
+  // epoch overview, school directory, and latest blog posts.
+  app.get("/", (req, res) => {
+    const lang = detectLangFromRequest(req);
+    const isEn = lang === 'en';
+    const base = 'https://www.knowphilosophers.site';
+
+    // Featured philosophers (isMajor flag) — limit to 24 for a clean grid
+    const featured = allPhilosophers.filter(p => p.isMajor).slice(0, 24);
+    const featuredHtml = featured.map(p => {
+      const schoolEng = schoolTranslations[p.school] || p.school;
+      return `<a class="related-card" href="/philosopher/${p.id}${isEn ? '?lang=en' : ''}">
+        <div class="name">${esc(p.name)} · ${esc(p.nameEng)}</div>
+        <div class="school">${esc(isEn ? schoolEng : p.school)} | ${esc(p.eraDisp)}</div>
+      </a>`;
+    }).join('');
+
+    // Epoch overview — all 13 epochs
+    const epochsHtml = allEpochsData.map(e => {
+      const epochTr = epochTranslations[e.id];
+      const title = isEn && epochTr ? epochTr.title : e.title;
+      const subtitle = isEn && epochTr ? epochTr.subtitle : e.subtitle;
+      return `<li>
+        <a href="/epoch/${e.id}${isEn ? '?lang=en' : ''}">${esc(title)}</a>
+        <div class="desc">${esc(subtitle)} | ${COMMON.countPhilosophers(e.philosophers.length, lang)}</div>
+      </li>`;
+    }).join('');
+
+    // School directory — all schools grouped
+    const schoolsHtml = allSchools.map(s => `
+      <li>
+        <a href="/school/${s.slug}${isEn ? '?lang=en' : ''}">${esc(isEn ? s.nameEng : s.name)}${isEn ? '' : ' · ' + esc(s.nameEng)}</a>
+        <div class="desc">${COMMON.countPhilosophers(s.philosophers.length, lang)}</div>
+      </li>`).join('');
+
+    // Latest blog posts — most recent 6
+    const posts = loadPostIndex();
+    const recentPosts = posts.slice(0, 6);
+    const blogHtml = recentPosts.map(p =>
+      `<li>
+        <a href="/blog/${p.slug}${isEn ? '?lang=en' : ''}">${esc(p.title)}</a>
+        <div class="desc">${esc(p.date)}</div>
+      </li>`).join('');
+
+    // Navigation cards
+    const navCards = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin:32px 0;">
+        <a href="/philosophers${isEn ? '?lang=en' : ''}" style="display:block;padding:20px;background:#f5f0e6;border:1px solid #e0d8c8;border-radius:12px;text-decoration:none;transition:border-color .2s;">
+          <div style="font-size:18px;font-weight:700;color:#3d372b;">${T(COMMON.allPhilosophers, lang)}</div>
+          <div style="font-size:13px;color:#8c877a;margin-top:4px;">${COMMON.countPhilosophers(allPhilosophers.length, lang)}</div>
+        </a>
+        <a href="/epochs${isEn ? '?lang=en' : ''}" style="display:block;padding:20px;background:#f5f0e6;border:1px solid #e0d8c8;border-radius:12px;text-decoration:none;transition:border-color .2s;">
+          <div style="font-size:18px;font-weight:700;color:#3d372b;">${T(COMMON.allEpochs, lang)}</div>
+          <div style="font-size:13px;color:#8c877a;margin-top:4px;">${isEn ? `${allEpochsData.length} epochs` : `${allEpochsData.length} 个纪元`}</div>
+        </a>
+        <a href="/schools${isEn ? '?lang=en' : ''}" style="display:block;padding:20px;background:#f5f0e6;border:1px solid #e0d8c8;border-radius:12px;text-decoration:none;transition:border-color .2s;">
+          <div style="font-size:18px;font-weight:700;color:#3d372b;">${T(COMMON.allSchools, lang)}</div>
+          <div style="font-size:13px;color:#8c877a;margin-top:4px;">${isEn ? `${allSchools.length} schools` : `${allSchools.length} 个流派`}</div>
+        </a>
+        <a href="/blog${isEn ? '?lang=en' : ''}" style="display:block;padding:20px;background:#f5f0e6;border:1px solid #e0d8c8;border-radius:12px;text-decoration:none;transition:border-color .2s;">
+          <div style="font-size:18px;font-weight:700;color:#3d372b;">${T(COMMON.blog, lang)}</div>
+          <div style="font-size:13px;color:#8c877a;margin-top:4px;">${isEn ? `${posts.length} articles` : `${posts.length} 篇文章`}</div>
+        </a>
+      </div>`;
+
+    const html = seoPageHtml({
+      title: isEn
+        ? `${T(SITE.name, lang)} — ${T(SITE.tagline, lang)}`
+        : `${T(SITE.name, lang)} — ${T(SITE.tagline, lang)} | ${T(SITE.bilingual, lang)}`,
+      description: isEn
+        ? `Interactive network map of ${allPhilosophers.length} East-West philosophers across ${allEpochsData.length} epochs and ${allSchools.length} schools. From Socrates to Nietzsche, Confucius to Wang Yangming — explore philosopher lineages, intellectual encounters, and detailed biographies.`
+        : `交互式东西方哲人网络图谱，收录${allPhilosophers.length}位哲学家、${allEpochsData.length}大哲学纪元、${allSchools.length}个哲学流派。从苏格拉底到尼采，从孔子到王阳明——探索哲学家师承关系、思想碰撞与详细生平。中英双语。`,
+      canonical: `${base}/`,
+      keywords: isEn
+        ? 'philosophy, philosopher network, Western philosophy, Eastern philosophy, Chinese philosophy, Socrates, Plato, Aristotle, Kant, Nietzsche, Confucius, Laozi, Zhuangzi, Wang Yangming, philosophy timeline, philosophy schools'
+        : '哲学, 哲学家网络, 西方哲学, 东方哲学, 中国哲学, 苏格拉底, 柏拉图, 亚里士多德, 康德, 尼采, 孔子, 老子, 庄子, 王阳明, 哲学时代, 哲学流派',
+      ogType: 'website',
+      lang,
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": T(SITE.name, lang),
+          "alternateName": T(SITE.name, lang === 'en' ? 'zh' : 'en'),
+          "url": `${base}/`,
+          "description": isEn
+            ? `Interactive network map of ${allPhilosophers.length} East-West philosophers.`
+            : `交互式东西方哲人网络图谱，收录${allPhilosophers.length}位哲学家。`,
+          "inLanguage": [lang === 'en' ? 'en' : 'zh-CN', lang === 'en' ? 'zh-CN' : 'en'],
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": isEn ? "Featured Philosophers" : "精选哲学家",
+          "numberOfItems": featured.length,
+          "url": `${base}/philosophers`,
+          "itemListElement": featured.slice(0, 10).map((p, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `${base}/philosopher/${p.id}`,
+            "name": `${p.name} · ${p.nameEng}`,
+          })),
+        },
+      ],
+      bodyHtml: `
+  <div class="container">
+    <div class="header">
+      <h1>${T(SITE.name, lang)}</h1>
+      <div class="en-name">${T(SITE.tagline, lang)} · ${T(SITE.bilingual, lang)}</div>
+      <div class="meta">
+        <span>${COMMON.countPhilosophers(allPhilosophers.length, lang)}</span>
+        <span>${isEn ? `${allEpochsData.length} epochs` : `${allEpochsData.length} 个纪元`}</span>
+        <span>${isEn ? `${allSchools.length} schools` : `${allSchools.length} 个流派`}</span>
+        <span>${isEn ? `${posts.length} blog articles` : `${posts.length} 篇博客`}</span>
+      </div>
+    </div>
+
+    <p style="font-size:16px;color:#4a4538;margin-bottom:8px;line-height:1.9;">
+      ${isEn
+        ? `Explore ${allPhilosophers.length} philosophers from ancient Greece to modern times, and from Pre-Qin China to the modern era. Visualize intellectual lineages, debates, and synthesis across civilizations. Every philosopher has a detailed biography, worldview, famous quotes, and intellectual encounters.`
+        : `收录从古希腊到现代、从先秦诸子到近代的${allPhilosophers.length}位哲学家。可视化思想家之间的师承、对立与综合关系，跨越东西方文明。每位哲学家均有详细生平、世界观体系、传世金句与思想碰撞。`
+      }
+    </p>
+
+    ${navCards}
+
+    <div class="section">
+      <h2>${isEn ? 'Featured Philosophers' : '精选哲学家'}</h2>
+      <div class="related-grid">${featuredHtml}</div>
+    </div>
+
+    <div class="section">
+      <h2>${isEn ? 'Philosophical Epochs' : '哲学时代'}</h2>
+      <ul class="dir-list">${epochsHtml}</ul>
+    </div>
+
+    <div class="section">
+      <h2>${isEn ? 'Philosophical Schools' : '哲学流派'}</h2>
+      <ul class="dir-list" style="columns:2;column-gap:24px;">${schoolsHtml}</ul>
+    </div>
+
+    <div class="section">
+      <h2>${isEn ? 'Latest Blog Posts' : '最新博客文章'}</h2>
+      <ul class="dir-list">${blogHtml}</ul>
+    </div>
+
+    <div class="cta-box">
+      <a href="/philosophers${isEn ? '?lang=en' : ''}">${T(COMMON.exploreCta, lang)}</a>
+      <p>${isEn ? 'Launch the interactive philosophy network visualization' : '开启交互式哲学网络可视化体验'}</p>
+    </div>
+
+    <div class="footer">
+      <a href="/philosophers${isEn ? '?lang=en' : ''}">${T(COMMON.allPhilosophers, lang)}</a> |
+      <a href="/epochs${isEn ? '?lang=en' : ''}">${T(COMMON.allEpochs, lang)}</a> |
+      <a href="/schools${isEn ? '?lang=en' : ''}">${T(COMMON.allSchools, lang)}</a> |
+      <a href="/blog${isEn ? '?lang=en' : ''}">${T(COMMON.blog, lang)}</a> |
+      <a href="/${isEn ? '' : '?lang=en'}">${isEn ? '中文' : 'English'}</a>
+    </div>
   </div>`,
     });
     res.setHeader("Content-Type", "text/html; charset=utf-8");

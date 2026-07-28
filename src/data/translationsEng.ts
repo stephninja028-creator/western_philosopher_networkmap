@@ -107,7 +107,25 @@ export const schoolTranslations: Record<string, string> = {
   '清代理学/民主启蒙': 'Qing Democratic Enlightenment',
   '新文化运动': 'New Culture Movement',
   '现代新儒家': 'Modern Neo-Confucianism',
-  '现代新理学': 'Modern New Principle'
+  '现代新理学': 'Modern New Principle',
+  // ── Previously missing translations (caused empty slug "school-") ──
+  '名家': 'School of Names',
+  '阴阳家': 'Yin-Yang School',
+  '两汉经学': 'Han Confucian Classics',
+  '竹林玄学': 'Bamboo Grove Xuanxue',
+  '涅槃学': 'Nirvana School',
+  '般若学': 'Prajna School',
+  '天台宗': 'Tiantai School',
+  '理学/象数派': 'Neo-Confucian Symbol-Number School',
+  '事功之学': 'Practical Statecraft School',
+  '明代气学': 'Ming Qi Philosophy',
+  '蕺山学派': 'Jishan School',
+  '清代理学': 'Qing Neo-Confucianism',
+  '唯物实学': 'Materialist Shixue',
+  '考据唯物': 'Textual Materialism',
+  '经世致用派': 'Statecraft School',
+  '近代西方思想启蒙': 'Modern Western Enlightenment Thought',
+  '维新变法派': 'Reform Movement School'
 };
 
 export const schoolLabelTranslations: Record<string, string> = {
