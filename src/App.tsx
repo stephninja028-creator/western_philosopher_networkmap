@@ -7,7 +7,7 @@ import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2, Sun, Moon } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2, Sun, Moon, Brain } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { getEnrichedEng, hasCompleteEnrichedEng } from './data/enrichedDetailsEng';
 import { detectLang, SUPPORTED_LANGS, STORAGE_KEY, type Language } from './i18n/config';
@@ -15,6 +15,7 @@ import { PaymentModal } from './components/PaymentModal';
 import { SoulChatTerminal } from './components/SoulChatTerminal';
 import { MultilateralSymposium } from './components/MultilateralSymposium';
 import { ShareCardModal } from './components/ShareCardModal';
+import { SoulTest } from './components/SoulTest';
 import { getPhilosopherPortrait } from './data/portraitMap';
 
 // Background MP3 Music Tracker for Ambient Study
@@ -324,7 +325,7 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'west' | 'east' | 'debate'>('west');
+  const [activeTab, setActiveTab] = useState<'west' | 'east' | 'debate' | 'soul'>('west');
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<Philosopher | null>(() => {
     return philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
@@ -336,7 +337,7 @@ export default function App() {
 
   // Synchronize selection when switching region
   useEffect(() => {
-    if (activeTab === 'debate') return;
+    if (activeTab === 'debate' || activeTab === 'soul') return;
     if (activeTab === 'west') {
       const defaultPhilosopher = philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
       setSelectedPhilosopher(defaultPhilosopher);
@@ -1471,6 +1472,25 @@ export default function App() {
             </span>
           </button>
 
+          {/* Soul Test */}
+          <button
+            onClick={() => {
+              setActiveTab('soul');
+              setDetailedPhilosopher(null);
+            }}
+            className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-serif font-extrabold tracking-widest uppercase transition-all flex items-center gap-2 border-t-2 border-x-2 rounded-t-xl cursor-pointer relative ${
+              activeTab === 'soul'
+                ? 'bg-[#3b1e6e] border-[#D4AF37]/50 text-[#FAF8F5]'
+                : 'bg-[#F2EDE2]/60 border-transparent text-[#0D5C75] hover:bg-[#F2EDE2] hover:text-[#3b1e6e]'
+            }`}
+          >
+            <Brain className="w-4 h-4 text-[#c9a0e8]" />
+            <span>{language === 'zh' ? '🔮 灵魂测试' : '🔮 Soul Test'}</span>
+            <span className="absolute -top-1.5 -right-1.5 bg-purple-600 text-white text-[8px] px-1.5 py-0.5 rounded-full font-sans font-extrabold animate-pulse shadow-3xs">
+              NEW
+            </span>
+          </button>
+
           {/* Blog */}
           <a
             href="/blog"
@@ -1482,8 +1502,62 @@ export default function App() {
         </div>
       </div>
 
-      {(activeTab === 'west' || activeTab === 'east') ? (
+      {activeTab === 'soul' ? (
         <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
+          <SoulTest
+            language={language}
+            onNavigateToPhilosopher={(pid) => {
+              // Find the philosopher in either western or eastern data
+              const allPhilosophers = [...philosophyData, ...easternPhilosophyData].flatMap(e => e.philosophers);
+              const target = allPhilosophers.find(p => p.id === pid);
+              if (target) {
+                // Switch to the correct tab and show the philosopher detail
+                const isEastern = easternPhilosophyData.some(e => e.philosophers.some(p => p.id === pid));
+                setActiveTab(isEastern ? 'east' : 'west');
+                setDetailedPhilosopher(target);
+              }
+            }}
+          />
+        </main>
+      ) : (activeTab === 'west' || activeTab === 'east') ? (
+        <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
+
+        {/* Soul Test CTA Card */}
+        <section
+          onClick={() => {
+            setActiveTab('soul');
+            setDetailedPhilosopher(null);
+          }}
+          className="cursor-pointer group relative overflow-hidden rounded-2xl border-2 border-[#D4AF37]/30 hover:border-[#D4AF37]/70 transition-all bg-gradient-to-r from-[#1a1a3e] via-[#2a1a5e] to-[#1a1a3e] p-5 sm:p-6 shadow-lg hover:shadow-xl"
+        >
+          {/* Subtle sparkle particles */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-3 left-[10%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" />
+            <div className="absolute top-8 left-[30%] w-0.5 h-0.5 bg-[#D4AF37] rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+            <div className="absolute top-5 right-[20%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute bottom-4 left-[50%] w-0.5 h-0.5 bg-[#D4AF37] rounded-full animate-pulse" style={{ animationDelay: '1.5s' }} />
+            <div className="absolute bottom-6 right-[10%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+          </div>
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">🔮</div>
+              <div>
+                <h3 className="font-serif text-lg sm:text-xl font-bold text-[#e8dcc8] tracking-wide">
+                  {language === 'zh' ? '哲学灵魂测试' : 'Philosophy Soul Test'}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#c9a0e8]/80 mt-0.5">
+                  {language === 'zh'
+                    ? '10 道题，发现 16 位哲学家中谁与你的灵魂最匹配'
+                    : '10 questions — discover which of the 16 great philosophers matches your soul'}
+                </p>
+              </div>
+            </div>
+            <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded-full text-[#D4AF37] text-xs sm:text-sm font-bold font-serif tracking-wider group-hover:bg-[#D4AF37]/30 transition-colors">
+              <Sparkles className="w-4 h-4" />
+              {language === 'zh' ? '开始测试' : 'Start'}
+            </div>
+          </div>
+        </section>
 
         {/* MAIN LAYOUT: Continuous Scrollway (Left) and Sticky Details Stele (Right) */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative mt-4">
