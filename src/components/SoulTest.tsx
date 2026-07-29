@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toPng } from 'html-to-image';
-import { Sparkles, RotateCcw, Share2, Download, Copy, Check, ArrowRight, Brain, ChevronRight } from 'lucide-react';
+import { Sparkles, RotateCcw, Download, Copy, Check, ArrowRight, Brain, ChevronRight, X as XIcon, MessageCircle, Send, X as Close, QrCode } from 'lucide-react';
 import { questions, archetypes, computeResult, type PhilosopherArchetype } from '../data/quizData';
 import { getPhilosopherPortrait } from '../data/portraitMap';
 
@@ -30,32 +30,37 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [resultId, setResultId] = useState<string>('');
   const [allScores, setAllScores] = useState<Record<string, number>>({});
-  const [copied, setCopied] = useState(false);
+  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [showWechatQR, setShowWechatQR] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const archetype: PhilosopherArchetype | null = resultId ? archetypes[resultId] : null;
   const portrait = resultId ? getPhilosopherPortrait(resultId) : null;
 
-  // ── Match percentages ────────────────────────────────
+  const QUIZ_URL = 'https://www.knowphilosophers.site/#soul-test';
+
+  // ── Top matches — relative percentages (top = 100%) ──────────
 
   const topMatches = useMemo(() => {
     if (!allScores || !resultId) return [];
-    const totalScore = Object.values(allScores).reduce<number>((sum: number, val: unknown) => sum + (typeof val === 'number' ? val : 0), 0);
-    if (totalScore === 0) return [];
+    const entries = (Object.entries(allScores) as [string, number][])
+      .filter(([, score]) => score > 0)
+      .sort(([, a], [, b]) => b - a);
+    if (entries.length === 0) return [];
 
-    return (Object.entries(allScores) as [string, number][])
-      .sort(([, a], [, b]) => b - a)
+    const topScore = entries[0][1];
+    if (topScore === 0) return [];
+
+    return entries
       .slice(0, 4)
       .map(([pid, score]) => ({
         pid,
         archetype: archetypes[pid],
         score,
-        percentage: Math.round((score / totalScore) * 100),
+        percentage: Math.round((score / topScore) * 100),
       }));
   }, [allScores, resultId]);
-
-  const matchPercentage = topMatches.length > 0 ? topMatches[0].percentage : 0;
 
   // GA tracking helper
   const trackEvent = useCallback((eventName: string, params?: Record<string, any>) => {
@@ -78,10 +83,9 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
   };
 
   const handleSelect = (optionIdx: number) => {
-    if (selectedOption !== null) return; // prevent double-click
+    if (selectedOption !== null) return;
     setSelectedOption(optionIdx);
 
-    // Brief pause for visual feedback, then advance
     setTimeout(() => {
       const newAnswers = [...answers, optionIdx];
       setAnswers(newAnswers);
@@ -90,12 +94,11 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
       if (currentQ < questions.length - 1) {
         setCurrentQ(currentQ + 1);
       } else {
-        // Quiz complete — compute result (v2 returns object)
         const { archetypeId, scores } = computeResult(newAnswers);
         setResultId(archetypeId);
         setAllScores(scores);
         setPhase('result');
-        trackEvent('soul_test_complete', { result_id: archetypeId, match_pct: matchPercentage });
+        trackEvent('soul_test_complete', { result_id: archetypeId });
       }
     }, 350);
   };
@@ -110,29 +113,63 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
     setAllScores({});
   };
 
-  const handleShare = useCallback(async () => {
-    trackEvent('soul_test_share');
-    const shareText = isEn
-      ? `I took the Philosophy Soul Test — I'm ${matchPercentage}% ${archetype?.typeName.en}! Discover your philosopher soul: https://www.knowphilosophers.site/#soul-test`
-      : `我做了哲学灵魂测试——${matchPercentage}% 匹配「${archetype?.typeName.zh}」！快来测测你的哲学灵魂：https://www.knowphilosophers.site/#soul-test`;
+  // ── Share helpers ──────────────────────────────────────
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: isEn ? 'Philosophy Soul Test' : '哲学灵魂测试',
-          text: shareText,
-          url: 'https://www.knowphilosophers.site/#soul-test',
-        });
-      } catch {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {}
+  const getShareText = useCallback((short = false) => {
+    if (!archetype) return '';
+    const name = isEn ? archetype.philosopherName.en : archetype.philosopherName.zh;
+    const url = QUIZ_URL;
+    if (short) {
+      return isEn
+        ? `I'm "${name}" — Philosophy Soul Test\n${url}`
+        : `我是「${name}」——哲学灵魂测试\n${url}`;
     }
-  }, [archetype, isEn, trackEvent, matchPercentage]);
+    return isEn
+      ? `I took the Philosophy Soul Test and matched with ${name}. Discover your philosopher soul: ${url}`
+      : `我做了哲学灵魂测试，我的哲学家是「${name}」。快来测测你的哲学灵魂：${url}`;
+  }, [archetype, isEn]);
 
+  // ── X (Twitter) share ──────────────────────────────────────
+  const handleShareX = useCallback(() => {
+    if (!archetype) return;
+    trackEvent('soul_test_share', { platform: 'x' });
+    const text = getShareText(true);
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&hashtags=PhilosophySoulTest,哲学灵魂测试`;
+    window.open(url, '_blank', 'noopener,noreferrer,width=550,height=420');
+  }, [archetype, getShareText, trackEvent]);
+
+  // ── 小红书 (Xiaohongshu) share — copy to clipboard ──────
+  const handleShareRedBook = useCallback(async () => {
+    if (!archetype) return;
+    trackEvent('soul_test_share', { platform: 'xiaohongshu' });
+    const text = getShareText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedPlatform('xiaohongshu');
+      setTimeout(() => setCopiedPlatform(null), 2200);
+    } catch {}
+  }, [archetype, getShareText, trackEvent]);
+
+  // ── Instagram share — copy to clipboard ───────────────────
+  const handleShareInstagram = useCallback(async () => {
+    if (!archetype) return;
+    trackEvent('soul_test_share', { platform: 'instagram' });
+    const text = getShareText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedPlatform('instagram');
+      setTimeout(() => setCopiedPlatform(null), 2200);
+    } catch {}
+  }, [archetype, getShareText, trackEvent]);
+
+  // ── WeChat share — show QR code ────────────────────────────
+  const handleShareWeChat = useCallback(() => {
+    if (!archetype) return;
+    trackEvent('soul_test_share', { platform: 'wechat' });
+    setShowWechatQR(true);
+  }, [archetype, trackEvent]);
+
+  // ── Download card as PNG ───────────────────────────────────
   const handleDownload = useCallback(async () => {
     if (!cardRef.current) return;
     setDownloading(true);
@@ -302,24 +339,18 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="w-full max-w-lg mx-auto"
           >
-            {/* Header with match percentage */}
+            {/* Header (no logo, no big percentage) */}
             <div className="text-center mb-6">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 mb-3">
-                  <span className="text-sm font-bold text-[#D4AF37]">{matchPercentage}%</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {isEn ? 'match' : '匹配'}
-                  </span>
-                </div>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0B2545] dark:text-[#e8dcc8] mb-1">
                   {isEn ? 'Your Philosopher Is...' : '你的哲学家是…'}
                 </h2>
                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                  {isEn ? 'Click the card to flip and see details' : '点击卡片翻转查看详情'}
+                  {isEn ? 'Tap the card to flip and see details' : '点击卡片翻转查看详情'}
                 </p>
               </motion.div>
             </div>
@@ -356,29 +387,19 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                   <div className="absolute inset-3 border rounded-xl pointer-events-none" style={{ borderColor: `${archetype.theme.accent}40` }} />
                   <div className="absolute inset-[14px] border rounded-lg pointer-events-none" style={{ borderColor: `${archetype.theme.accent}25` }} />
 
-                  {/* Content */}
+                  {/* Content (no emoji, no percentage, no watermark) */}
                   <div className="relative h-full flex flex-col items-center justify-center p-8 text-center" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
 
                     {/* Top decorative line */}
-                    <div className="w-16 h-[2px] rounded-full mb-4 opacity-60" style={{ background: archetype.theme.accent }} />
-
-                    {/* Match percentage badge */}
-                    <div className="mb-3">
-                      <span className="text-3xl sm:text-4xl font-bold" style={{ color: archetype.theme.accent }}>
-                        {matchPercentage}%
-                      </span>
-                    </div>
-
-                    {/* Emoji */}
-                    <div className="text-4xl mb-3">{archetype.emoji}</div>
+                    <div className="w-16 h-[2px] rounded-full mb-6 opacity-60" style={{ background: archetype.theme.accent }} />
 
                     {/* Portrait */}
                     {portrait && (
-                      <div className="mb-4">
+                      <div className="mb-5">
                         <img
                           src={portrait.large}
-                          alt={isEn ? archetype.typeName.en : archetype.typeName.zh}
-                          className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
+                          alt={isEn ? archetype.philosopherName.en : archetype.philosopherName.zh}
+                          className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover"
                           style={{ borderColor: archetype.theme.accent, borderWidth: '3px' }}
                           crossOrigin="anonymous"
                         />
@@ -386,26 +407,22 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                     )}
 
                     {/* Philosopher name (main heading) */}
-                    <h3 className="text-2xl sm:text-3xl font-bold mb-1 leading-tight" style={{ color: archetype.theme.accent }}>
+                    <h3 className="text-3xl sm:text-4xl font-bold mb-1 leading-tight" style={{ color: archetype.theme.accent }}>
                       {isEn ? archetype.philosopherName.en : archetype.philosopherName.zh}
                     </h3>
+
                     {/* Type name (subtitle) */}
-                    <p className="text-xs opacity-70 mb-3" style={{ color: archetype.theme.accent }}>
+                    <p className="text-sm opacity-70 mb-4" style={{ color: archetype.theme.accent }}>
                       {isEn ? archetype.typeName.en : archetype.typeName.zh}
                     </p>
 
                     {/* Divider */}
-                    <div className="w-10 h-[1px] mb-4 opacity-40" style={{ background: archetype.theme.accent }} />
+                    <div className="w-10 h-[1px] mb-5 opacity-40" style={{ background: archetype.theme.accent }} />
 
                     {/* Quote */}
-                    <p className="text-sm italic leading-relaxed max-w-[260px] opacity-90" style={{ color: '#e8dcc8' }}>
+                    <p className="text-sm sm:text-base italic leading-relaxed max-w-[280px] opacity-90" style={{ color: '#e8dcc8' }}>
                       "{isEn ? archetype.quote.en : archetype.quote.zh}"
                     </p>
-
-                    {/* Site watermark */}
-                    <div className="absolute bottom-4 text-[9px] tracking-[0.2em] opacity-40" style={{ color: archetype.theme.accent }}>
-                      knowphilosophers.site
-                    </div>
                   </div>
                 </div>
 
@@ -429,16 +446,13 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                   {/* Content */}
                   <div className="relative h-full flex flex-col p-6 sm:p-8 overflow-y-auto" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
 
-                    {/* Type badge */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">{archetype.emoji}</span>
-                      <h3 className="text-base font-bold" style={{ color: archetype.theme.accent }}>
-                        {isEn ? archetype.typeName.en : archetype.typeName.zh}
-                      </h3>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: archetype.theme.tagBg, color: archetype.theme.accent }}>
-                        {matchPercentage}%
-                      </span>
-                    </div>
+                    {/* Type header (no emoji, no percentage) */}
+                    <h3 className="text-lg sm:text-xl font-bold mb-1" style={{ color: archetype.theme.accent }}>
+                      {isEn ? archetype.philosopherName.en : archetype.philosopherName.zh}
+                    </h3>
+                    <p className="text-xs opacity-70 mb-3" style={{ color: archetype.theme.accent }}>
+                      {isEn ? archetype.typeName.en : archetype.typeName.zh}
+                    </p>
 
                     {/* Divider */}
                     <div className="w-full h-[1px] mb-3 opacity-20" style={{ background: archetype.theme.accent }} />
@@ -477,17 +491,12 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                         {isEn ? archetype.ideology.en : archetype.ideology.zh}
                       </p>
                     </div>
-
-                    {/* Site watermark */}
-                    <div className="mt-auto pt-3 text-[9px] tracking-[0.2em] opacity-40 text-center" style={{ color: archetype.theme.accent }}>
-                      knowphilosophers.site
-                    </div>
                   </div>
                 </div>
               </motion.div>
             </motion.div>
 
-            {/* ── Top matches mini-bar ── */}
+            {/* ── Top matches mini-bar (relative percentages) ── */}
             {topMatches.length > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -516,9 +525,9 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                       <span className="text-xs font-medium w-24 text-right truncate" style={{
                         color: i === 0 ? archetype.theme.accent : 'var(--text-secondary, #666)',
                       }}>
-                        {isEn ? match.archetype.typeName.en : match.archetype.typeName.zh}
+                        {isEn ? match.archetype.philosopherName.en : match.archetype.philosopherName.zh}
                       </span>
-                      <span className="text-xs font-bold w-8 text-right" style={{ color: i === 0 ? archetype.theme.accent : '#888' }}>
+                      <span className="text-xs font-bold w-10 text-right" style={{ color: i === 0 ? archetype.theme.accent : '#888' }}>
                         {match.percentage}%
                       </span>
                     </div>
@@ -540,37 +549,76 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0B2545] text-white rounded-xl font-bold text-sm hover:bg-[#152d4a] transition-colors font-serif tracking-wider shadow-lg"
               >
                 <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-                {isEn ? `Explore ${archetype.typeName.en}'s Full Profile` : `查看「${archetype.typeName.zh}」完整资料`}
+                {isEn ? `Explore ${archetype.philosopherName.en}'s Full Profile` : `查看「${archetype.philosopherName.zh}」完整资料`}
                 <ChevronRight className="w-4 h-4 text-[#D4AF37]" />
               </button>
 
-              {/* Share & Download row */}
-              <div className="flex gap-3">
+              {/* ── Share row: X / 微信 / 小红书 / Instagram ── */}
+              <div className="grid grid-cols-4 gap-2">
                 <button
-                  onClick={handleShare}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 transition-colors"
-                  style={{
-                    borderColor: '#D4AF37',
-                    color: '#D4AF37',
-                    background: 'rgba(212,175,55,0.08)',
-                  }}
+                  onClick={handleShareX}
+                  className="flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-black hover:bg-black/5 dark:hover:bg-white/10 transition-all group"
+                  title={isEn ? 'Share on X' : '分享到 X'}
                 >
-                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
-                  {copied ? (isEn ? 'Copied!' : '已复制!') : (isEn ? 'Share' : '分享')}
+                  <XIcon className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-black dark:group-hover:text-white" strokeWidth={2.5} />
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-black dark:group-hover:text-white">X</span>
                 </button>
+
                 <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  onClick={handleShareWeChat}
+                  className="flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-[#07C160] hover:bg-[#07C160]/5 transition-all group"
+                  title={isEn ? 'Share on WeChat' : '分享到微信'}
                 >
-                  {downloading ? (
-                    <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                  <svg className="w-4 h-4 text-[#07C160]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.69 4C4.93 4 1.92 6.51 1.92 9.6c0 1.78.93 3.36 2.4 4.43l-.6 1.83 2.13-1.07c.93.26 1.91.4 2.91.4h.27c-.18-.6-.27-1.22-.27-1.86 0-3.1 3-5.6 6.71-5.6h.27C15.16 5.46 12.2 4 8.69 4zm-2.91 2.4c.51 0 .93.42.93.93s-.42.93-.93.93-.93-.42-.93-.93.42-.93.93-.93zm5.83 0c.51 0 .93.42.93.93s-.42.93-.93.93-.93-.42-.93-.93.42-.93.93-.93zM15.55 9.6c-3.31 0-6 2.21-6 4.93 0 1.55.84 2.93 2.13 3.84l-.51 1.59 1.84-.93c.79.22 1.62.34 2.49.34 3.31 0 6-2.21 6-4.93 0-1.55-.84-2.93-2.13-3.84l.51-1.59-1.84.93c-.79-.22-1.62-.34-2.49-.34zm-2.06 2c.51 0 .93.42.93.93s-.42.93-.93.93-.93-.42-.93-.93.42-.93.93-.93zm4.13 0c.51 0 .93.42.93.93s-.42.93-.93.93-.93-.42-.93-.93.42-.93.93-.93z"/>
+                  </svg>
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-[#07C160]">{isEn ? 'WeChat' : '微信'}</span>
+                </button>
+
+                <button
+                  onClick={handleShareRedBook}
+                  className="flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-[#FF2741] hover:bg-[#FF2741]/5 transition-all group"
+                  title={isEn ? 'Copy for Xiaohongshu' : '复制文案发小红书'}
+                >
+                  {copiedPlatform === 'xiaohongshu' ? (
+                    <Check className="w-4 h-4 text-green-500" />
                   ) : (
-                    <Download className="w-4 h-4" />
+                    <svg className="w-4 h-4 text-[#FF2741]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 6.5C3 4.57 4.57 3 6.5 3h11C19.43 3 21 4.57 21 6.5v11c0 1.93-1.57 3.5-3.5 3.5h-11C4.57 21 3 19.43 3 17.5v-11zM6 7v10h2v-3h2l1.5 3H14l-1.7-3.4c.93-.32 1.6-1.2 1.6-2.25 0-1.3-1.05-2.35-2.35-2.35H6zm2 2h2.5c.55 0 1 .45 1 1s-.45 1-1 1H8V9z"/>
+                    </svg>
                   )}
-                  {downloading ? (isEn ? 'Generating...' : '生成中...') : (isEn ? 'Download Card' : '下载卡片')}
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-[#FF2741]">{isEn ? 'RedNote' : '小红书'}</span>
+                </button>
+
+                <button
+                  onClick={handleShareInstagram}
+                  className="flex flex-col items-center justify-center gap-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-[#E1306C] hover:bg-[#E1306C]/5 transition-all group"
+                  title={isEn ? 'Copy for Instagram' : '复制文案发 Instagram'}
+                >
+                  {copiedPlatform === 'instagram' ? (
+                    <Check className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <svg className="w-4 h-4 text-[#E1306C]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.31-1.46.72-2.13 1.39C1.34 2.69.93 3.36.62 4.15.32 4.91.12 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.25 2.15.55 2.91.31.79.72 1.46 1.39 2.13.67.67 1.34 1.08 2.13 1.39.76.3 1.64.5 2.91.55C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.25 2.91-.55.79-.31 1.46-.72 2.13-1.39.67-.67 1.08-1.34 1.39-2.13.3-.76.5-1.64.55-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.25-2.15-.55-2.91-.31-.79-.72-1.46-1.39-2.13C21.31 1.34 20.64.93 19.85.62 19.09.32 18.22.12 16.95.07 15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32 6.16 6.16 0 000-12.32zM12 16a4 4 0 110-8 4 4 0 010 8zm6.41-11.85a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z"/>
+                    </svg>
+                  )}
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-[#E1306C]">Instagram</span>
                 </button>
               </div>
+
+              {/* Download row */}
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                {downloading ? (
+                  <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {downloading ? (isEn ? 'Generating...' : '生成中...') : (isEn ? 'Download card as image' : '下载卡片图片')}
+              </button>
 
               {/* Restart */}
               <button
@@ -584,6 +632,51 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
           </motion.div>
         )}
 
+      </AnimatePresence>
+
+      {/* ══════════ WeChat QR Modal ══════════ */}
+      <AnimatePresence>
+        {showWechatQR && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowWechatQR(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <QrCode className="w-5 h-5 text-[#07C160]" />
+                  {isEn ? 'Scan with WeChat' : '微信扫码分享'}
+                </h3>
+                <button
+                  onClick={() => setShowWechatQR(false)}
+                  className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <Close className="w-5 h-5 text-slate-500" />
+                </button>
+              </div>
+              <div className="bg-white p-4 rounded-xl mb-3 flex items-center justify-center">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(QUIZ_URL)}&color=1a3a5c&bgcolor=ffffff`}
+                  alt="WeChat QR"
+                  className="w-56 h-56"
+                  crossOrigin="anonymous"
+                />
+              </div>
+              <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                {isEn ? 'Scan this QR code with WeChat to open the soul test' : '使用微信扫一扫，打开灵魂测试页面'}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
