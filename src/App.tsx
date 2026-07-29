@@ -16,6 +16,7 @@ import { SoulChatTerminal } from './components/SoulChatTerminal';
 import { MultilateralSymposium } from './components/MultilateralSymposium';
 import { ShareCardModal } from './components/ShareCardModal';
 import { SoulTest } from './components/SoulTest';
+import { Landing } from './components/Landing';
 import { getPhilosopherPortrait } from './data/portraitMap';
 
 // Background MP3 Music Tracker for Ambient Study
@@ -324,6 +325,9 @@ function getPhilosopherWorks(id: string, language: 'zh' | 'en' = 'zh'): string[]
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'west' | 'east' | 'debate' | 'soul'>('west');
+
+  // Landing / hero screen shown on first entry (CTA reveals the network map)
+  const [showLanding, setShowLanding] = useState<boolean>(true);
   const [activeEpochId, setActiveEpochId] = useState<number>(1);
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<Philosopher | null>(() => {
     return philosophyData[0].philosophers.find(p => p.id === 'socrates') || philosophyData[0].philosophers[0];
@@ -2463,6 +2467,24 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Landing / hero overlay — shown on entry, CTA reveals the map */}
+      <AnimatePresence>
+        {showLanding && (
+          <Landing
+            language={language}
+            setLanguage={setLanguage}
+            theme={theme}
+            onToggleTheme={handleThemeToggle}
+            onEnter={() => setShowLanding(false)}
+            onEnterSoul={() => {
+              setActiveTab('soul');
+              setDetailedPhilosopher(null);
+              setShowLanding(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   );
