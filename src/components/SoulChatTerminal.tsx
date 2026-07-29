@@ -30,6 +30,8 @@ interface SoulChatTerminalProps {
   onDeductDialogue: (philosopherId: string) => boolean; // Returns true if deduct succeeded, false if paywall hit
   onTriggerPayment: () => void;
   freeRemaining: number;
+  anonId: string;
+  onQuotaUpdate: (quota: { unlimited: boolean; freeRemaining: number; paidRemaining: number }) => void;
 }
 
 const SUGGESTED_PROMPTS_ZH: Record<string, string[]> = {
@@ -154,7 +156,9 @@ export const SoulChatTerminal: React.FC<SoulChatTerminalProps> = ({
   unlimitedActivated,
   onDeductDialogue,
   onTriggerPayment,
-  freeRemaining
+  freeRemaining,
+  anonId,
+  onQuotaUpdate
 }) => {
   const isEn = language === 'en';
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -225,16 +229,31 @@ export const SoulChatTerminal: React.FC<SoulChatTerminalProps> = ({
           school: philosopher.school,
           lifeAndTimes: philosopher.lifeAndTimes,
           quote: philosopher.quote,
-          messages: chatContext
+          messages: chatContext,
+          anonId
         })
       });
 
       if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        // Server-authoritative quota gate: free trial exhausted.
+        if (response.status === 402 && errData.code === 'QUOTA_EXHAUSTED') {
+          if (errData.quota) onQuotaUpdate(errData.quota);
+          setApiError(isEn
+            ? 'Your free trial is used up. Activate a dialogue card (¥9.9 / 15 chats) to continue.'
+            : '免费试用已用尽。激活对话卡（¥9.9 / 15 次）即可继续对谈。');
+          onTriggerPayment();
+          setLoading(false);
+          return;
+        }
         throw new Error('API server returned error');
       }
 
       const data = await response.json();
-      
+
+      // Keep client counters in sync with the server's authoritative quota.
+      if (data.quota) onQuotaUpdate(data.quota);
+
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: data.reply || (isEn ? "The ancient portal is silent." : "贤哲未留下回响。")

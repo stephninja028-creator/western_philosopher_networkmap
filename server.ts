@@ -75,6 +75,40 @@ async function startServer() {
     message: { error: "翻译请求过于频繁，请稍后再试 (Rate limit exceeded)" },
   });
 
+  // ── Server-authoritative quota store (per anonymous visitor) ──────────
+  // Prevents bypassing the UI to spam the Gemini proxy. Identity is an
+  // anonymous UUID persisted in the browser; no login required.
+  interface QuotaRecord {
+    freeUsed: number;
+    paidCredits: number;
+    unlimited: boolean;
+  }
+  const quotaStore = new Map<string, QuotaRecord>();
+  const FREE_CHATS = Number(process.env.FREE_CHATS ?? 5);
+
+  const getQuota = (anonId: string): QuotaRecord => {
+    let q = quotaStore.get(anonId);
+    if (!q) {
+      q = { freeUsed: 0, paidCredits: 0, unlimited: false };
+      quotaStore.set(anonId, q);
+    }
+    return q;
+  };
+
+  const quotaSnapshot = (q: QuotaRecord) => ({
+    unlimited: q.unlimited,
+    freeRemaining: q.unlimited ? -1 : Math.max(0, FREE_CHATS - q.freeUsed),
+    paidRemaining: q.unlimited ? -1 : q.paidCredits,
+  });
+
+  // Consume one unit from a quota record (free first, then paid).
+  const consumeQuota = (q: QuotaRecord): void => {
+    if (q.unlimited) return;
+    const freeRemaining = Math.max(0, FREE_CHATS - q.freeUsed);
+    if (freeRemaining > 0) q.freeUsed += 1;
+    else if (q.paidCredits > 0) q.paidCredits -= 1;
+  };
+
   // Automatic custom domain redirection (redirect public/shared preview urls to knowphilosophers.site)
   app.use((req, res, next) => {
     const host = req.headers.host || "";
@@ -394,8 +428,10 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
   };
 
   // Card Activation Validation API
+  // Grants the redeemed credits into the caller's server-side quota (anonId),
+  // so the chat handler can actually enforce them.
   app.post("/api/verify-code", (req, res) => {
-    const { code, lang } = req.body;
+    const { code, lang, anonId } = req.body;
     const langCode: Language = (lang === 'en') ? 'en' : 'zh';
     if (!code) {
       return res.status(400).json({ success: false, message: T(API.verifyCode.empty, langCode) });
@@ -410,11 +446,13 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
 
     // Unlimited keys can be reused infinitely for ease of demonstration / admin play
     if (match.type === "unlimited") {
+      if (anonId) getQuota(anonId).unlimited = true;
       return res.json({
         success: true,
         message: T(API.verifyCode.activated, langCode),
         type: match.type,
-        value: match.value
+        value: match.value,
+        quota: anonId ? quotaSnapshot(getQuota(anonId)) : undefined
       });
     }
 
@@ -426,11 +464,17 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
     // Capture as used
     saveUsedCode(cleanCode);
 
+    // Grant chat credits into the server quota so they're actually enforced.
+    if (anonId && match.type === "chat") {
+      getQuota(anonId).paidCredits += match.value;
+    }
+
     res.json({
       success: true,
       message: match.type === "chat" ? T(API.verifyCode.chatOk, langCode) : T(API.verifyCode.debateOk, langCode),
       type: match.type,
-      value: match.value
+      value: match.value,
+      quota: anonId ? quotaSnapshot(getQuota(anonId)) : undefined
     });
   });
 
@@ -450,12 +494,32 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
 
   // 1. Single Philosopher "💬 灵魂对话" AI Interactive Chat
   app.post("/api/chat-philosopher", aiLimiter, async (req, res) => {
-    const { philosopherId, philosopherName, details, school, lifeAndTimes, quote, messages, lang } = req.body;
+    const { philosopherId, philosopherName, details, school, lifeAndTimes, quote, messages, lang, anonId } = req.body;
     const langCode: Language = (lang === 'en') ? 'en' : 'zh';
 
     if (!philosopherId || !messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: "Missing required chat payloads" });
     }
+
+    // ── Server-authoritative quota gate (blocks UI-bypass abuse) ──
+    const uid = (typeof anonId === 'string' && anonId.trim()) ? anonId.trim() : 'anonymous';
+    const quota = getQuota(uid);
+    if (!quota.unlimited) {
+      const freeRemaining = Math.max(0, FREE_CHATS - quota.freeUsed);
+      if (freeRemaining <= 0 && quota.paidCredits <= 0) {
+        return res.status(402).json({
+          success: false,
+          code: 'QUOTA_EXHAUSTED',
+          message: langCode === 'en'
+            ? 'Your free trial is used up. Redeem a dialogue card (¥9.9 / 15 chats) to continue.'
+            : '免费试用已用尽。激活对话卡（¥9.9 / 15 次）即可继续对谈。',
+          quota: quotaSnapshot(quota),
+        });
+      }
+    }
+    // Consume one unit per allowed attempt (matches the UI "N left" counter and
+    // prevents unlimited probing even when a downstream call fails).
+    consumeQuota(quota);
 
     try {
       const key = process.env.GEMINI_API_KEY;
@@ -463,6 +527,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
         return res.json({
           success: false,
           reply: API.chat.noApiKey(philosopherName, langCode),
+          quota: quotaSnapshot(quota),
         });
       }
 
@@ -499,14 +564,31 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       });
 
       const reply = response.text || "";
-      res.json({ success: true, reply });
+      res.json({ success: true, reply, quota: quotaSnapshot(quota) });
     } catch (err: any) {
       console.error(`Gemini Chat error with ${philosopherName}:`, err);
       res.json({
         success: false,
-        reply: API.chat.error(philosopherName, err.rawMessage || err.message || String(err), langCode)
+        reply: API.chat.error(philosopherName, err.rawMessage || err.message || String(err), langCode),
+        quota: quotaSnapshot(quota),
       });
     }
+  });
+
+  // 1b. Admin / payment-webhook credit grant (protected by ADMIN_API_KEY).
+  // Used for manual top-ups and as the integration point for a future real
+  // payment provider: the provider's webhook calls this with the secret key.
+  app.post("/api/admin/grant-credits", (req, res) => {
+    const adminKey = req.header('x-admin-key') || (req.body && req.body.adminKey);
+    if (!process.env.ADMIN_API_KEY || adminKey !== process.env.ADMIN_API_KEY) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { anonId, amount, unlimited } = req.body || {};
+    if (!anonId) return res.status(400).json({ error: 'Missing anonId' });
+    const q = getQuota(anonId);
+    if (unlimited) q.unlimited = true;
+    else q.paidCredits += Number(amount) || 0;
+    res.json({ success: true, quota: quotaSnapshot(q) });
   });
 
   // 2. Double Sages "⚔️ 思想格斗场" AI Dynamic Custom Debate Arena

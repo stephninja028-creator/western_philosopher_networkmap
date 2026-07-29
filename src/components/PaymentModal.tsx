@@ -4,11 +4,12 @@ import { X, Check, Copy, Sparkles, CreditCard, ShieldCheck, RefreshCw } from 'lu
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (type: 'chat' | 'debate' | 'unlimited', value: number) => void;
+  onSuccess: (type: 'chat' | 'debate' | 'unlimited', value: number, quota?: { unlimited: boolean; freeRemaining: number; paidRemaining: number }) => void;
   language: 'zh' | 'en';
+  anonId: string;
 }
 
-export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess, language }) => {
+export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess, language, anonId }) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -59,7 +60,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code: activeCode.trim() })
+        body: JSON.stringify({ code: activeCode.trim(), anonId })
       });
 
       const data = await res.json();
@@ -74,7 +75,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
       fetchCodes();
       
       setTimeout(() => {
-        onSuccess(data.type, data.value);
+        onSuccess(data.type, data.value, data.quota);
         onClose();
         setSuccessMsg('');
       }, 1500);

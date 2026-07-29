@@ -427,6 +427,19 @@ export default function App() {
   });
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
+  // Anonymous visitor id — server-side quota (free chats + redeemed cards) is
+  // keyed on this so the API can't be spammed by bypassing the UI. No login needed.
+  const [anonId] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'anonymous';
+    const existing = localStorage.getItem('kps_anon_id');
+    if (existing) return existing;
+    const id = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+      ? crypto.randomUUID()
+      : `anon-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+    localStorage.setItem('kps_anon_id', id);
+    return id;
+  });
+
   const [dialogueFreeRemaining, setDialogueFreeRemaining] = useState<number>(() => {
     const val = localStorage.getItem('dialogue_free_remaining');
     return val !== null ? Number(val) : 5; // Global 5 free chats in total across all philosophers
@@ -448,21 +461,19 @@ export default function App() {
     localStorage.setItem('dialogue_free_remaining', dialogueFreeRemaining.toString());
   }, [dialogueFreeRemaining]);
 
+  // Pure check only — the server is the authoritative quota enforcer, so we
+  // don't mutate client state here (that would double-count). Display values
+  // are kept in sync from server responses via syncChatQuota / handlePaymentSuccess.
   const handleDeductDialogue = (philosopherId: string): boolean => {
-    if (unlimitedActivated) return true;
+    return unlimitedActivated || dialogueFreeRemaining > 0 || dialogueRemaining > 0;
+  };
 
-    if (dialogueFreeRemaining > 0) {
-      setDialogueFreeRemaining(prev => prev - 1);
-      return true;
-    }
-
-    if (dialogueRemaining > 0) {
-      setDialogueRemaining(prev => prev - 1);
-      return true;
-    }
-
-    setPaymentModalOpen(true);
-    return false;
+  // Mirror server quota into client display state.
+  const syncChatQuota = (quota?: { unlimited: boolean; freeRemaining: number; paidRemaining: number }) => {
+    if (!quota) return;
+    setUnlimitedActivated(quota.unlimited);
+    setDialogueFreeRemaining(quota.unlimited ? 99 : quota.freeRemaining);
+    setDialogueRemaining(quota.unlimited ? 999 : quota.paidRemaining);
   };
 
   const handleDeductDebate = (): boolean => {
@@ -475,7 +486,13 @@ export default function App() {
     return false;
   };
 
-  const handlePaymentSuccess = (type: 'chat' | 'debate' | 'unlimited', value: number) => {
+  const handlePaymentSuccess = (type: 'chat' | 'debate' | 'unlimited', value: number, quota?: { unlimited: boolean; freeRemaining: number; paidRemaining: number }) => {
+    // If the server returned an authoritative quota (from code redemption),
+    // mirror it directly; otherwise fall back to the legacy incremental add.
+    if (quota) {
+      syncChatQuota(quota);
+      return;
+    }
     if (type === 'chat') {
       setDialogueRemaining(prev => prev + value);
     } else if (type === 'debate') {
@@ -1361,6 +1378,8 @@ export default function App() {
                       onDeductDialogue={handleDeductDialogue}
                       onTriggerPayment={() => setPaymentModalOpen(true)}
                       freeRemaining={dialogueFreeRemaining}
+                      anonId={anonId}
+                      onQuotaUpdate={syncChatQuota}
                     />
                   );
                 })()}
@@ -1390,6 +1409,7 @@ export default function App() {
           onClose={() => setPaymentModalOpen(false)}
           language={language}
           onSuccess={handlePaymentSuccess}
+          anonId={anonId}
         />
 
         {/* SHARE CARD MODAL */}
@@ -2432,6 +2452,7 @@ export default function App() {
         onClose={() => setPaymentModalOpen(false)}
         language={language}
         onSuccess={handlePaymentSuccess}
+        anonId={anonId}
       />
 
       {/* ALWAYS ACTIVE FLOATING FEEDBACK SEAL ON HOMEPAGE */}
