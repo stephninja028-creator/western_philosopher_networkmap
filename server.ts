@@ -5,6 +5,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 import fs from "fs";
 import nodemailer from "nodemailer";
+import rateLimit from "express-rate-limit";
 import { schoolTranslations } from "./src/data/translationsEng";
 import { philosophyData } from "./src/data/philosophyData";
 import { easternPhilosophyData } from "./src/data/easternPhilosophyData";
@@ -45,6 +46,34 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // ── Token cost guardrails ──────────────────────────────────────────────
+  // All Gemini-proxied endpoints are open POSTs. These rate limiters stop
+  // abuse (anyone can curl the API and burn the key) and keep token spend
+  // bounded per IP. Thresholds are conservative; tune via env if needed.
+  const aiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: Number(process.env.RATE_LIMIT_CHAT ?? 12),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "请求过于频繁，请稍后再试 (Rate limit exceeded)" },
+  });
+
+  const debateLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: Number(process.env.RATE_LIMIT_DEBATE ?? 6),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "辩论请求过于频繁，请稍后再试 (Rate limit exceeded)" },
+  });
+
+  const translateLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: Number(process.env.RATE_LIMIT_TRANSLATE ?? 20),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "翻译请求过于频繁，请稍后再试 (Rate limit exceeded)" },
+  });
 
   // Automatic custom domain redirection (redirect public/shared preview urls to knowphilosophers.site)
   app.use((req, res, next) => {
@@ -264,6 +293,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
               },
             },
           },
+          maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_TRANSLATE ?? 1200),
         },
       });
 
@@ -299,8 +329,8 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
     }
   };
 
-  app.post("/api/translate", handleTranslationRequest);
-  app.post("/api/translate-philosopher", handleTranslationRequest);
+  app.post("/api/translate", translateLimiter, handleTranslationRequest);
+  app.post("/api/translate-philosopher", translateLimiter, handleTranslationRequest);
 
   // --- MONETIZATION & PREMIUM AI DIALOGUE/DEBATE GATEWAYS ---
   
@@ -419,7 +449,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
   });
 
   // 1. Single Philosopher "💬 灵魂对话" AI Interactive Chat
-  app.post("/api/chat-philosopher", async (req, res) => {
+  app.post("/api/chat-philosopher", aiLimiter, async (req, res) => {
     const { philosopherId, philosopherName, details, school, lifeAndTimes, quote, messages, lang } = req.body;
     const langCode: Language = (lang === 'en') ? 'en' : 'zh';
 
@@ -441,8 +471,19 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       // Set up a strong, highly specific, immersive system instruction for the philosopher's persona
       const systemInstruction = AI_PROMPTS.chatSystem(philosopherName, school, details || '', langCode);
 
+      // Guardrail: cap conversation length + per-message size so a single request
+      // can't blow up input-token cost. Keep only the most recent turns.
+      const MAX_HISTORY = 24;
+      const MAX_MSG_LEN = 2000;
+      const safeMessages = messages
+        .slice(-MAX_HISTORY)
+        .map((m: any) => ({
+          role: m.role,
+          content: typeof m.content === 'string' ? m.content.slice(0, MAX_MSG_LEN) : m.content,
+        }));
+
       // Map communication history to standard Gemini SDK Parts
-      const contents = messages.map((m: any) => ({
+      const contents = safeMessages.map((m: any) => ({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.content }]
       }));
@@ -453,6 +494,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
         config: {
           systemInstruction,
           temperature: 0.85,
+          maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS ?? 700),
         }
       });
 
@@ -468,7 +510,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
   });
 
   // 2. Double Sages "⚔️ 思想格斗场" AI Dynamic Custom Debate Arena
-  app.post("/api/debate-arena", async (req, res) => {
+  app.post("/api/debate-arena", debateLimiter, async (req, res) => {
     const { p1, p2, topic } = req.body;
 
     if (!p1 || !p2 || !topic) {
@@ -584,8 +626,9 @@ Ensure that all outputs are in strict, fluid English and conform EXACTLY to the 
             },
             required: ["rounds"]
           }
-        }
-      });
+        },
+        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 1500),
+      } as any);
 
       const text = response.text;
       if (!text) {
@@ -618,7 +661,7 @@ Ensure that all outputs are in strict, fluid English and conform EXACTLY to the 
   });
 
   // 3. Multilateral Sages "⚔️ 众神合议庭" AI Plurilateral Custom Debate Arena (Up to 5 Sages)
-  app.post("/api/debate-multilateral", async (req, res) => {
+  app.post("/api/debate-multilateral", debateLimiter, async (req, res) => {
     const { philosophers, topic } = req.body;
 
     if (!philosophers || !Array.isArray(philosophers) || philosophers.length < 2 || !topic) {
@@ -790,8 +833,9 @@ ${sagesIntro}
             },
             required: ["rounds"]
           }
-        }
-      });
+        },
+        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 1500),
+      } as any);
       const responseText = response.text;
       if (!responseText) {
         throw new Error("No text returned by Gemini");
