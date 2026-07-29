@@ -1483,7 +1483,7 @@ export default function App() {
             }`}
           >
             <Brain className="w-4 h-4 text-[#c9a0e8]" />
-            <span>{language === 'zh' ? '🔮 灵魂测试' : '🔮 Soul Test'}</span>
+            <span>{language === 'zh' ? '灵魂测试' : 'Soul Test'}</span>
             <span className="absolute -top-1.5 -right-1.5 bg-purple-600 text-white text-[8px] px-1.5 py-0.5 rounded-full font-sans font-extrabold animate-pulse shadow-3xs">
               NEW
             </span>
@@ -1520,38 +1520,45 @@ export default function App() {
       ) : (activeTab === 'west' || activeTab === 'east') ? (
         <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 mt-6 flex flex-col gap-6 z-10">
 
-        {/* Soul Test CTA Card */}
+        {/* Soul Test CTA Card — Ancient Greek cream style */}
         <section
           onClick={() => {
             setActiveTab('soul');
             setDetailedPhilosopher(null);
           }}
-          className="cursor-pointer group relative overflow-hidden rounded-2xl border-2 border-[#D4AF37]/30 hover:border-[#D4AF37]/70 transition-all bg-gradient-to-r from-[#1a1a3e] via-[#2a1a5e] to-[#1a1a3e] p-5 sm:p-6 shadow-lg hover:shadow-xl"
+          className="cursor-pointer group relative overflow-hidden rounded-2xl border-2 border-[#D4AF37]/40 hover:border-[#D4AF37] transition-all p-5 sm:p-6 shadow-md hover:shadow-xl"
+          style={{
+            background: 'linear-gradient(135deg, #F5F2EA 0%, #FDFBF6 50%, #EBF5F8 100%)',
+          }}
         >
-          {/* Subtle sparkle particles */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <div className="absolute top-3 left-[10%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" />
-            <div className="absolute top-8 left-[30%] w-0.5 h-0.5 bg-[#D4AF37] rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-            <div className="absolute top-5 right-[20%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-            <div className="absolute bottom-4 left-[50%] w-0.5 h-0.5 bg-[#D4AF37] rounded-full animate-pulse" style={{ animationDelay: '1.5s' }} />
-            <div className="absolute bottom-6 right-[10%] w-1 h-1 bg-[#c9a0e8] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
-          </div>
+          {/* Marble texture overlay */}
+          <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23n)\' opacity=\'0.6\'/%3E%3C/svg%3E")',
+          }} />
+          {/* Greek key border accent */}
+          <div className="absolute inset-2 border border-[#D4AF37]/25 rounded-xl pointer-events-none" />
+
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="text-4xl">🔮</div>
+              {/* Greek column icon */}
+              <div className="flex-shrink-0 flex flex-col items-center gap-0.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                <div className="w-5 h-1.5 bg-[#0B2545] rounded-t-sm" />
+                <div className="w-3 h-10 bg-[#0B2545]/80 rounded-sm" />
+                <div className="w-5 h-1.5 bg-[#0B2545] rounded-b-sm" />
+              </div>
               <div>
-                <h3 className="font-serif text-lg sm:text-xl font-bold text-[#e8dcc8] tracking-wide">
+                <h3 className="font-serif text-lg sm:text-xl font-bold text-[#0B2545] tracking-wide">
                   {language === 'zh' ? '哲学灵魂测试' : 'Philosophy Soul Test'}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#c9a0e8]/80 mt-0.5">
+                <p className="text-xs sm:text-sm text-[#0D5C75]/80 mt-0.5">
                   {language === 'zh'
                     ? '10 道题，发现 16 位哲学家中谁与你的灵魂最匹配'
                     : '10 questions — discover which of the 16 great philosophers matches your soul'}
                 </p>
               </div>
             </div>
-            <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded-full text-[#D4AF37] text-xs sm:text-sm font-bold font-serif tracking-wider group-hover:bg-[#D4AF37]/30 transition-colors">
-              <Sparkles className="w-4 h-4" />
+            <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/15 border border-[#D4AF37]/50 rounded-full text-[#0B2545] text-xs sm:text-sm font-bold font-serif tracking-wider group-hover:bg-[#D4AF37]/25 transition-colors">
+              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
               {language === 'zh' ? '开始测试' : 'Start'}
             </div>
           </div>
