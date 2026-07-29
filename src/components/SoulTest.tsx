@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toPng } from 'html-to-image';
-import { Sparkles, RotateCcw, Download, Copy, Check, ArrowRight, Brain, ChevronRight } from 'lucide-react';
+import { Sparkles, RotateCcw, Copy, Check, ArrowRight, ChevronRight } from 'lucide-react';
 import { questions, archetypes, computeResult, type PhilosopherArchetype } from '../data/quizData';
 import { getPhilosopherPortrait } from '../data/portraitMap';
 
@@ -31,55 +31,13 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
   const [resultId, setResultId] = useState<string>('');
   const [allScores, setAllScores] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const downloadRef = useRef<HTMLDivElement>(null);
 
   const archetype: PhilosopherArchetype | null = resultId ? archetypes[resultId] : null;
   const portrait = resultId ? getPhilosopherPortrait(resultId) : null;
 
   const QUIZ_URL = 'https://www.knowphilosophers.site/#soul-test';
 
-  // Deterministic hash for adding natural variation to spectrum percentages
-  const stableHash = (pid: string): number => {
-    let h = 0;
-    for (let i = 0; i < pid.length; i++) {
-      h = ((h << 5) - h + pid.charCodeAt(i)) | 0;
-    }
-    return Math.abs(h);
-  };
-
-  // ── Top matches — relative percentages with natural variation ──────────
-
-  const topMatches = useMemo(() => {
-    if (!allScores || !resultId) return [];
-    const entries = (Object.entries(allScores) as [string, number][])
-      .filter(([, score]) => score > 0)
-      .sort(([, a], [, b]) => b - a);
-    if (entries.length === 0) return [];
-
-    const topScore = entries[0][1];
-    if (topScore === 0) return [];
-
-    return entries
-      .slice(0, 4)
-      .map(([pid, score], i) => {
-        // Base: relative to top
-        let pct = Math.round((score / topScore) * 100);
-        // For top result, cap at 95% to feel slightly less than perfect
-        if (i === 0) pct = Math.min(pct, 95);
-        // Add deterministic offset (-3 to +3) based on hash + rank to break ties
-        const hashOffset = (stableHash(pid) % 7) - 3; // -3 to +3
-        const rankOffset = i === 0 ? 0 : Math.max(1, i) * 1;
-        pct = Math.max(8, Math.min(98, pct + hashOffset));
-        return {
-          pid,
-          archetype: archetypes[pid],
-          score,
-          percentage: pct,
-        };
-      });
-  }, [allScores, resultId]);
 
   // GA tracking helper
   const trackEvent = useCallback((eventName: string, params?: Record<string, any>) => {
@@ -113,9 +71,8 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
       if (currentQ < questions.length - 1) {
         setCurrentQ(currentQ + 1);
       } else {
-        const { archetypeId, scores } = computeResult(newAnswers);
+        const { archetypeId } = computeResult(newAnswers);
         setResultId(archetypeId);
-        setAllScores(scores);
         setPhase('result');
         trackEvent('soul_test_complete', { result_id: archetypeId });
       }
@@ -129,7 +86,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
     setSelectedOption(null);
     setIsFlipped(false);
     setResultId('');
-    setAllScores({});
   };
 
   // ── Copy share text to clipboard ─────────────────────────
@@ -147,21 +103,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
     } catch {}
   }, [archetype, isEn, trackEvent]);
 
-  // ── Download dual-card image (designed layout) ──────────
-  const handleDownload = useCallback(async () => {
-    if (!downloadRef.current || !archetype) return;
-    setDownloading(true);
-    try {
-      const dataUrl = await toPng(downloadRef.current, { quality: 0.95, pixelRatio: 2 });
-      const link = document.createElement('a');
-      link.download = `philosophy-soul-${resultId}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('Download failed:', err);
-    }
-    setDownloading(false);
-  }, [resultId, archetype]);
 
   const handleGoToPhilosopher = () => {
     if (onNavigateToPhilosopher && resultId) {
@@ -210,19 +151,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                 : '回答 10 道问题，发现 16 位伟大哲学家中谁与你的灵魂最匹配。你是苏格拉底式追问者、尼采式自由超人，还是禅宗顿悟者？'}
             </p>
 
-            {/* Philosopher initials preview (no emoji) */}
-            <div className="flex justify-center gap-1.5 mb-8 flex-wrap max-w-md mx-auto">
-              {Object.values(archetypes).map(a => (
-                <span
-                  key={a.philosopherId}
-                  className="w-8 h-8 rounded-full bg-[#F5F2EA] dark:bg-slate-700 border border-[#D4AF37]/30 text-[#0B2545] dark:text-[#e8dcc8] flex items-center justify-center text-xs font-serif font-bold opacity-60 hover:opacity-100 transition-opacity"
-                  title={isEn ? a.typeName.en : a.typeName.zh}
-                >
-                  {(isEn ? a.philosopherName.en : a.philosopherName.zh).slice(0, 1)}
-                </span>
-              ))}
-            </div>
-
             <button
               onClick={handleStart}
               className="group inline-flex items-center gap-3 px-8 py-4 bg-[#0B2545] text-white rounded-full font-bold text-lg shadow-lg hover:bg-[#152d4a] hover:shadow-xl transition-all hover:scale-105 font-serif tracking-wider"
@@ -270,9 +198,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
 
             {/* Question */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#0B2545]/10 dark:bg-[#D4AF37]/10 mb-4">
-                <Brain className="w-6 h-6 text-[#0B2545] dark:text-[#D4AF37]" />
-              </div>
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#0B2545] dark:text-[#e8dcc8] leading-relaxed">
                 {isEn ? q.question.en : q.question.zh}
               </h2>
@@ -329,7 +254,7 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                 transition={{ delay: 0.3 }}
               >
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0B2545] dark:text-[#e8dcc8] mb-1">
-                  {isEn ? 'Your Philosopher Is...' : '你的哲学家是…'}
+                  {isEn ? 'You Are...' : '你是…'}
                 </h2>
                 <p className="text-xs text-slate-400 dark:text-slate-500">
                   {isEn ? 'Tap the card to flip and see details' : '点击卡片翻转查看详情'}
@@ -460,54 +385,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
               </motion.div>
             </motion.div>
 
-            {/* ── Top matches spectrum ── */}
-            {topMatches.length > 1 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="mb-5 px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-              >
-                <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wider uppercase">
-                  {isEn ? 'Your Philosophical Spectrum' : '你的哲学光谱'}
-                </h4>
-                <div className="flex flex-col gap-1.5">
-                  {topMatches.map((match, i) => (
-                    <div key={match.pid} className="flex items-center gap-2">
-                      <div
-                        className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-serif font-bold border"
-                        style={{
-                          background: i === 0 ? archetype.theme.tagBg : '#f5f2ea',
-                          color: archetype.theme.accent,
-                          borderColor: i === 0 ? archetype.theme.accent : '#e2dfd5',
-                        }}
-                      >
-                        {(isEn ? match.archetype.philosopherName.en : match.archetype.philosopherName.zh).slice(0, 1)}
-                      </div>
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${match.percentage}%`,
-                            background: i === 0
-                              ? archetype.theme.accent
-                              : `${archetype.theme.accent}60`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium w-24 text-right truncate" style={{
-                        color: i === 0 ? archetype.theme.accent : 'var(--text-secondary, #666)',
-                      }}>
-                        {isEn ? match.archetype.philosopherName.en : match.archetype.philosopherName.zh}
-                      </span>
-                      <span className="text-xs font-bold w-10 text-right" style={{ color: i === 0 ? archetype.theme.accent : '#888' }}>
-                        {match.percentage}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
 
             {/* Actions */}
             <motion.div
@@ -526,34 +403,19 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
                 <ChevronRight className="w-4 h-4 text-[#D4AF37]" />
               </button>
 
-              {/* Copy + Download row */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={handleCopy}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 transition-colors"
-                  style={{
-                    borderColor: '#D4AF37',
-                    color: copied ? '#16a34a' : '#D4AF37',
-                    background: copied ? 'rgba(22,163,74,0.08)' : 'rgba(212,175,55,0.08)',
-                  }}
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? (isEn ? 'Copied' : '已复制') : (isEn ? 'Copy' : '复制')}
-                </button>
-
-                <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm border-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  {downloading ? (
-                    <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
-                  ) : (
-                    <Download className="w-4 h-4" />
-                  )}
-                  {downloading ? (isEn ? 'Generating...' : '生成中...') : (isEn ? 'Download' : '下载')}
-                </button>
-              </div>
+              {/* Copy result */}
+              <button
+                onClick={handleCopy}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm border-2 transition-colors"
+                style={{
+                  borderColor: '#D4AF37',
+                  color: copied ? '#16a34a' : '#D4AF37',
+                  background: copied ? 'rgba(22,163,74,0.08)' : 'rgba(212,175,55,0.08)',
+                }}
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? (isEn ? 'Copied' : '已复制') : (isEn ? 'Copy Result' : '复制结果')}
+              </button>
 
               {/* Restart */}
               <button
@@ -569,220 +431,6 @@ export function SoulTest({ language, onNavigateToPhilosopher }: SoulTestProps) {
 
       </AnimatePresence>
 
-      {/* ══════════ OFFSCREEN DOWNLOAD CONTAINER (both cards + design) ══════════ */}
-      {phase === 'result' && archetype && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '-10000px',
-            left: '-10000px',
-            pointerEvents: 'none',
-            zIndex: -1,
-          }}
-        >
-          <div
-            ref={downloadRef}
-            style={{
-              width: '880px',
-              padding: '40px',
-              background: 'linear-gradient(135deg, #F5F2EA 0%, #FDFBF6 50%, #EBF5F8 100%)',
-              fontFamily: "'Noto Serif', Georgia, serif",
-              boxSizing: 'border-box',
-            }}
-          >
-            {/* Header */}
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '32px',
-              paddingBottom: '20px',
-              borderBottom: '1px solid rgba(212, 175, 55, 0.4)',
-            }}>
-              <div style={{
-                fontSize: '11px',
-                letterSpacing: '0.3em',
-                color: '#0B2545',
-                opacity: 0.6,
-                marginBottom: '6px',
-              }}>
-                ✦ ANCIENT WISDOM · GREEK GOLDEN AGE ✦
-              </div>
-              <div style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                color: '#0B2545',
-                letterSpacing: '0.04em',
-              }}>
-                {isEn ? 'Philosophy Soul Test' : '哲学灵魂测试'}
-              </div>
-              <div style={{
-                fontSize: '13px',
-                color: '#0B2545',
-                opacity: 0.7,
-                marginTop: '8px',
-              }}>
-                {isEn
-                  ? `Your philosopher is ${archetype.philosopherName.en}`
-                  : `你的哲学家是 ${archetype.philosopherName.zh}`}
-              </div>
-            </div>
-
-            {/* Two cards side by side */}
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'stretch' }}>
-              {/* FRONT CARD */}
-              <div style={{
-                flex: 1,
-                aspectRatio: '3 / 4',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                position: 'relative',
-                background: archetype.theme.gradient,
-                boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
-              }}>
-                {/* Marble overlay */}
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  opacity: 0.04,
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23n)\' opacity=\'0.6\'/%3E%3C/svg%3E")',
-                }} />
-                {/* Gold borders */}
-                <div style={{ position: 'absolute', inset: '12px', border: `1px solid ${archetype.theme.accent}40`, borderRadius: '12px' }} />
-                <div style={{ position: 'absolute', inset: '20px', border: `1px solid ${archetype.theme.accent}25`, borderRadius: '8px' }} />
-                {/* Content */}
-                <div style={{
-                  position: 'relative',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '36px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ width: '70px', height: '2px', borderRadius: '2px', marginBottom: '28px', opacity: 0.6, background: archetype.theme.accent }} />
-
-                  {portrait && (
-                    <img
-                      src={portrait.large}
-                      alt={archetype.philosopherName.zh}
-                      crossOrigin="anonymous"
-                      style={{
-                        width: '130px',
-                        height: '130px',
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: `3px solid ${archetype.theme.accent}`,
-                        marginBottom: '24px',
-                      }}
-                    />
-                  )}
-
-                  <div style={{ fontSize: '34px', fontWeight: 700, color: archetype.theme.accent, marginBottom: '6px', lineHeight: 1.1 }}>
-                    {isEn ? archetype.philosopherName.en : archetype.philosopherName.zh}
-                  </div>
-                  <div style={{ fontSize: '13px', opacity: 0.7, color: archetype.theme.accent, marginBottom: '20px' }}>
-                    {isEn ? archetype.typeName.en : archetype.typeName.zh}
-                  </div>
-
-                  <div style={{ width: '40px', height: '1px', marginBottom: '20px', opacity: 0.4, background: archetype.theme.accent }} />
-
-                  <div style={{
-                    fontSize: '14px',
-                    fontStyle: 'italic',
-                    lineHeight: 1.7,
-                    color: '#e8dcc8',
-                    opacity: 0.9,
-                    maxWidth: '260px',
-                  }}>
-                    "{isEn ? archetype.quote.en : archetype.quote.zh}"
-                  </div>
-                </div>
-              </div>
-
-              {/* BACK CARD */}
-              <div style={{
-                flex: 1,
-                aspectRatio: '3 / 4',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                position: 'relative',
-                background: archetype.theme.gradient,
-                boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
-                padding: '28px',
-                display: 'flex',
-                flexDirection: 'column',
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  opacity: 0.04,
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23n)\' opacity=\'0.6\'/%3E%3C/svg%3E")',
-                }} />
-                <div style={{ position: 'absolute', inset: '12px', border: `1px solid ${archetype.theme.accent}40`, borderRadius: '12px' }} />
-
-                <div style={{ position: 'relative' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 700, color: archetype.theme.accent, marginBottom: '4px' }}>
-                    {isEn ? archetype.philosopherName.en : archetype.philosopherName.zh}
-                  </div>
-                  <div style={{ fontSize: '12px', opacity: 0.7, color: archetype.theme.accent, marginBottom: '14px' }}>
-                    {isEn ? archetype.typeName.en : archetype.typeName.zh}
-                  </div>
-
-                  <div style={{ height: '1px', marginBottom: '14px', opacity: 0.2, background: archetype.theme.accent }} />
-
-                  <div style={{ fontSize: '13px', lineHeight: 1.6, marginBottom: '14px', color: '#e8dcc8', opacity: 0.85 }}>
-                    {isEn ? archetype.description.en : archetype.description.zh}
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
-                    {(isEn ? archetype.traits.en : archetype.traits.zh).map((trait, i) => (
-                      <span key={i} style={{
-                        fontSize: '10px',
-                        padding: '4px 10px',
-                        borderRadius: '999px',
-                        background: archetype.theme.tagBg,
-                        color: archetype.theme.accent,
-                        border: `1px solid ${archetype.theme.accent}40`,
-                      }}>
-                        {trait}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div style={{ height: '1px', marginBottom: '12px', opacity: 0.2, background: archetype.theme.accent }} />
-
-                  <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '8px', opacity: 0.6, color: archetype.theme.accent }}>
-                    {isEn ? 'Core Ideology' : '核心意识形态'}
-                  </div>
-                  <div style={{ fontSize: '11px', lineHeight: 1.55, opacity: 0.75, color: '#d8ccb8' }}>
-                    {isEn ? archetype.ideology.en : archetype.ideology.zh}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div style={{
-              marginTop: '28px',
-              paddingTop: '18px',
-              borderTop: '1px solid rgba(212, 175, 55, 0.4)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              fontSize: '11px',
-              color: '#0B2545',
-              opacity: 0.7,
-            }}>
-              <div style={{ letterSpacing: '0.2em' }}>
-                {isEn ? 'Discover yours' : '发现你的哲学灵魂'}
-              </div>
-              <div style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}>
-                knowphilosophers.site
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

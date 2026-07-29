@@ -676,24 +676,24 @@ export const questions: QuizQuestion[] = [
   {
     id: 8,
     question: {
-      zh: '深夜独处时，你最深的思考是？',
-      en: 'In the solitude of late night, your deepest thoughts are about...',
+      zh: '如果让你负责一个团队完成新项目，你最看重什么？',
+      en: 'If you were put in charge of a team for a new project, what would you value most?',
     },
     options: [
       {
-        text: { zh: '是否有超越现象的永恒真理', en: 'Whether eternal truth exists beyond appearances' },
+        text: { zh: '先画出清晰愿景和长远目标', en: 'First, map out a clear vision and long-term goals' },
         scores: { plato: 2, zhu_xi: 1 },
       },
       {
-        text: { zh: '一切终将消逝，唯有美可永恒', en: 'All passes away, yet beauty can be eternal' },
+        text: { zh: '营造能让人安心投入的氛围', en: 'Create an atmosphere where people can devote themselves fully' },
         scores: { schopenhauer: 2, aristotle: 1 },
       },
       {
-        text: { zh: '如何让现实变得更好', en: 'How to make reality better' },
+        text: { zh: '制定可执行步骤、尽快拿出成果', en: 'Set executable steps and deliver results quickly' },
         scores: { hu_shi: 2, sun_tzu: 1 },
       },
       {
-        text: { zh: '万象归心，本质在内不在外', en: 'All phenomena return to the mind; essence lies within' },
+        text: { zh: '激发每个人内心的责任感和自驱力', en: "Inspire each person's inner sense of responsibility and self-drive" },
         scores: { wang_yangming: 2, descartes: 1 },
       },
     ],
@@ -731,7 +731,7 @@ export const questions: QuizQuestion[] = [
     },
     options: [
       {
-        text: { zh: '找一本好书，沉浸在深度��考中', en: 'Find a good book and lose myself in deep thought' },
+        text: { zh: '找一本好书，沉浸在深度思考中', en: 'Find a good book and lose myself in deep thought' },
         scores: { socrates: 2, plato: 1 },
       },
       {
