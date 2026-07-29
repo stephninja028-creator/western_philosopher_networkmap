@@ -18,6 +18,7 @@ interface PhilosopherCardProps {
     details?: string;
     concepts?: string[];
   };
+  searchDimmed?: boolean;
 }
 
 export const getSchoolAccent = (school: string) => {
@@ -135,6 +136,7 @@ export const PhilosopherCard: React.FC<PhilosopherCardProps> = ({
   isHoverActive,
   language = 'zh',
   translatedValues,
+  searchDimmed,
 }) => {
   const { name, nameEng, school, isOutside } = philosopher;
   const pedigree = getPhilosopherPedigree(philosopher);
@@ -160,6 +162,13 @@ export const PhilosopherCard: React.FC<PhilosopherCardProps> = ({
     finalOpacity = isHovered ? 0.45 : isSelected ? 0.8 : 0.15;
   } else if (belongsToSecondaryHighlight) {
     finalOpacity = isHoverActive ? 0.35 : 0.88;
+  }
+
+  // Search dimming — non-matching cards fade out so matches stand out
+  let searchGrayscale = false;
+  if (searchDimmed) {
+    finalOpacity = isSelected ? 0.9 : isHovered ? 0.55 : 0.1;
+    searchGrayscale = !isHovered && !isSelected;
   }
 
   // Handle bilingualism for fields:
@@ -202,6 +211,7 @@ export const PhilosopherCard: React.FC<PhilosopherCardProps> = ({
         }
         ${belongsToSecondaryHighlight ? 'saturate-50' : 'saturate-100'}
         ${isUnfiltered ? 'filter grayscale-[30%]' : ''}
+        ${searchGrayscale ? 'filter grayscale-[60%]' : ''}
       `}
       style={{
         left: `${philosopher.x}%`,

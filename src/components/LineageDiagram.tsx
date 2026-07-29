@@ -14,6 +14,7 @@ interface LineageDiagramProps {
   selectedLevels?: number[];
   language?: 'zh' | 'en';
   translatedPhilosopherValues?: Record<string, any>;
+  searchQuery?: string;
 }
 
 export const LineageDiagram: React.FC<LineageDiagramProps> = ({
@@ -27,6 +28,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
   selectedLevels,
   language = 'zh',
   translatedPhilosopherValues,
+  searchQuery = '',
 }) => {
 
   const totalEpochs = allEpochs.length;
@@ -57,6 +59,20 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
     unifiedPhilosophers.forEach(p => map.set(p.id, p));
     return map;
   }, [unifiedPhilosophers]);
+
+  // Active search — ids of philosophers whose name/nameEng matches the query
+  const searchActive = searchQuery.trim() !== '';
+  const searchMatchIds = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    const set = new Set<string>();
+    if (!q) return set;
+    unifiedPhilosophers.forEach(p => {
+      const name = (p.name || '').toLowerCase();
+      const nameEng = (p.nameEng || '').toLowerCase();
+      if (name.includes(q) || nameEng.includes(q)) set.add(p.id);
+    });
+    return set;
+  }, [searchQuery, unifiedPhilosophers]);
 
   // 2. Merge all connections and include cross-epoch connections
   const unifiedConnections = useMemo(() => {
@@ -139,6 +155,10 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
         const isFromUnfiltered = selectedLevels && !selectedLevels.includes(fromLvl);
         const isToUnfiltered = selectedLevels && !selectedLevels.includes(toLvl);
 
+        // Search dimming — fade connections that touch no match
+        const isSearchExcluded =
+          searchActive && !(searchMatchIds.has(conn.from) || searchMatchIds.has(conn.to));
+
         let baseOpacity = isHighlighted ? 1 : isWeak ? 0.08 : 0.42;
         const isHoverActive = hoveredPhilosopherId !== null;
         if (isWeak) {
@@ -149,6 +169,10 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
 
         if (isFromUnfiltered || isToUnfiltered) {
           baseOpacity = isHighlighted ? 0.2 : 0.03;
+        }
+
+        if (isSearchExcluded) {
+          baseOpacity = isHighlighted ? 0.2 : 0.04;
         }
 
         return {
@@ -163,7 +187,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
         };
       })
       .filter(Boolean);
-  }, [unifiedConnections, philosopherMap, hoveredPhilosopherId, selectedPhilosopher, selectedLevels]);
+  }, [unifiedConnections, philosopherMap, hoveredPhilosopherId, selectedPhilosopher, selectedLevels, searchActive, searchMatchIds]);
 
   // 4. Position timeline axis labels dynamically down the single unified canvas
   const timelineLabels = useMemo(() => {
@@ -411,6 +435,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
             const isLvl5 = pedigree.level === 5;
             const isLvl4 = pedigree.level === 4;
             const isUnfiltered = selectedLevels && !selectedLevels.includes(pedigree.level);
+            const isSearchDimmed = searchActive && !searchMatchIds.has(philosopher.id);
 
             return (
               <div key={philosopher.id} className="pointer-events-auto">
@@ -422,7 +447,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
                       left: `${philosopher.x}%`,
                       top: `${philosopher.y}%`,
                       zIndex: 3,
-                      opacity: isUnfiltered ? 0.15 : 1,
+                      opacity: isUnfiltered ? 0.15 : isSearchDimmed ? 0.08 : 1,
                     }}
                   >
                     {/* Clear, flat nested classical concentric borders */}
@@ -442,7 +467,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
                       left: `${philosopher.x}%`,
                       top: `${philosopher.y}%`,
                       zIndex: 2,
-                      opacity: isUnfiltered ? 0.15 : 1,
+                      opacity: isUnfiltered ? 0.15 : isSearchDimmed ? 0.08 : 1,
                     }}
                   >
                     {/* Flat, crisp classical circle indicator */}
@@ -464,6 +489,7 @@ export const LineageDiagram: React.FC<LineageDiagramProps> = ({
                   isHoverActive={hoveredPhilosopherId !== null}
                   language={language}
                   translatedValues={translatedPhilosopherValues?.[philosopher.id]}
+                  searchDimmed={isSearchDimmed}
                 />
               </div>
             );

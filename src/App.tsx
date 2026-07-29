@@ -7,7 +7,7 @@ import { Epoch, Philosopher, getPhilosopherPedigree } from './types';
 import { LineageDiagram } from './components/LineageDiagram';
 import { SymposiumPanel } from './components/SymposiumPanel';
 import { GreekMeander, GreekPillar, GreekPediment } from './components/GreekBorders';
-import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2, Sun, Moon, Brain } from 'lucide-react';
+import { BookOpen, HelpCircle, Star, Users, ArrowLeft, Quote, Landmark, Milestone, Calendar, Copy, Check, Sparkles, Languages, Music, Mail, Play, Pause, Scroll, Swords, MessageSquare, Share2, Sun, Moon, Brain, Search, X } from 'lucide-react';
 import { schoolTranslations, schoolLabelTranslations, epochTranslations, philosopherFallbackTranslations, translateEraDisp, conceptTranslations } from './data/translationsEng';
 import { getEnrichedEng, hasCompleteEnrichedEng } from './data/enrichedDetailsEng';
 import { detectLang, SUPPORTED_LANGS, STORAGE_KEY, type Language } from './i18n/config';
@@ -336,6 +336,38 @@ export default function App() {
   const activePhilosophyData = useMemo(() => {
     return activeTab === 'west' ? philosophyData : easternPhilosophyData;
   }, [activeTab]);
+
+  // Network search box — filters philosophers in the active (west/east) tab
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const activePhilosophersFlat = useMemo(
+    () => activePhilosophyData.flatMap(epoch => epoch.philosophers),
+    [activePhilosophyData]
+  );
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return activePhilosophersFlat.filter(p => {
+      const name = (p.name || '').toLowerCase();
+      const nameEng = (p.nameEng || '').toLowerCase();
+      return name.includes(q) || nameEng.includes(q);
+    });
+  }, [searchQuery, activePhilosophersFlat]);
+
+  const handleSearchSelect = (philosopher: Philosopher) => {
+    setSelectedPhilosopher(philosopher);
+    setSearchQuery('');
+    setSearchOpen(false);
+    // Scroll the matching card into view inside the long diagram
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`philosopher-card-${philosopher.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  };
 
   // Synchronize selection when switching region
   useEffect(() => {
@@ -1595,6 +1627,56 @@ export default function App() {
               </a>
             </div>
 
+            {/* Network search box — quick-find a philosopher within the active (west/east) tab */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-2 bg-white/95 border border-[#D4AF37]/45 rounded-xl px-3 py-2 shadow-sm focus-within:border-[#D4AF37] focus-within:shadow-md transition-all">
+                <Search className="w-4 h-4 text-[#0D5C75] flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                  onFocus={() => setSearchOpen(true)}
+                  onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                  placeholder={language === 'zh' ? '搜索哲学家（中/英文）…' : 'Search philosopher (zh/en)…'}
+                  className="flex-1 bg-transparent outline-none text-sm font-serif text-[#0B2545] placeholder:text-slate-400"
+                />
+                {searchQuery && (
+                  <button
+                    onMouseDown={(e) => { e.preventDefault(); setSearchQuery(''); }}
+                    className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                    aria-label="clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {searchOpen && searchQuery.trim() && (
+                <div className="absolute z-50 left-0 right-0 mt-1 max-h-72 overflow-y-auto bg-white border border-[#D4AF37]/45 rounded-xl shadow-xl py-1">
+                  {searchResults.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-slate-400 font-serif">
+                      {language === 'zh' ? '未找到匹配的哲学家' : 'No matching philosopher found'}
+                    </div>
+                  ) : (
+                    searchResults.map(p => (
+                      <button
+                        key={p.id}
+                        onMouseDown={(e) => { e.preventDefault(); handleSearchSelect(p); }}
+                        className="w-full flex items-center justify-between gap-2 px-4 py-2 text-left hover:bg-[#EBF5F8] transition-colors"
+                      >
+                        <span className="font-serif text-sm font-bold text-[#0B2545]">
+                          {language === 'en' ? (p.nameEng || p.name) : p.name}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 truncate max-w-[45%] text-right">
+                          {language === 'en' ? p.name : p.nameEng}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Gesture indicators showing mobile swipe capabilities */}
             <div className="flex items-center justify-between text-[10px] font-mono text-[#0D5C75]/85">
               <span className="font-sans font-medium">
@@ -1712,6 +1794,7 @@ export default function App() {
                       selectedLevels={selectedLevels}
                       language={language}
                       translatedPhilosopherValues={translatedPhilosopherValues}
+                      searchQuery={searchQuery}
                     />
                   </motion.div>
                 </AnimatePresence>
