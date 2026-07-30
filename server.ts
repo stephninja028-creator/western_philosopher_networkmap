@@ -330,6 +330,8 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
             },
           },
           maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_TRANSLATE ?? 1200),
+          // Translation is deterministic — thinking only burns the output budget.
+          thinkingConfig: { thinkingBudget: 0 },
         },
       });
 
@@ -562,6 +564,10 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
           systemInstruction,
           temperature: 0.85,
           maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS ?? 700),
+          // Thinking tokens count against maxOutputTokens on gemini-3.5-flash.
+          // Role-play chat gains nothing from thinking — disable it so the full
+          // budget goes to visible output (fixes intermittent mid-sentence cuts).
+          thinkingConfig: { thinkingBudget: 0 },
         }
       });
 
@@ -671,7 +677,10 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
             required: ["rounds"]
           }
         },
-        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 3000),
+        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 6000),
+        // Cap thinking so it can't eat the output budget (16 rounds of Chinese
+        // JSON can need ~4000 output tokens on its own).
+        thinkingConfig: { thinkingBudget: 1024 },
       } as any);
 
       const text = response.text;
@@ -813,7 +822,10 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
             required: ["rounds"]
           }
         },
-        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 3000),
+        maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS_DEBATE ?? 6000),
+        // Cap thinking so it can't eat the output budget (16 rounds of Chinese
+        // JSON can need ~4000 output tokens on its own).
+        thinkingConfig: { thinkingBudget: 1024 },
       } as any);
       const responseText = response.text;
       if (!responseText) {
