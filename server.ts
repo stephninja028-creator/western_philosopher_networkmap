@@ -536,7 +536,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
       const ai = getGeminiClient();
 
       // Set up a strong, highly specific, immersive system instruction for the philosopher's persona
-      const systemInstruction = chatSystem(philosopherName, school, details || '', langCode);
+      const systemInstruction = chatSystem(philosopherName, school, details || '', quote || '', langCode);
 
       // Guardrail: cap conversation length + per-message size so a single request
       // can't blow up input-token cost. Keep only the most recent turns.
