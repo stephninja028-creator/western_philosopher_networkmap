@@ -89,31 +89,31 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
   const getSchoolColors = (schoolName: string) => {
     const s = schoolName.toLowerCase();
     if (s.includes('米利都') || s.includes('爱奥尼亚') || s.includes('自然') || s.includes('cosmology') || s.includes('nature')) {
-      return { border: 'border-l-teal-500', bg: 'bg-[#F2FAF9]', text: 'text-teal-900', badge: 'bg-teal-600' };
+      return { border: 'border-l-teal-500 dark:border-l-teal-400', bg: 'bg-[#F2FAF9] dark:bg-teal-950/30', text: 'text-teal-900 dark:text-teal-100', badge: 'bg-teal-600 dark:bg-teal-500' };
     }
     if (s.includes('雅典') || s.includes('苏格拉底') || s.includes('智者') || s.includes('学院') || s.includes('athens') || s.includes('sophist')) {
-      return { border: 'border-l-sky-500', bg: 'bg-[#F0F7FA]', text: 'text-sky-900', badge: 'bg-sky-600' };
+      return { border: 'border-l-sky-500 dark:border-l-sky-400', bg: 'bg-[#F0F7FA] dark:bg-sky-950/30', text: 'text-sky-900 dark:text-sky-100', badge: 'bg-sky-600 dark:bg-sky-500' };
     }
     if (s.includes('斯多葛') || s.includes('伊壁鸠鲁') || s.includes('罗马') || s.includes('伦理') || s.includes('hellenistic') || s.includes('stoic')) {
-      return { border: 'border-l-amber-500', bg: 'bg-[#FDF9F4]', text: 'text-amber-900', badge: 'bg-amber-600' };
+      return { border: 'border-l-amber-500 dark:border-l-amber-400', bg: 'bg-[#FDF9F4] dark:bg-amber-950/30', text: 'text-amber-900 dark:text-amber-100', badge: 'bg-amber-600 dark:bg-amber-500' };
     }
     if (s.includes('经院') || s.includes('教父') || s.includes('神学') || s.includes('scholastic') || s.includes('theology')) {
-      return { border: 'border-l-emerald-500', bg: 'bg-[#F5FAF5]', text: 'text-emerald-900', badge: 'bg-emerald-600' };
+      return { border: 'border-l-emerald-500 dark:border-l-emerald-400', bg: 'bg-[#F5FAF5] dark:bg-emerald-950/30', text: 'text-emerald-900 dark:text-emerald-100', badge: 'bg-emerald-600 dark:bg-emerald-500' };
     }
     if (s.includes('唯理论') || s.includes('rationalism')) {
-      return { border: 'border-l-indigo-500', bg: 'bg-[#F4F6FC]', text: 'text-indigo-900', badge: 'bg-indigo-600' };
+      return { border: 'border-l-indigo-500 dark:border-l-indigo-400', bg: 'bg-[#F4F6FC] dark:bg-indigo-950/30', text: 'text-indigo-900 dark:text-indigo-100', badge: 'bg-indigo-600 dark:bg-indigo-500' };
     }
     if (s.includes('经验论') || s.includes('empiricism')) {
-      return { border: 'border-l-yellow-600', bg: 'bg-[#FFFDF3]', text: 'text-yellow-900', badge: 'bg-yellow-600' };
+      return { border: 'border-l-yellow-600 dark:border-l-yellow-400', bg: 'bg-[#FFFDF3] dark:bg-yellow-950/30', text: 'text-yellow-900 dark:text-yellow-100', badge: 'bg-yellow-600 dark:bg-yellow-500' };
     }
     if (s.includes('启蒙') || s.includes('人道') || s.includes('enlightenment') || s.includes('renaissance')) {
-      return { border: 'border-l-rose-500', bg: 'bg-[#FFF9FA]', text: 'text-rose-900', badge: 'bg-rose-600' };
+      return { border: 'border-l-rose-500 dark:border-l-rose-400', bg: 'bg-[#FFF9FA] dark:bg-rose-950/30', text: 'text-rose-900 dark:text-rose-100', badge: 'bg-rose-600 dark:bg-rose-500' };
     }
     if (s.includes('德意志') || s.includes('唯心') || s.includes('idealism')) {
-      return { border: 'border-l-purple-500', bg: 'bg-[#FCF8FF]', text: 'text-purple-900', badge: 'bg-purple-600' };
+      return { border: 'border-l-purple-500 dark:border-l-purple-400', bg: 'bg-[#FCF8FF] dark:bg-purple-950/30', text: 'text-purple-900 dark:text-purple-100', badge: 'bg-purple-600 dark:bg-purple-500' };
     }
     // Willism, Marx, Existentialism
-    return { border: 'border-l-red-600', bg: 'bg-[#FFFDFD]', text: 'text-red-950', badge: 'bg-red-650' };
+    return { border: 'border-l-red-600 dark:border-l-red-400', bg: 'bg-[#FFFDFD] dark:bg-red-950/30', text: 'text-red-950 dark:text-red-100', badge: 'bg-red-650 dark:bg-red-500' };
   };
 
   // Presets
@@ -486,13 +486,13 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
 
           {/* Verdict and transcript */}
           {debateRounds.length > 0 && !debateLoading && (
-            <div className="bg-[#FAF8F5] p-5 sm:p-6 rounded-2xl border border-[#D4AF37]/35 shadow-sm animate-fade-in">
-              <div className="border-b border-[#D4AF37]/35 pb-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-[#FAF8F5] dark:bg-slate-900/60 p-5 sm:p-6 rounded-2xl border border-[#D4AF37]/35 dark:border-[#D4AF37]/25 shadow-sm animate-fade-in">
+              <div className="border-b border-[#D4AF37]/35 dark:border-[#D4AF37]/25 pb-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] uppercase tracking-widest text-[#C2593F] font-mono font-bold block mb-1">
+                  <span className="text-[10px] uppercase tracking-widest text-[#C2593F] dark:text-amber-300 font-mono font-bold block mb-1">
                     {isEn ? '📜 PLURILATERAL DEBATE RECORD' : '📜 思想格斗赛大会审议卷轴'}
                   </span>
-                  <h3 className="text-base sm:text-lg font-black text-[#0B2545] font-serif leading-tight">
+                  <h3 className="text-base sm:text-lg font-black text-[#0B2545] dark:text-slate-100 font-serif leading-tight">
                     “ {debateTopic} ”
                   </h3>
                 </div>
@@ -529,79 +529,79 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                 if (distinctSpeakers.length === 0) return null;
 
                 return (
-                  <div className="mb-6 p-4 sm:p-5 bg-white border border-[#D4AF37]/35 rounded-xl shadow-3xs">
-                    <h4 className="text-xs sm:text-sm font-extrabold text-[#0B2545] tracking-wider uppercase font-sans mb-3.5 flex items-center gap-1.5">
+                  <div className="mb-6 p-4 sm:p-5 bg-white dark:bg-slate-800/60 border border-[#D4AF37]/35 dark:border-[#D4AF37]/25 rounded-xl shadow-3xs">
+                    <h4 className="text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-slate-100 tracking-wider uppercase font-sans mb-3.5 flex items-center gap-1.5">
                       <span>⚔️</span>
                       <span>{isEn ? 'Sages Camp Alignments / Stances' : '先贤辩论阵营立场一览'}</span>
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {/* Pro Camp */}
-                      <div className="bg-[#F2FAF2] border border-green-200 rounded-xl p-3 flex flex-col justify-between">
+                      <div className="bg-[#F2FAF2] dark:bg-emerald-950/30 border border-green-300 dark:border-emerald-700/50 rounded-xl p-3 flex flex-col justify-between">
                         <div>
-                          <span className="text-[10.5px] font-sans font-bold text-green-850 flex items-center gap-1 uppercase mb-2">
+                          <span className="text-[10.5px] font-sans font-bold text-green-700 dark:text-emerald-300 flex items-center gap-1 uppercase mb-2">
                             <span>🟢</span>
                             <span>{isEn ? 'Pro / Supporter' : '赞同立场派 (Pro)'}</span>
                           </span>
                           <div className="space-y-2">
                             {distinctSpeakers.filter(s => s.stance === 'pro').map(s => (
-                              <div key={s.id} className="bg-white p-2.5 rounded-lg border border-green-100 shadow-3xs text-left">
-                                <span className="text-xs font-black text-slate-950 block">{s.name}</span>
-                                <span className="text-[9px] text-gray-400 font-sans block leading-tight mb-1">{s.school}</span>
-                                <span className="text-[10.5px] bg-green-50 text-green-800 px-2 py-0.5 rounded font-medium block font-sans italic border border-green-100">
-                                  “{s.stanceLabel}”
+                              <div key={s.id} className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-green-300 dark:border-emerald-700/40 shadow-3xs text-left">
+                                <span className="text-xs font-black text-slate-950 dark:text-slate-50 block">{s.name}</span>
+                                <span className="text-[9px] text-gray-500 dark:text-slate-400 font-sans block leading-tight mb-1">{s.school}</span>
+                                <span className="text-[10.5px] bg-green-100 dark:bg-emerald-900/50 text-green-900 dark:text-emerald-100 px-2 py-0.5 rounded font-medium block font-sans italic border border-green-300 dark:border-emerald-700/50">
+                                  "{s.stanceLabel}"
                                 </span>
                               </div>
                             ))}
                             {distinctSpeakers.filter(s => s.stance === 'pro').length === 0 && (
-                              <span className="text-[10px] text-gray-400 font-sans italic block py-2">{isEn ? 'No direct supporters' : '暂无坚决支持者'}</span>
+                              <span className="text-[10px] text-gray-500 dark:text-slate-400 font-sans italic block py-2">{isEn ? 'No direct supporters' : '暂无坚决支持者'}</span>
                             )}
                           </div>
                         </div>
                       </div>
 
                       {/* Contra Camp */}
-                      <div className="bg-[#FFF6F6] border border-red-200 rounded-xl p-3 flex flex-col justify-between">
+                      <div className="bg-[#FFF6F6] dark:bg-rose-950/30 border border-red-300 dark:border-rose-700/50 rounded-xl p-3 flex flex-col justify-between">
                         <div>
-                          <span className="text-[10.5px] font-sans font-bold text-red-850 flex items-center gap-1 uppercase mb-2">
+                          <span className="text-[10.5px] font-sans font-bold text-red-700 dark:text-rose-300 flex items-center gap-1 uppercase mb-2">
                             <span>🔴</span>
                             <span>{isEn ? 'Contra / Rejecter' : '反对立场派 (Contra)'}</span>
                           </span>
                           <div className="space-y-2">
                             {distinctSpeakers.filter(s => s.stance === 'contra').map(s => (
-                              <div key={s.id} className="bg-white p-2.5 rounded-lg border border-red-100 shadow-3xs text-left">
-                                <span className="text-xs font-black text-slate-950 block">{s.name}</span>
-                                <span className="text-[9px] text-gray-400 font-sans block leading-tight mb-1">{s.school}</span>
-                                <span className="text-[10.5px] bg-red-50 text-red-800 px-2 py-0.5 rounded font-medium block font-sans italic border border-red-100">
-                                  “{s.stanceLabel}”
+                              <div key={s.id} className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-red-300 dark:border-rose-700/40 shadow-3xs text-left">
+                                <span className="text-xs font-black text-slate-950 dark:text-slate-50 block">{s.name}</span>
+                                <span className="text-[9px] text-gray-500 dark:text-slate-400 font-sans block leading-tight mb-1">{s.school}</span>
+                                <span className="text-[10.5px] bg-red-100 dark:bg-rose-900/50 text-red-900 dark:text-rose-100 px-2 py-0.5 rounded font-medium block font-sans italic border border-red-300 dark:border-rose-700/50">
+                                  "{s.stanceLabel}"
                                 </span>
                               </div>
                             ))}
                             {distinctSpeakers.filter(s => s.stance === 'contra').length === 0 && (
-                              <span className="text-[10px] text-gray-400 font-sans italic block py-2">{isEn ? 'No direct rejecters' : '暂无坚决反对者'}</span>
+                              <span className="text-[10px] text-gray-500 dark:text-slate-400 font-sans italic block py-2">{isEn ? 'No direct rejecters' : '暂无坚决反对者'}</span>
                             )}
                           </div>
                         </div>
                       </div>
 
                       {/* Neutral Camp */}
-                      <div className="bg-[#FAF7F2] border border-amber-200 rounded-xl p-3 flex flex-col justify-between">
+                      <div className="bg-[#FAF7F2] dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 rounded-xl p-3 flex flex-col justify-between">
                         <div>
-                          <span className="text-[10.5px] font-sans font-bold text-amber-850 flex items-center gap-1 uppercase mb-2">
+                          <span className="text-[10.5px] font-sans font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1 uppercase mb-2">
                             <span>🟡</span>
                             <span>{isEn ? 'Neutral / Dialectic' : '中立/辩证超越派 (Neutral)'}</span>
                           </span>
                           <div className="space-y-2">
                             {distinctSpeakers.filter(s => s.stance === 'neutral' || (s.stance !== 'pro' && s.stance !== 'contra')).map(s => (
-                              <div key={s.id} className="bg-white p-2.5 rounded-lg border border-amber-150 shadow-3xs text-left">
-                                <span className="text-xs font-black text-slate-950 block">{s.name}</span>
-                                <span className="text-[9px] text-gray-400 font-sans block leading-tight mb-1">{s.school}</span>
-                                <span className="text-[10.5px] bg-amber-50 text-amber-900 px-2 py-0.5 rounded font-medium block font-sans italic border border-amber-150">
-                                  “{s.stanceLabel}”
+                              <div key={s.id} className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-amber-300 dark:border-amber-700/40 shadow-3xs text-left">
+                                <span className="text-xs font-black text-slate-950 dark:text-slate-50 block">{s.name}</span>
+                                <span className="text-[9px] text-gray-500 dark:text-slate-400 font-sans block leading-tight mb-1">{s.school}</span>
+                                <span className="text-[10.5px] bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-100 px-2 py-0.5 rounded font-medium block font-sans italic border border-amber-300 dark:border-amber-700/50">
+                                  "{s.stanceLabel}"
                                 </span>
                               </div>
                             ))}
                             {distinctSpeakers.filter(s => s.stance === 'neutral' || (s.stance !== 'pro' && s.stance !== 'contra')).length === 0 && (
-                              <span className="text-[10px] text-gray-400 font-sans italic block py-2">{isEn ? 'No dialectic observers' : '暂无辩证中立者'}</span>
+                              <span className="text-[10px] text-gray-500 dark:text-slate-400 font-sans italic block py-2">{isEn ? 'No dialectic observers' : '暂无辩证中立者'}</span>
                             )}
                           </div>
                         </div>
@@ -628,21 +628,21 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                   if (!isModerator) {
                     if (stance === 'pro') {
                       stanceTag = (
-                        <span className="bg-green-100 text-green-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-green-300 shadow-3xs flex items-center gap-0.5">
+                        <span className="bg-green-100 dark:bg-emerald-900/50 text-green-950 dark:text-emerald-100 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-green-300 dark:border-emerald-700/50 shadow-3xs flex items-center gap-0.5">
                           <span>🟢</span>
                           <span>{isEn ? 'Pro' : '支持派'}: {stanceLabel}</span>
                         </span>
                       );
                     } else if (stance === 'contra') {
                       stanceTag = (
-                        <span className="bg-red-100 text-red-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-red-300 shadow-3xs flex items-center gap-0.5">
+                        <span className="bg-red-100 dark:bg-rose-900/50 text-red-950 dark:text-rose-100 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-red-300 dark:border-rose-700/50 shadow-3xs flex items-center gap-0.5">
                           <span>🔴</span>
                           <span>{isEn ? 'Contra' : '反对派'}: {stanceLabel}</span>
                         </span>
                       );
                     } else {
                       stanceTag = (
-                        <span className="bg-amber-100 text-amber-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-amber-300 shadow-3xs flex items-center gap-0.5">
+                        <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-950 dark:text-amber-100 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700/50 shadow-3xs flex items-center gap-0.5">
                           <span>🟡</span>
                           <span>{isEn ? 'Neutral' : '中立派'}: {stanceLabel}</span>
                         </span>
@@ -650,7 +650,7 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                     }
                   } else {
                     stanceTag = (
-                      <span className="bg-blue-100 text-blue-950 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-blue-200 shadow-3xs flex items-center gap-0.5">
+                      <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-950 dark:text-blue-100 text-[9.5px] font-sans font-bold px-2 py-0.5 rounded-full border border-blue-300 dark:border-blue-700/50 shadow-3xs flex items-center gap-0.5">
                         <span>⚖️</span>
                         <span>{isEn ? 'Moderator Verdict' : '合议法官中立判词'}</span>
                       </span>
@@ -680,8 +680,8 @@ export const MultilateralSymposium: React.FC<MultilateralSymposiumProps> = ({
                       {/* Utterance Bubble */}
                       <div className={`w-full max-w-4xl text-[13px] sm:text-[14px] leading-relaxed text-justify rounded-xl p-4 sm:p-5 border shadow-sm font-serif ${
                         isModerator 
-                          ? 'bg-amber-50/70 border-amber-300 text-[#0F172A] border-dashed text-center font-bold italic'
-                          : `${colors.bg} ${colors.border} border-l-4 border-gray-200 text-slate-900 font-medium`
+                          ? 'bg-amber-50/70 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700/50 text-[#0F172A] dark:text-amber-100 border-dashed text-center font-bold italic'
+                          : `${colors.bg} ${colors.border} border-l-4 border-gray-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-medium`
                       }`}>
                         {round.utterance}
                       </div>
