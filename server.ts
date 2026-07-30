@@ -559,7 +559,7 @@ ${JSON.stringify({ details, lifeAndTimes, worldviewSummary, quote, concepts, com
         config: {
           systemInstruction,
           temperature: 0.85,
-          maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS ?? 400),
+          maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS ?? 700),
         }
       });
 
