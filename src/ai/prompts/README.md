@@ -101,7 +101,8 @@ export function debateMultilateral(
 | 项目 | 值 | 说明 |
 |---|---|---|
 | 聊天 `MAX_OUTPUT_TOKENS` | 700（默认） | 兜底上限，Render 可设环境变量覆盖 |
-| 辩论 `MAX_OUTPUT_TOKENS_DEBATE` | 3000（默认） | 轮次多，必须够大否则 JSON 截断 |
+| 辩论 `MAX_OUTPUT_TOKENS_DEBATE` | 6000（默认） | 轮次多，必须够大否则 JSON 截断 |
+| **`thinkingConfig`** | chat/translate=0，debate=1024 | ⚠️ gemini-3.5-flash 的思考 token **计入 maxOutputTokens**，且消耗浮动——不设上限会把输出预算吃掉，造成间歇性半句截断（实测 700 预算只剩 ~30 字输出）。改轮次/token 时严禁删除此配置 |
 | 限流 | chat 12/分、debate 6/分、translate 20/分（IP） | 超限返回 429 |
 | 服务端配额 | 免费 5 次 + 对话卡 15 次 | 超限返回 402 |
 
