@@ -39,6 +39,67 @@ export const Landing: React.FC<LandingProps> = ({
       {/* Marble texture */}
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: MARBLE }} />
 
+      {/* ── Ancient Greek celestial orrery — slowly rotating decorative layer ── */}
+      <motion.div
+        className="absolute inset-0 overflow-hidden pointer-events-none z-[1]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 1.2 }}
+      >
+        {/* Large celestial ring */}
+        <motion.div
+          className="absolute -top-28 -right-28 w-[28rem] h-[28rem] rounded-full border border-[#D4AF37]/[0.06]"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
+        />
+        {/* Medium ring reverse */}
+        <motion.div
+          className="absolute top-1/3 -left-16 w-72 h-72 rounded-full border border-[#D4AF37]/[0.05]"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 140, repeat: Infinity, ease: "linear" }}
+        />
+        {/* Dotted scholarly ring */}
+        <motion.div
+          className="absolute -bottom-12 right-1/4 w-56 h-56 rounded-full border border-dashed border-[#C2593F]/[0.07]"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 200, repeat: Infinity, ease: "linear" }}
+        />
+        {/* Small accent ring */}
+        <motion.div
+          className="absolute top-[22%] left-[10%] w-40 h-40 rounded-full border border-[#0D5C75]/[0.06]"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* Faint constellation / star dots — softly pulse */}
+        {[
+          [8, 10], [22, 32], [76, 6], [88, 25], [14, 72],
+          [68, 80], [42, 48], [58, 32], [91, 12], [12, 58],
+          [34, 18], [80, 52], [56, 15], [28, 82],
+        ].map(([l, t], i) => (
+          <motion.span
+            key={i}
+            className="absolute block w-1.5 h-1.5 rounded-full bg-[#D4AF37]"
+            style={{ left: `${l}%`, top: `${t}%` }}
+            animate={{ opacity: [0.25, 0.04, 0.25] }}
+            transition={{
+              duration: 3 + i * 0.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.35,
+            }}
+          />
+        ))}
+
+        {/* Faint Greek inscription behind the hero area */}
+        <div
+          className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#D4AF37]/[0.035] font-serif text-[70px] sm:text-[110px] tracking-[0.35em] select-none whitespace-nowrap pointer-events-none"
+          style={{ fontFamily: '"Times New Roman", "Georgia", serif' }}
+        >
+          ΦΙΛΟΣΟΦΙΑ
+        </div>
+      </motion.div>
+
       {/* Greek meander borders */}
       <div className="absolute top-0 left-0 w-full">
         <GreekMeander height={28} />
